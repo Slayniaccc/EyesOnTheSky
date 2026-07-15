@@ -70,3 +70,14 @@ if (this.textures.exists('waaf-mascot')) {
     g.destroy();
     this.add.image(mascotX, mascotY, 'waaf-mascot');
 }
+
+// ---------- DIALOGUE BUBBLE ----------
+this.add.text(mascotX + 110, mascotY - 40, '"Enemy raids plotted, sir."', {
+    fontSize: '16px',
+    fill: '#c8e6c9',
+    fontFamily: 'Courier New',
+    fontStyle: 'italic',
+    backgroundColor: '#0d1b2a',
+    padding: { x: 16, y: 8 },
+    borderRadius: 8
+});
