@@ -22,9 +22,7 @@ class IntroScene extends Phaser.Scene {
         grid.lineTo(width, y);
     }
     grid.strokePath();
-}
 
-}
 // ---------- TITLE ----------
 this.add.text(width / 2, 110, 'EYES ON THE SKY', { //also sets X and Y coordinates of the text, in this case, the center of the screen
     fontSize: '54px',
@@ -94,6 +92,13 @@ const startBtn = this.add.text(width / 2, 540, '▶  BEGIN  ◀', { //center,540
     fill: '#ffffff',
     fontFamily: 'Courier New'
 }).setOrigin(0.5).setInteractive({ useHandCursor: true }); 
+// ---------- BUTTON CLICK ----------
+startBtn.on('pointerdown', () => {
+    this.cameras.main.fadeOut(500, 0, 0, 0);
+    this.cameras.main.once('camerafadeoutcomplete', () => {
+        this.scene.start('DetectionScene');
+    });
+});
 
 // ---------- FOOTER ----------
 this.add.text(15, height - 25, 'v1.0 · Historical Simulation', {
@@ -104,3 +109,6 @@ this.add.text(width - 15, height - 25, 'EyesOnTheSky', {
     fontSize: '11px',
     fill: '#555'
 }).setOrigin(1, 0); //anchor point moved to the right edge of the text, so it aligns with the right edge of the screen
+}
+
+}
