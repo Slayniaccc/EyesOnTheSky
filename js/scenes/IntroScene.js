@@ -57,10 +57,12 @@ class IntroScene extends Phaser.Scene {
         const mascotX = width / 2;
         const mascotY = 370;
 
+        let mascot;
+
         // Check if the image loaded – if not, draw the fallback
         if (this.textures.exists('waaf-mascot')) {
             console.log('✅ Using loaded image');
-            this.add.image(mascotX, mascotY, 'waaf-mascot').setScale(0.7);
+            mascot = this.add.image(mascotX, mascotY, 'waaf-mascot').setScale(0.55);
         } else {
             console.log('❌ Image not loaded – drawing fallback mascot');
             const g = this.make.graphics({ add: false });
@@ -79,11 +81,15 @@ class IntroScene extends Phaser.Scene {
             g.fillRect(-30, -30, 60, 10);
             g.generateTexture('waaf-mascot', 90, 90);
             g.destroy();
-            this.add.image(mascotX, mascotY, 'waaf-mascot');
+            mascot = this.add.image(mascotX, mascotY, 'waaf-mascot').setScale(0.9);
         }
 
         // ---------- DIALOGUE BUBBLE ----------
-        this.add.text(mascotX + 110, mascotY - 40, '"Enemy raids plotted, sir."', {
+        this.add.text(
+            mascot.x + mascot.displayWidth * 0.6,
+            mascot.y - mascot.displayHeight * 0.35,
+            '"Enemy raids plotted, sir."',
+            {
             fontSize: '16px',
             fill: '#c8e6c9',
             fontFamily: 'Courier New',
@@ -91,7 +97,8 @@ class IntroScene extends Phaser.Scene {
             backgroundColor: '#0d1b2a',
             padding: { x: 16, y: 8 },
             borderRadius: 8
-        });
+            }
+        ).setOrigin(0, 0.5);
 
         // ---------- START BUTTON ----------
         const btnBg = this.add.graphics();
