@@ -1,4 +1,4 @@
-// js/main.js
+
 
 // Create a minimal temporary scene just to test the engine
 class BootScene extends Phaser.Scene {
