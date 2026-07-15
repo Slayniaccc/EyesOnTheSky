@@ -95,3 +95,12 @@ const startBtn = this.add.text(width / 2, 540, '▶  BEGIN  ◀', { //center,540
     fontFamily: 'Courier New'
 }).setOrigin(0.5).setInteractive({ useHandCursor: true }); 
 
+// ---------- FOOTER ----------
+this.add.text(15, height - 25, 'v1.0 · Historical Simulation', {
+    fontSize: '11px',
+    fill: '#555'
+});
+this.add.text(width - 15, height - 25, 'EyesOnTheSky', {
+    fontSize: '11px',
+    fill: '#555'
+}).setOrigin(1, 0); //anchor point moved to the right edge of the text, so it aligns with the right edge of the screen
