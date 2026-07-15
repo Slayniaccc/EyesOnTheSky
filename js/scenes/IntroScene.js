@@ -94,3 +94,4 @@ const startBtn = this.add.text(width / 2, 540, '▶  BEGIN  ◀', { //center,540
     fill: '#ffffff',
     fontFamily: 'Courier New'
 }).setOrigin(0.5).setInteractive({ useHandCursor: true }); 
+
