@@ -72,6 +72,7 @@ if (this.textures.exists('waaf-mascot')) {
 }
 
 // ---------- DIALOGUE BUBBLE ----------
+//sets dialogue bubble text to appear above the mascot, with a light green text color and a dark blue background    
 this.add.text(mascotX + 110, mascotY - 40, '"Enemy raids plotted, sir."', {
     fontSize: '16px',
     fill: '#c8e6c9',
@@ -81,3 +82,15 @@ this.add.text(mascotX + 110, mascotY - 40, '"Enemy raids plotted, sir."', {
     padding: { x: 16, y: 8 },
     borderRadius: 8
 });
+// ---------- START BUTTON ----------
+const btnBg = this.add.graphics();
+btnBg.fillStyle(0x2d6a4f, 0.9);
+btnBg.fillRoundedRect(width / 2 - 100, 510, 200, 60, 12); //corner radius in pixels
+btnBg.lineStyle(2, 0xf5e56b);
+btnBg.strokeRoundedRect(width / 2 - 100, 510, 200, 60, 12);
+
+const startBtn = this.add.text(width / 2, 540, '▶  BEGIN  ◀', { //center,540px from the very top
+    fontSize: '28px',
+    fill: '#ffffff',
+    fontFamily: 'Courier New'
+}).setOrigin(0.5).setInteractive({ useHandCursor: true }); 
