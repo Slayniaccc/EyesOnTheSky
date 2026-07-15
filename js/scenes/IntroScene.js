@@ -47,3 +47,26 @@ this.add.text(width / 2, 210, 'Summer 1940', {
     fill: '#8a7a6a',
     fontFamily: 'Courier New'
 }).setOrigin(0.5);
+
+// ---------- WAAF MASCOT ----------
+let mascotX = width / 2;
+let mascotY = 370; //places the mascot 37
+
+if (this.textures.exists('waaf-mascot')) {
+    this.add.image(mascotX, mascotY, 'waaf-mascot').setScale(0.7); // sets the scale of the mascot to 70% of its original size
+} else {
+    // Fallback: draw a simple mascot using graphics
+    const g = this.make.graphics({ add: false });
+    g.fillStyle(0xd4a373);
+    g.fillCircle(0, 0, 45); //X,Y,radius format
+    g.fillStyle(0x5a3a1a);
+    g.fillRect(-18, 25, 36, 28);
+    g.fillStyle(0x3a1a0a);
+    g.fillCircle(-10, -10, 6);
+    g.fillCircle(10, -10, 6);
+    g.fillStyle(0x2d4a2d);
+    g.fillRect(-30, -30, 60, 10);
+    g.generateTexture('waaf-mascot', 90, 90);
+    g.destroy();
+    this.add.image(mascotX, mascotY, 'waaf-mascot');
+}
