@@ -154,8 +154,32 @@ if (this.textures.exists('map')) {
         dialogueBg.fillRoundedRect(40, height - 130, width - 80, 100, 16);
         dialogueBg.lineStyle(2, 0xf5e56b, 0.4);
         dialogueBg.strokeRoundedRect(40, height - 130, width - 80, 100, 16);
+        // ---------- WAAF PORTRAIT (bottom-left of dialogue) ----------
+        const portraitX = 70;
+        const portraitY = height - 80;
 
-        this.dialogueText = this.add.text(60, height - 100, 'Welcome to Fighter Command. Tap each radar blip when it flashes.', {
+        // Draw a circular background
+        const circleBg = this.add.graphics();
+        circleBg.fillStyle(0x2d4a2d);
+        circleBg.fillCircle(portraitX, portraitY, 30);
+        circleBg.lineStyle(2, 0xf5e56b, 0.6);  //outlines opacity
+        circleBg.strokeCircle(portraitX, portraitY, 30); // Draw the outline of the circle
+
+        // Place the mascot image inside the circle
+        if (this.textures.exists('waaf-mascot')) {
+            this.add.image(portraitX, portraitY, 'waaf-mascot')
+                .setScale(0.32)
+                .setDepth(5); // Ensures the mascot is above the circle background
+        } else {
+            // Fallback text if image missing
+            this.add.text(portraitX, portraitY - 5, 'WAAF', { // X and Y coordinates of the text, in this case, the center of the screen
+                fontSize: '14px',
+                fill: '#fff',
+                fontFamily: 'Courier New',
+                fontStyle: 'bold'
+            }).setOrigin(0.5);
+        }
+        this.dialogueText = this.add.text(110, height - 100, 'Welcome to Fighter Command. Tap each radar blip when it flashes.', {
             fontSize: '17px',
             fill: '#c8e6c9',
             fontFamily: 'Courier New',
