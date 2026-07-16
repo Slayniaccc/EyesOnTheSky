@@ -170,7 +170,59 @@ if (this.textures.exists('map')) {
     
 }
     spawnRaidMarker() {
-        // to be edited later on...
-        console.log('Raid marker spawning...');
+         // Starting position (from the last radar blip location)
+        const startX = 720;
+        const startY = 180;
+        const endX = 540;
+        const endY = 300;
+
+        // Create the "W" marker
+        const marker = this.add.text(startX, startY, 'W', {
+            fontSize: '36px',
+            fill: '#ff3333',
+            fontFamily: 'Courier New',
+            fontStyle: 'bold'
+        }).setOrigin(0.5).setDepth(5);
+
+        // Add a pulsing glow to the marker while it moves
+        this.tweens.add({
+            targets: marker,
+            scaleX: 1.2,
+            scaleY: 1.2,
+            duration: 300,
+            yoyo: true,
+            repeat: -1
+        });
+
+        // Animate it moving inland
+        this.tweens.add({
+            targets: marker,
+            x: endX,
+            y: endY,
+            duration: 2000,
+            ease: 'Sine.easeInOut',
+            onComplete: () => {
+                // Stop the pulsing glow
+                this.tweens.killTweensOf(marker);
+                marker.setScale(1);
+
+                // Update dialogue to WAAF line 2
+                this.dialogueText.setText('"Now it\'s over land, Observer Corps\' job. Watch the posts light up."');
+
+                // Move to next stage
+                this.detectionStage = 'roc_sequence';
+
+                // Spawn ROC posts (Commit 4)
+                this.spawnROCPosts(endX, endY);
+            }
+        });
+
+        // Store reference
+        this.raidMarker = marker;
+          
+    }
+      spawnROCPosts(x, y) {
+        console.log('ROC posts spawning at:', x, y);
+        
     }
 }
