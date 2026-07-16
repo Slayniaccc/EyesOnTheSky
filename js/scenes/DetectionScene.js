@@ -64,6 +64,23 @@ if (this.textures.exists('map')) {
         grid.lineTo(width, y);
     }
     grid.strokePath(); //draws all the mapped out lines at once
+
+            // ---------- RADAR BLIPS ----------
+        const blipPositions = [
+            [200, 200], [550, 150], [700, 400], [300, 500], [150, 350] //xy
+        ];
+        blipPositions.forEach(([x, y]) => {
+            const blip = this.add.circle(x, y, 8, 0x00ff00, 0.8); //loops through each pair of coordinates in that lsit and draws a shape
+            this.tweens.add({
+                targets: blip,
+                scale: 2.5,
+                alpha: 0.1,
+                duration: 800,
+                yoyo: true,
+                repeat: -1
+            });
+            this.radarBlips.push(blip);
+        });
     
 }
 
