@@ -124,45 +124,7 @@ if (this.textures.exists('map')) {
             fill: '#ffd700',
             fontFamily: 'Courier New'
         });
-                // ---------- TUTORIAL OVERLAY ----------
-        const overlay = this.add.graphics();
-        overlay.fillStyle(0x000000, 0.75);
-        overlay.fillRoundedRect(100, 100, 700, 260, 16);
-        overlay.setDepth(10);
-
-        this.add.text(width / 2, 160, 'RADAR DETECTED', {
-            fontSize: '28px',
-            fill: '#ff6b6b',
-            fontFamily: 'Courier New'
-        }).setOrigin(0.5).setDepth(11);
-
-        this.add.text(width / 2, 210, 'Enemy raids (red "W") are crossing the Channel.', {
-            fontSize: '16px',
-            fill: '#ddd',
-            fontFamily: 'Courier New'
-        }).setOrigin(0.5).setDepth(11);
-
-        this.add.text(width / 2, 245, 'Observer Corps posts are lighting up.', {
-            fontSize: '16px',
-            fill: '#ddd',
-            fontFamily: 'Courier New'
-        }).setOrigin(0.5).setDepth(11);
-
-        this.add.text(width / 2, 280, 'Click anywhere to proceed to the Tote Board.', {
-            fontSize: '16px',
-            fill: '#ddd',
-            fontFamily: 'Courier New'
-        }).setOrigin(0.5).setDepth(11);
-
-        // ---------- CLICK TO DISMISS ----------
-        this.input.once('pointerdown', () => {
-            this.scene.start('ToteBoardScene');
-        });
-
-        // ---------- AUTO-ADVANCE AFTER 6 SECONDS ----------
-        this.time.delayedCall(6000, () => {
-            this.scene.start('ToteBoardScene');
-        });
+              
     
 }
 
