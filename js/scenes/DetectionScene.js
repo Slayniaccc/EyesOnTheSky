@@ -5,10 +5,10 @@ class DetectionScene extends Phaser.Scene {
         this.radarBlips = [];
     }
 preload() {
-        // Try to load the detailed map image
-        this.load.image('map', 'assets/images/mapbackground.png');
-        console.log('🔵 DetectionScene: preloading mapbackground.png');
-    }
+    // Try to load the detailed map image
+    this.load.image('map', 'assets/images/mapbackground.png');
+    console.log('🔵 DetectionScene: preloading mapbackground.png');
+}
     
 create() {
     const { width, height } = this.scale;
@@ -149,35 +149,31 @@ if (this.textures.exists('map')) {
             fontFamily: 'Courier New'
         });
                     // ---------- WAAF DIALOGUE BOX (NEW - BOTTOM OF SCREEN) ----------
+        const dialogueBoxX = 40;
+        const dialogueBoxY = height - 130;
+        const dialogueBoxWidth = width - 80;
+        const dialogueBoxHeight = 100;
         const dialogueBg = this.add.graphics();
         dialogueBg.fillStyle(0x0d1b2a, 0.92);
-        dialogueBg.fillRoundedRect(40, height - 130, width - 80, 100, 16);
+        dialogueBg.fillRoundedRect(dialogueBoxX, dialogueBoxY, dialogueBoxWidth, dialogueBoxHeight, 16);
         dialogueBg.lineStyle(2, 0xf5e56b, 0.4);
-        dialogueBg.strokeRoundedRect(40, height - 130, width - 80, 100, 16);
-        // ---------- WAAF PORTRAIT (bottom-left of dialogue) ----------
-        const portraitX = 70;
-        const portraitY = height - 80;
-
-        // Draw a circular background
-        const circleBg = this.add.graphics();
-        circleBg.fillStyle(0x2d4a2d);
-        circleBg.fillCircle(portraitX, portraitY, 30);
-        circleBg.lineStyle(2, 0xf5e56b, 0.6);  //outlines opacity
-        circleBg.strokeCircle(portraitX, portraitY, 30); // Draw the outline of the circle
+        dialogueBg.strokeRoundedRect(dialogueBoxX, dialogueBoxY, dialogueBoxWidth, dialogueBoxHeight, 16);
+        // ---------- WAAF PORTRAIT (above dialogue, right side) ----------
+        const portraitX = width - 110;
+        const portraitY = dialogueBoxY - 60;
 
         // Place the mascot image inside the circle
         if (this.textures.exists('waaf-mascot')) {
             this.add.image(portraitX, portraitY, 'waaf-mascot')
-                .setScale(0.32)
-                .setDepth(5); // Ensures the mascot is above the circle background
+                .setScale(0.16)
+                .setDepth(10);
         } else {
-            // Fallback text if image missing
             this.add.text(portraitX, portraitY - 5, 'WAAF', { // X and Y coordinates of the text, in this case, the center of the screen
                 fontSize: '14px',
                 fill: '#fff',
                 fontFamily: 'Courier New',
                 fontStyle: 'bold'
-            }).setOrigin(0.5);
+            }).setOrigin(0.5).setDepth(10);
         }
         this.dialogueText = this.add.text(110, height - 100, 'Welcome to Fighter Command. Tap each radar blip when it flashes.', {
             fontSize: '17px',
