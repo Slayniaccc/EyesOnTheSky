@@ -241,8 +241,108 @@ if (this.textures.exists('map')) {
         this.raidMarker = marker;
           
     }
-      spawnROCPosts(x, y) {
-        console.log('ROC posts spawning at:', x, y);
-        
+         spawnROCPosts(startX, startY) {
+        // Define 3 ROC post positions along the raid path
+        const rocPositions = [
+            { x: startX - 60, y: startY + 40, label: 'ROC 1' },
+            { x: startX - 140, y: startY + 80, label: 'ROC 2' },
+            { x: startX - 220, y: startY + 120, label: 'ROC 3' }
+        ];
+
+        // Create unlit ROC posts
+        this.rocPostObjects = [];
+        rocPositions.forEach((pos, index) => {
+            // Draw a small tower shape
+            const g = this.make.graphics({ add: false });
+            g.fillStyle(0x444444);
+            g.fillRect(-8, -16, 16, 32);
+            g.fillStyle(0x333333);
+            g.fillCircle(0, -18, 10);
+            g.generateTexture('roc_post_' + index, 24, 44);
+            g.destroy();
+
+            // Create the sprite with a larger interactive hit area
+            const sprite = this.add.image(pos.x, pos.y, 'roc_post_' + index)
+                .setDepth(6)
+                .setInteractive({
+                    useHandCursor: true,
+                    hitArea: new Phaser.Geom.Circle(0, 0, 28),
+                    hitAreaCallback: Phaser.Geom.Circle.Contains
+                });
+
+            // Store data
+            sprite.isLit = false;
+            sprite.index = index;
+            sprite.tapped = false;
+            sprite.lit = false;
+            sprite.label = this.add.text(pos.x, pos.y + 30, pos.label, {
+                fontSize: '10px',
+                fill: '#666',
+                fontFamily: 'Courier New'
+            }).setOrigin(0.5);
+
+            this.rocPostObjects.push(sprite);
+
+            // Click handler
+            sprite.on('pointerdown', () => {
+                if (!sprite.lit) return;
+                if (sprite.tapped) return;
+
+                sprite.tapped = true;
+                this.rocPostsTapped++;
+
+                // Visual feedback: flash white then green
+                this.tweens.add({
+                    targets: sprite,
+                    alpha: 0.4,
+                    duration: 100,
+                    yoyo: true,
+                    onComplete: () => {
+                        sprite.setTint(0x88ff88);
+                    }
+                });
+
+                // Check if all tapped
+                if (this.rocPostsTapped === this.totalRocPosts) {
+                    this.dialogueText.setText('"Radar sees them coming across the Channel, but once they\'re over land, that\'s where we lose them. That\'s why we need the Observer Corps."');
+                    this.detectionStage = 'complete';
+                    
+                    // Advance after 3 seconds
+                    this.time.delayedCall(3000, () => {
+                        this.scene.start('ToteBoardScene');
+                    });
+                }
+            });
+        });
+
+        // ----- LIGHT THEM UP SEQUENTIALLY -----
+        let currentIndex = 0;
+        const lightNextPost = () => {
+            if (currentIndex >= this.rocPostObjects.length) return;
+
+            const post = this.rocPostObjects[currentIndex];
+            post.lit = true;
+            post.setTint(0x44ff44);
+            post.label.setFill('#88ff88');
+
+            // Flash animation
+            this.tweens.add({
+                targets: post,
+                alpha: 0.5,
+                duration: 200,
+                yoyo: true,
+                repeat: 2
+            });
+
+            currentIndex++;
+
+            // Light the next one after 1.5 seconds
+            if (currentIndex < this.rocPostObjects.length) {
+                this.time.delayedCall(1500, lightNextPost);
+            }
+        };
+
+        // Start the sequence after a short delay
+        this.time.delayedCall(800, lightNextPost);
     }
 }
