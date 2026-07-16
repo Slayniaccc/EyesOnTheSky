@@ -143,7 +143,50 @@ if (this.textures.exists('map')) {
         this.detectionStage = 'radar_blip';
         this.rocPostsTapped = 0;
         this.totalRocPosts = 3;  
+                // ---------- INTERACTIVE RADAR BLIP ----------
+        const blipX = 720;
+        const blipY = 180;
+
+        // Pulsing radar blip
+        const radarBlip = this.add.circle(blipX, blipY, 14, 0x00ff00, 0.9);
+        this.tweens.add({
+            targets: radarBlip,
+            scale: 2.0,
+            alpha: 0.2,
+            duration: 700,
+            yoyo: true,
+            repeat: -1
+        });
+
+        // Label
+        this.add.text(blipX, blipY - 32, 'RADAR', {
+            fontSize: '12px',
+            fill: '#88ff88',
+            fontFamily: 'Courier New'
+        }).setOrigin(0.5);
+
+        // ----- TAP BEHAVIOR -----
+        radarBlip.setInteractive({ useHandCursor: true });
+        radarBlip.on('pointerdown', () => {
+            if (this.detectionStage !== 'radar_blip') return;
+
+            // 1. Update dialogue to WAAF Line 1
+            this.dialogueText.setText('"Radar picked something up out at sea. That\'s all we get from them."');
+
+            // 2. Hide the blip (stop pulsing)
+            this.tweens.killTweensOf(radarBlip);
+            radarBlip.setVisible(false);
+
+            // 3. Move to next stage
+            this.detectionStage = 'raid_moving';
+
+            // 4. Spawn the raid marker (we'll do this in Commit 3)
+            this.spawnRaidMarker();
+        });
     
 }
-
+    spawnRaidMarker() {
+        // to be edited later on...
+        console.log('Raid marker spawning...');
+    }
 }
