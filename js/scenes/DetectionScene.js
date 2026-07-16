@@ -9,10 +9,7 @@ preload() {
         this.load.image('map', 'assets/images/mapbackground.png');
         console.log('🔵 DetectionScene: preloading mapbackground.png');
     }
-    create() {
-        const { width, height } = this.scale; //borrows existing width and height values
     
-}
 create() {
     const { width, height } = this.scale;
 
@@ -106,6 +103,13 @@ if (this.textures.exists('map')) {
                 delay: i * 200
             });
             this.raidMarkers.push(marker);
+            raidsRegistry.push({
+                id: 'Raid ' + (i + 1), //creating a register of the enemy air raids
+                height: 15000 + i * 2000, //flying altitude of enemy planes in ft
+                speed: 280 + i * 15,
+                heading: 220 - i * 5,
+                size: 30 + i * 10
+            });
             //detection arrow pointing to the marker
             const arrow = this.add.graphics();
             arrow.lineStyle(3, 0xff4444);
@@ -113,55 +117,49 @@ if (this.textures.exists('map')) {
             arrow.lineTo(r.x - 20, r.y - 30);
             arrow.strokePath();
         });
-        raidsRegistry.push({
-                id: 'Raid ' + (i + 1), //creating a register of the enemy air raids
-                height: 15000 + i * 2000, //flying altitude of enemy planes in ft
-                speed: 280 + i * 15,
-                heading: 220 - i * 5,
-                size: 30 + i * 10
-            });
-             this.game.registry.set('raids', raidsRegistry);
+        this.game.registry.set('raids', raidsRegistry);
                    //top bar ui
         this.add.text(20, 20, '◈ DETECTION PHASE', {
             fontSize: '18px',
             fill: '#ffd700',
             fontFamily: 'Courier New'
         });
-         // tutorial overlay, gives the player a brief explanation of what is happening in this scene
+                // ---------- TUTORIAL OVERLAY ----------
         const overlay = this.add.graphics();
         overlay.fillStyle(0x000000, 0.75);
         overlay.fillRoundedRect(100, 100, 700, 260, 16);
+        overlay.setDepth(10);
 
         this.add.text(width / 2, 160, 'RADAR DETECTED', {
             fontSize: '28px',
             fill: '#ff6b6b',
             fontFamily: 'Courier New'
-        }).setOrigin(0.5);
+        }).setOrigin(0.5).setDepth(11);
 
         this.add.text(width / 2, 210, 'Enemy raids (red "W") are crossing the Channel.', {
             fontSize: '16px',
             fill: '#ddd',
             fontFamily: 'Courier New'
-        }).setOrigin(0.5);
+        }).setOrigin(0.5).setDepth(11);
 
         this.add.text(width / 2, 245, 'Observer Corps posts are lighting up.', {
             fontSize: '16px',
             fill: '#ddd',
             fontFamily: 'Courier New'
-        }).setOrigin(0.5);
+        }).setOrigin(0.5).setDepth(11);
 
         this.add.text(width / 2, 280, 'Click anywhere to proceed to the Tote Board.', {
             fontSize: '16px',
             fill: '#ddd',
             fontFamily: 'Courier New'
-        }).setOrigin(0.5);
+        }).setOrigin(0.5).setDepth(11);
 
-        //click to dismiss the overlay and proceed to the next scene
+        // ---------- CLICK TO DISMISS ----------
         this.input.once('pointerdown', () => {
             this.scene.start('ToteBoardScene');
         });
 
-        //advances automatically after 6 seconds if the player doesn't click
+        // ---------- AUTO-ADVANCE AFTER 6 SECONDS ----------
         this.time.delayedCall(6000, () => {
             this.scene.start('ToteBoardScene');
         });
