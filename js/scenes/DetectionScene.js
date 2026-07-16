@@ -121,6 +121,12 @@ if (this.textures.exists('map')) {
                 size: 30 + i * 10
             });
              this.game.registry.set('raids', raidsRegistry);
+                   //top bar ui
+        this.add.text(20, 20, '◈ DETECTION PHASE', {
+            fontSize: '18px',
+            fill: '#ffd700',
+            fontFamily: 'Courier New'
+        });
     
 }
 
