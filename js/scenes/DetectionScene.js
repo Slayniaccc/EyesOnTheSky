@@ -81,6 +81,32 @@ if (this.textures.exists('map')) {
             });
             this.radarBlips.push(blip);
         });
+                // ---------- RAID MARKERS ----------
+        const raidData = [
+            { x: 680, y: 190, label: 'W1' },
+            { x: 730, y: 220, label: 'W2' },
+            { x: 620, y: 270, label: 'W3' },
+            { x: 780, y: 300, label: 'W4' }
+        ];
+
+        raidData.forEach((r, i) => {
+            const marker = this.add.text(r.x, r.y, 'W', {
+                fontSize: '28px',
+                fill: '#ff3333',
+                fontFamily: 'Courier New',
+                fontStyle: 'bold'
+            }).setOrigin(0.5); //anchored to the center of the text, so it is centered on the screen
+            this.tweens.add({ //makes radar blips and "W' markers pulse"
+                targets: marker,
+                scaleX: 1.4,
+                scaleY: 1.4,
+                duration: 600,
+                yoyo: true,
+                repeat: -1,
+                delay: i * 200
+            });
+            this.raidMarkers.push(marker);
+        });
     
 }
 
