@@ -88,7 +88,7 @@ if (this.textures.exists('map')) {
             { x: 620, y: 270, label: 'W3' },
             { x: 780, y: 300, label: 'W4' }
         ];
-
+        const raidsRegistry = []
         raidData.forEach((r, i) => {
             const marker = this.add.text(r.x, r.y, 'W', {
                 fontSize: '28px',
@@ -106,7 +106,21 @@ if (this.textures.exists('map')) {
                 delay: i * 200
             });
             this.raidMarkers.push(marker);
+            //detection arrow pointing to the marker
+            const arrow = this.add.graphics();
+            arrow.lineStyle(3, 0xff4444);
+            arrow.moveTo(r.x + 30, r.y + 20); //positioned directly relative to each raid's marker position
+            arrow.lineTo(r.x - 20, r.y - 30);
+            arrow.strokePath();
         });
+        raidsRegistry.push({
+                id: 'Raid ' + (i + 1), //creating a register of the enemy air raids
+                height: 15000 + i * 2000, //flying altitude of enemy planes in ft
+                speed: 280 + i * 15,
+                heading: 220 - i * 5,
+                size: 30 + i * 10
+            });
+             this.game.registry.set('raids', raidsRegistry);
     
 }
 
