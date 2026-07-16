@@ -6,7 +6,7 @@ const config = {
     height: 700,
     parent: 'game-container',
     backgroundColor: '#1a1a2e',
-    scene: [IntroScene], // Just this one scene for now
+    scene: [IntroScene, DetectionScene],
     scale: {
         mode: Phaser.Scale.FIT,
         autoCenter: Phaser.Scale.CENTER_BOTH
