@@ -124,7 +124,25 @@ if (this.textures.exists('map')) {
             fill: '#ffd700',
             fontFamily: 'Courier New'
         });
-              
+                    // ---------- WAAF DIALOGUE BOX (NEW - BOTTOM OF SCREEN) ----------
+        const dialogueBg = this.add.graphics();
+        dialogueBg.fillStyle(0x0d1b2a, 0.92);
+        dialogueBg.fillRoundedRect(40, height - 130, width - 80, 100, 16);
+        dialogueBg.lineStyle(2, 0xf5e56b, 0.4);
+        dialogueBg.strokeRoundedRect(40, height - 130, width - 80, 100, 16);
+
+        this.dialogueText = this.add.text(60, height - 100, 'Welcome to Fighter Command. Tap the radar blip when it flashes.', {
+            fontSize: '17px',
+            fill: '#c8e6c9',
+            fontFamily: 'Courier New',
+            fontStyle: 'italic',
+            wordWrap: { width: width - 120 }
+        });
+
+        // ---------- STATE MACHINE (NEW) ----------
+        this.detectionStage = 'radar_blip';
+        this.rocPostsTapped = 0;
+        this.totalRocPosts = 3;  
     
 }
 
