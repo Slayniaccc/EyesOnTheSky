@@ -4,7 +4,11 @@ class DetectionScene extends Phaser.Scene {
         this.raidMarkers = [];
         this.radarBlips = [];
     }
-
+preload() {
+        // Try to load the detailed map image
+        this.load.image('map', 'assets/images/mapbackground.png');
+        console.log('🔵 DetectionScene: preloading mapbackground.png');
+    }
     create() {
         const { width, height } = this.scale; //borrows existing width and height values
     
@@ -29,5 +33,7 @@ create() {
         grid.lineTo(width, y);
     }
     grid.strokePath(); //draws all the mapped out lines at once
+    
 }
 
+}
