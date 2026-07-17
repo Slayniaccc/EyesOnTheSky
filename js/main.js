@@ -6,7 +6,7 @@ const config = {
     height: 700,
     parent: 'game-container',
     backgroundColor: '#1a1a2e',
-    scene: [IntroScene, DetectionScene, ToteBoardScene], 
+    scene: [IntroScene, DetectionScene, ToteBoardScene, DecisionScene], 
     scale: {
         mode: Phaser.Scale.FIT,
         autoCenter: Phaser.Scale.CENTER_BOTH
@@ -20,4 +20,4 @@ const game = new Phaser.Game(config);
 game.registry.set('score', 0);
 game.registry.set('raids', []);
 game.registry.set('interceptSuccess', false);
-game.registry.set('playerChoices', {});
+game.registry.set('playerChoices', {}); 
