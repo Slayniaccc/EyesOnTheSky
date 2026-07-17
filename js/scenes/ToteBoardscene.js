@@ -129,4 +129,34 @@ class ToteBoardScene extends Phaser.Scene {
 
        
     }
+        // ---------- HIGHLIGHT PANEL ----------
+    highlightPanel(index) {
+        const panel = this.panelObjects[index];
+        if (!panel) return;
+
+        this.clearHighlights();
+
+        // Gold highlight
+        panel.graphics.clear();
+        panel.graphics.fillStyle(0x2a4a3a, 0.9);
+        panel.graphics.fillRoundedRect(panel.x, panel.y, panel.width, panel.height, 12);
+        panel.graphics.lineStyle(4, 0xf5e56b, 1.0);
+        panel.graphics.strokeRoundedRect(panel.x, panel.y, panel.width, panel.height, 12);
+        panel.label.setFill('#f5e56b');
+        panel.isHighlighted = true;
+    }
+
+    // ---------- CLEAR HIGHLIGHTS ----------
+    clearHighlights() {
+        this.panelObjects.forEach((panel) => {
+            panel.graphics.clear();
+            panel.graphics.fillStyle(0x1a2a3a, 0.9);
+            panel.graphics.fillRoundedRect(panel.x, panel.y, panel.width, panel.height, 12);
+            panel.graphics.lineStyle(2, 0x4a6a8a, 0.6);
+            panel.graphics.strokeRoundedRect(panel.x, panel.y, panel.width, panel.height, 12);
+            panel.label.setFill('#b0c4de');
+            panel.isHighlighted = false;
+        });
+    }
+
 }
