@@ -129,6 +129,39 @@ if (this.textures.exists('waaf-mascot')) {
                 this.fallbackTexts.push(textObj);
             });
         }
+                // ---------- TAP-TO-DISMISS ZONE ----------
+        const dismissZone = this.add.zone(0, 0, width, height)
+            .setInteractive({ useHandCursor: true })
+            .setDepth(22)
+            .setVisible(false);
+
+        dismissZone.on('pointerdown', () => {
+            // Hide overlay, diagram, and fallback text
+            dowdingOverlay.setVisible(false);
+            if (diagramImage) diagramImage.setVisible(false);
+            
+            // Hide fallback text if it exists
+            if (this.fallbackTexts) {
+                this.fallbackTexts.forEach(text => text.setVisible(false));
+            }
+            dismissZone.setVisible(false);
+
+            // Show the BEGIN button (which was hidden initially)
+            startBtn.setVisible(true);
+            btnBg.setVisible(true);
+        });
+
+        // Auto-show the diagram after 2 seconds
+        this.time.delayedCall(2000, () => {
+            dowdingOverlay.setVisible(true);
+            if (diagramImage) diagramImage.setVisible(true);
+            
+            // Show fallback text if it exists
+            if (this.fallbackTexts) {
+                this.fallbackTexts.forEach(text => text.setVisible(true));
+            }
+            dismissZone.setVisible(true);
+        });
 
 // ---------- START BUTTON ----------
 const btnBg = this.add.graphics();
@@ -142,6 +175,8 @@ const startBtn = this.add.text(width / 2, 540, '▶  BEGIN  ◀', { //center,540
     fill: '#ffffff',
     fontFamily: 'Courier New'
 }).setOrigin(0.5).setInteractive({ useHandCursor: true }); 
+startBtn.setVisible(false);
+btnBg.setVisible(false);
 // ---------- BUTTON CLICK ----------
 startBtn.on('pointerdown', () => {
     this.cameras.main.fadeOut(500, 0, 0, 0);
