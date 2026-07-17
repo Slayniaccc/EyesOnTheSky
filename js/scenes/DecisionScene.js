@@ -103,6 +103,43 @@ class DecisionScene extends Phaser.Scene {
             fontFamily: 'Courier New'
         }).setOrigin(0.5);
     }
+        // ---------- DIALOGUE LOGIC (Commit 4) ----------
 
+        // 1. Define Keith Park's opening lines
+        this.parkLines = [
+            '"Air Vice-Marshal Keith Park here. Fighter Command split Britain into four groups, 10, 11, 12, 13. Mine is 11 Group: London and the south-east."',
+            '"Closest to the coast, first in the fight. Squadrons controlled from this bunker accounted for most of the enemy aircraft shot down in the whole battle."'
+        ];
+        this.currentLineIndex = 0;
+
+        // 2. Create the dialogue text (this goes ON TOP of the dialogue box background)
+        this.dialogueText = this.add.text(110, height - 100, this.parkLines[0], {
+            fontSize: '17px',
+            fill: '#f5e56b',       // Gold text for Keith Park
+            fontFamily: 'Courier New',
+            fontStyle: 'italic',
+            wordWrap: { width: width - 140 }
+        });
+
+        // 3. Create the "Continue" button
+        const continueBtn = this.add.text(width / 2, height - 160, '▶  CONTINUE  ◀', {
+            fontSize: '24px',
+            fill: '#ffffff',
+            backgroundColor: '#1e3a5f',
+            padding: { x: 20, y: 10 }
+        }).setOrigin(0.5).setInteractive({ useHandCursor: true });
+
+        // 4. Button click handler – cycles through the lines
+        continueBtn.on('pointerdown', () => {
+            this.currentLineIndex++;
+            if (this.currentLineIndex < this.parkLines.length) {
+                this.dialogueText.setText(this.parkLines[this.currentLineIndex]);
+            } else {
+                // After both lines, show the next line (wraps up Part 1)
+                this.dialogueText.setText('"Two raids inbound. We can\'t cover both fully. Where do we commit?"');
+                continueBtn.setVisible(false);
+                // (We'll add drag-and-drop mechanics in Commit 5)
+            }
+        });
 
 }
