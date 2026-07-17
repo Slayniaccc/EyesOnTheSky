@@ -242,11 +242,20 @@ class DecisionScene extends Phaser.Scene {
                     droppedOn.occupied = true;
                     droppedOn.occupiedBy = marker;
                     marker.isPlaced = true;
-                    console.log(`✅ ${marker.raidId} placed on ${droppedOn.id}`);
+                    console.log(` ${marker.raidId} placed on ${droppedOn.id}`);
                     // Check if correct
-                    const isCorrect = (marker.correctSector === droppedOn.index);
-                    console.log(`Correct? ${isCorrect}`);
+                    const allPlaced = this.raidMarkers.every(m => m.isPlaced);
+                 
                     // (We'll add outcome logic in Commit 7)
+                if (allPlaced) {
+                        // Disable further dragging
+                        this.raidMarkers.forEach(m => m.disableInteractive());
+                        this.dialogueText.setText('"Both raids assigned. Evaluating now..."');
+                        // Evaluate after a short delay
+                        this.time.delayedCall(1000, () => {
+                            this.evaluateDecision();
+                        });
+                    }
                 } else {
                     // Return to original position if not dropped on sector
                     if (!marker.isPlaced) {
