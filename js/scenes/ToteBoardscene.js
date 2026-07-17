@@ -5,7 +5,7 @@ class ToteBoardScene extends Phaser.Scene {
 
     preload() {
         // Load the tote board background image
-        this.load.image('tote-board', 'assets/images/tote-board.png');
+        this.load.image('tote-board', 'assets/images/toteboard.png');
         console.log('ToteBoardScene: preloading tote-board.png');
     }
 
@@ -14,7 +14,7 @@ class ToteBoardScene extends Phaser.Scene {
 
         // ---------- BACKGROUND ----------
         if (this.textures.exists('tote-board')) {
-            this.add.image(width / 2, height / 2, 'tote-board').setDisplaySize(width, height);
+            this.add.image(width / 2, height / 2, 'tote-board').setDisplaySize(width, height); 
             console.log('Using tote-board.png');
         } else {
             // Fallback: dark background with a simple border
