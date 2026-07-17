@@ -7,6 +7,8 @@ class DecisionScene extends Phaser.Scene {
         const { width, height } = this.scale;
           this.createMapBackground(width, height);
         this.createGrid(width, height);
+          this.createDialogueBox(width, height);
+        this.createKeithParkPortrait(width, height);
  this.add.text(20, 20, '◈ DECISION ROOM', {
             fontSize: '18px',
             fill: '#ffd700',
@@ -60,5 +62,47 @@ class DecisionScene extends Phaser.Scene {
         }
         grid.strokePath();
     }
+        createDialogueBox(width, height) {
+        const dialogueBoxX = 40;
+        const dialogueBoxY = height - 130;
+        const dialogueBoxWidth = width - 80;
+        const dialogueBoxHeight = 100;
+
+        const dialogueBg = this.add.graphics();
+        dialogueBg.fillStyle(0x0d1b2a, 0.92);
+        dialogueBg.fillRoundedRect(dialogueBoxX, dialogueBoxY, dialogueBoxWidth, dialogueBoxHeight, 16);
+        dialogueBg.lineStyle(2, 0xf5e56b, 0.4);
+        dialogueBg.strokeRoundedRect(dialogueBoxX, dialogueBoxY, dialogueBoxWidth, dialogueBoxHeight, 16);
+    }
+
+    createKeithParkPortrait(width, height) {
+        const portraitX = width - 110;
+        const portraitY = height - 200;
+
+        // Circular background
+        const circleBg = this.add.graphics();
+        circleBg.fillStyle(0x2d1b0e, 0.9);
+        circleBg.fillCircle(portraitX, portraitY, 40);
+        circleBg.lineStyle(3, 0xf5e56b, 0.7);
+        circleBg.strokeCircle(portraitX, portraitY, 40);
+
+        if (this.textures.exists('keith-park')) {
+            this.add.image(portraitX, portraitY, 'keith-park').setScale(0.4).setDepth(10);
+        } else {
+            this.add.text(portraitX, portraitY - 5, 'KP', {
+                fontSize: '22px',
+                fill: '#f5e56b',
+                fontFamily: 'Courier New',
+                fontStyle: 'bold'
+            }).setOrigin(0.5).setDepth(10);
+        }
+
+        this.add.text(portraitX, portraitY + 50, 'Keith Park', {
+            fontSize: '12px',
+            fill: '#f5e56b',
+            fontFamily: 'Courier New'
+        }).setOrigin(0.5);
+    }
+
 
 }
