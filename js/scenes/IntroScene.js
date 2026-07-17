@@ -5,7 +5,8 @@ class IntroScene extends Phaser.Scene {
      preload() {
         // Load your mascot image
         this.load.image('waaf-mascot', 'assets/images/waaf-mascot.png');
-        console.log('IntroScene: Preloading waaf-mascot.png...');
+         this.load.image('dowding-diagram', 'assets/images/dowdingsystemexplanation.png');
+        
         // Note: The key 'waaf-mascot' matches what you use in create()
     }
     create() {
@@ -74,6 +75,8 @@ if (this.textures.exists('waaf-mascot')) {
     g.destroy();
     this.add.image(mascotX, mascotY, 'waaf-mascot').setScale(0.9);
 }
+
+
 // ---------- START BUTTON ----------
 const btnBg = this.add.graphics();
 btnBg.fillStyle(0x2d6a4f, 0.9);
