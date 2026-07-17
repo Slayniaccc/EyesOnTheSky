@@ -251,7 +251,7 @@ class DecisionScene extends Phaser.Scene {
         circleBg.strokeCircle(portraitX, portraitY, 40);
 
         if (this.textures.exists('keith-park')) {
-            this.add.image(portraitX, portraitY, 'keith-park').setScale(0.4).setDepth(10);
+            this.add.image(portraitX, portraitY, 'keith-park').setScale(0.15).setDepth(10);
         } else {
             this.add.text(portraitX, portraitY - 5, 'KP', {
                 fontSize: '22px',
