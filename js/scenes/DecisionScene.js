@@ -106,6 +106,52 @@ class DecisionScene extends Phaser.Scene {
             fill: '#f5e56b',
             fontFamily: 'Courier New'
         }).setOrigin(0.5);
+
+        //dialogue logic
+          this.parkLines = [
+            '"Air Vice-Marshal Keith Park here. Fighter Command split Britain into four groups, 10, 11, 12, 13. Mine is 11 Group: London and the south-east."',
+            '"Closest to the coast, first in the fight. Squadrons controlled from this bunker accounted for most of the enemy aircraft shot down in the whole battle."',
+            '"Two raids inbound. We can\'t cover both fully. Where do we commit?"',
+            '"That\'s the job. Never enough squadrons, never enough certainty."'
+        ];
+        this.currentLineIndex = 0;
+
+        // 2. Create the dialogue text (on top of the dialogue box background)
+        this.dialogueText = this.add.text(110, height - 100, this.parkLines[0], {
+            fontSize: '17px',
+            fill: '#f5e56b',
+            fontFamily: 'Courier New',
+            fontStyle: 'italic',
+            wordWrap: { width: width - 140 }
+        });
+
+        // 3. Create the "Continue" button
+        const continueBtn = this.add.text(width / 2, height - 160, '▶  CONTINUE  ◀', {
+            fontSize: '24px',
+            fill: '#ffffff',
+            backgroundColor: '#1e3a5f',
+            padding: { x: 20, y: 10 }
+        }).setOrigin(0.5).setInteractive({ useHandCursor: true });
+
+        // 4. Button click handler
+        continueBtn.on('pointerdown', () => {
+            this.currentLineIndex++;
+
+            if (this.currentLineIndex < this.parkLines.length) {
+                this.dialogueText.setText(this.parkLines[this.currentLineIndex]);
+            } else {
+                // All Park lines finished – WAAF handoff
+                this.dialogueText.setText('"Squadrons scrambled. Now it\'s down to the pilots."');
+                this.dialogueText.setFill('#c8e6c9'); // WAAF green
+                continueBtn.setVisible(false);
+
+                // Transition to InterceptScene after a pause
+                this.time.delayedCall(2500, () => {
+                    this.scene.start('InterceptScene');
+                });
+            }
+        });
+
     }
 
 
