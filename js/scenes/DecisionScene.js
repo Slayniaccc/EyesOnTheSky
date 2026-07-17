@@ -39,24 +39,27 @@ class DecisionScene extends Phaser.Scene {
             padding: { x: 20, y: 10 }
         }).setOrigin(0.5).setInteractive({ useHandCursor: true });
 
+
         // 4. Button click handler
         continueBtn.on('pointerdown', () => {
             this.currentLineIndex++;
 
             if (this.currentLineIndex < this.parkLines.length) {
                 this.dialogueText.setText(this.parkLines[this.currentLineIndex]);
-            } else {
+                      } else {
                 // All Park lines finished – WAAF handoff
-                this.dialogueText.setText('"Squadrons scrambled. Now it\'s down to the pilots."');
+                this.dialogueText.setText('"Two raids inbound. Drag each marker to the correct sector station."');
                 this.dialogueText.setFill('#c8e6c9'); // WAAF green
                 continueBtn.setVisible(false);
 
-                // Transition to InterceptScene after a pause
-                this.time.delayedCall(2500, () => {
-                    this.scene.start('InterceptScene');
+                // Show the raid markers
+                this.raidMarkers.forEach(marker => {
+                    marker.setVisible(true);
                 });
+
+                // Remind the player they can drag
+                this.dialogueText.setText('"Drag each red raid marker to the correct sector station."');
             }
-        });
  this.add.text(20, 20, '◈ DECISION ROOM', {
             fontSize: '18px',
             fill: '#ffd700',
@@ -152,8 +155,113 @@ class DecisionScene extends Phaser.Scene {
         }).setOrigin(0.5);
 
        
+  // 1. Define raid data
+        const raids = [
+            { id: 'W1', x: 680, y: 190, correctSector: 0 },
+            { id: 'W2', x: 780, y: 300, correctSector: 1 }
+        ];
 
+        // 2. Define sector stations (where to drop)
+        const sectors = [
+            { id: 'Sector A', x: 400, y: 500 },
+            { id: 'Sector B', x: 650, y: 450 }
+        ];
+
+        // 3. Draw sector stations
+        this.sectorObjects = [];
+        sectors.forEach((s, index) => {
+            // Draw a blue diamond
+            const station = this.add.graphics();
+            station.fillStyle(0x3366ff, 0.9);
+            station.fillTriangle(s.x - 20, s.y, s.x, s.y - 25, s.x + 20, s.y);
+            station.fillTriangle(s.x - 20, s.y, s.x, s.y + 25, s.x + 20, s.y);
+            station.lineStyle(2, 0x88ccff);
+            station.strokeTriangle(s.x - 20, s.y, s.x, s.y - 25, s.x + 20, s.y);
+            station.strokeTriangle(s.x - 20, s.y, s.x, s.y + 25, s.x + 20, s.y);
+            // Label
+            this.add.text(s.x, s.y + 35, s.id, {
+                fontSize: '12px',
+                fill: '#88ccff',
+                fontFamily: 'Courier New'
+            }).setOrigin(0.5);
+            // Store reference
+            this.sectorObjects.push({
+                x: s.x,
+                y: s.y,
+                id: s.id,
+                index: index,
+                graphics: station,
+                occupied: false,
+                occupiedBy: null
+            });
+        });
+
+        // 4. Create raid markers (draggable)
+        // Start hidden – we'll show them after dialogue completes
+        this.raidMarkers = [];
+        raids.forEach((r, i) => {
+            const marker = this.add.text(r.x, r.y, r.id, {
+                fontSize: '28px',
+                fill: '#ff3333',
+                fontFamily: 'Courier New',
+                fontStyle: 'bold'
+            }).setOrigin(0.5).setDepth(5);
+
+            // Make it draggable
+            marker.setInteractive({ draggable: true, useHandCursor: true });
+
+            // Store data
+            marker.raidId = r.id;
+            marker.correctSector = r.correctSector;
+            marker.isPlaced = false;
+            marker.originalX = r.x;
+            marker.originalY = r.y;
+            marker.setVisible(false); // Hidden initially
+
+            // Drag events
+            marker.on('drag', (pointer, dragX, dragY) => {
+                marker.x = dragX;
+                marker.y = dragY;
+            });
+
+            marker.on('dragend', (pointer) => {
+                // Check if dropped onto a sector station
+                let droppedOn = null;
+                for (let s of this.sectorObjects) {
+                    const dist = Phaser.Math.Distance.Between(marker.x, marker.y, s.x, s.y);
+                    if (dist < 40 && !s.occupied) {
+                        droppedOn = s;
+                        break;
+                    }
+                }
+
+                if (droppedOn) {
+                    // Snap to sector
+                    marker.x = droppedOn.x;
+                    marker.y = droppedOn.y;
+                    droppedOn.occupied = true;
+                    droppedOn.occupiedBy = marker;
+                    marker.isPlaced = true;
+                    console.log(`✅ ${marker.raidId} placed on ${droppedOn.id}`);
+                    // Check if correct
+                    const isCorrect = (marker.correctSector === droppedOn.index);
+                    console.log(`Correct? ${isCorrect}`);
+                    // (We'll add outcome logic in Commit 7)
+                } else {
+                    // Return to original position if not dropped on sector
+                    if (!marker.isPlaced) {
+                        marker.x = marker.originalX;
+                        marker.y = marker.originalY;
+                    }
+                }
+            });
+
+            this.raidMarkers.push(marker);
+        });
+
+  
     }
 
 
+}
 }
