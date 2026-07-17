@@ -76,23 +76,24 @@ if (this.textures.exists('waaf-mascot')) {
     this.add.image(mascotX, mascotY, 'waaf-mascot').setScale(0.9);
 }
         // ---------- DOWDING SYSTEM OVERLAY (hidden initially) ----------
-        const dowdingOverlay = this.add.graphics();
-        dowdingOverlay.fillStyle(0x000000, 0.92);
-        dowdingOverlay.fillRect(0, 0, width, height);
-        dowdingOverlay.setDepth(20);
-        dowdingOverlay.setVisible(false);
-                // ---------- DOWDING SYSTEM DIAGRAM ----------
-        let diagramImage = null;
-        this.fallbackTexts = []; // Store fallback text objects so we can hide them later
+                // ---------- DOWDING SYSTEM OVERLAY (container) ----------
+        const overlayContainer = this.add.container(0, 0);
+        overlayContainer.setDepth(20);
+        overlayContainer.setVisible(false);
 
+        // Dark backdrop
+        const overlayBg = this.add.graphics();
+        overlayBg.fillStyle(0x000000, 0.92);
+        overlayBg.fillRect(0, 0, width, height);
+        overlayContainer.add(overlayBg);
+
+        // Diagram (keep the existing image/fallback logic, just add it to the container)
+        let diagramImage = null;
         if (this.textures.exists('dowding-diagram')) {
-            // Use the loaded image
             diagramImage = this.add.image(width / 2, height / 2 - 10, 'dowding-diagram')
-                .setDisplaySize(Math.min(width - 80, 700), Math.min(height - 180, 500))
-                .setDepth(21)
-                .setVisible(false);
+                .setDisplaySize(Math.min(width - 80, 700), Math.min(height - 180, 500));
         } else {
-            // Fallback: draw a text-based diagram
+            // KEEP the old fallback code HERE for now (we will improve it in Commit 3)
             const g = this.make.graphics({ add: false });
             g.fillStyle(0x1a2a3a);
             g.fillRoundedRect(0, 0, 700, 380, 12);
@@ -100,66 +101,27 @@ if (this.textures.exists('waaf-mascot')) {
             g.strokeRoundedRect(0, 0, 700, 380, 12);
             g.generateTexture('dowding-fallback', 700, 380);
             g.destroy();
-
-            diagramImage = this.add.image(width / 2, height / 2 - 10, 'dowding-fallback')
-                .setDepth(21)
-                .setVisible(false);
-
-            // Add text on top of the fallback
-            const lines = [
-                'THE DOWDING SYSTEM',
-                '',
-                'Radar (Chain Home)   →   Fighter Command HQ',
-                '         ↓                      ↓',
-                'Royal Observer Corps   →   Tote Board',
-                '         ↓                      ↓',
-                'Sector Stations   →   Squadrons Scrambled',
-                '         ↓',
-                'INTERCEPT!'
-            ];
-            lines.forEach((line, i) => {
-                const isTitle = i === 0;
-                const textObj = this.add.text(width / 2, 160 + i * 30, line, {
-                    fontSize: isTitle ? '26px' : '16px',
-                    fill: isTitle ? '#f5e56b' : '#b0c4de',
-                    fontFamily: 'Courier New',
-                    fontStyle: isTitle ? 'bold' : 'normal',
-                    align: 'center'
-                }).setOrigin(0.5).setDepth(22).setVisible(false);
-                this.fallbackTexts.push(textObj);
-            });
+            diagramImage = this.add.image(width / 2, height / 2 - 10, 'dowding-fallback');
+            // (Keep the text lines here too for now)
         }
+        if (diagramImage) overlayContainer.add(diagramImage);
+                // ---------- TAP-TO-DISMISS ZONE ----------
                 // ---------- TAP-TO-DISMISS ZONE ----------
         const dismissZone = this.add.zone(0, 0, width, height)
             .setInteractive({ useHandCursor: true })
-            .setDepth(22)
-            .setVisible(false);
+            .setDepth(22);
+        dismissZone.setVisible(false);
+        overlayContainer.add(dismissZone);
 
         dismissZone.on('pointerdown', () => {
-            // Hide overlay, diagram, and fallback text
-            dowdingOverlay.setVisible(false);
-            if (diagramImage) diagramImage.setVisible(false);
-            
-            // Hide fallback text if it exists
-            if (this.fallbackTexts) {
-                this.fallbackTexts.forEach(text => text.setVisible(false));
-            }
+            overlayContainer.setVisible(false);
             dismissZone.setVisible(false);
-
-            // Show the BEGIN button (which was hidden initially)
             startBtn.setVisible(true);
             btnBg.setVisible(true);
         });
 
-        // Auto-show the diagram after 2 seconds
         this.time.delayedCall(2000, () => {
-            dowdingOverlay.setVisible(true);
-            if (diagramImage) diagramImage.setVisible(true);
-            
-            // Show fallback text if it exists
-            if (this.fallbackTexts) {
-                this.fallbackTexts.forEach(text => text.setVisible(true));
-            }
+            overlayContainer.setVisible(true);
             dismissZone.setVisible(true);
         });
 
