@@ -32,41 +32,6 @@ class ToteBoardScene extends Phaser.Scene {
             fontFamily: 'Courier New'
         });
 
-        // Overlay clean labels so the key board information remains readable.
-        const overlay = this.add.graphics();
-        overlay.fillStyle(0x0b1622, 0.88);
-        overlay.lineStyle(2, 0xf5e56b, 0.45);
-
-        // State title panel (moved to a clear, central top location).
-        overlay.fillRoundedRect(width * 0.25, 14, width * 0.34, 44, 8);
-        overlay.strokeRoundedRect(width * 0.25, 14, width * 0.34, 44, 8);
-        this.add.text(width * 0.26, 26, 'STATE OF SQUADRON', {
-            fontSize: '20px',
-            fill: '#f7d774',
-            fontFamily: 'Courier New',
-            fontStyle: 'bold'
-        });
-
-        // Clock panel anchored to bottom-right edge to avoid the board columns.
-        const clockPanelX = width - 180;
-        const clockPanelY = height - 58;
-        overlay.fillRoundedRect(clockPanelX, clockPanelY, 160, 40, 8);
-        overlay.strokeRoundedRect(clockPanelX, clockPanelY, 160, 40, 8);
-        this.clockText = this.add.text(clockPanelX + 18, clockPanelY + 10, '', {
-            fontSize: '20px',
-            fill: '#f7d774',
-            fontFamily: 'Courier New',
-            fontStyle: 'bold'
-        });
-
-        const updateClock = () => {
-            const now = new Date();
-            this.clockText.setText(now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
-        };
-        updateClock();
-        this.clockEvent = this.time.addEvent({ delay: 1000, loop: true, callback: updateClock });
-        this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => this.clockEvent?.remove());
-
         // ---------- STATE MACHINE VARIABLES ----------
         this.states = ['Available', 'Ordered to Readiness', 'Left Ground'];
         this.currentStateIndex = 0;          // Which state is currently highlighted
@@ -78,10 +43,90 @@ class ToteBoardScene extends Phaser.Scene {
         this.timerEvent = null;
         this.isWaitingForTap = false;
         this.gameOver = false;
+                // ---------- WAAF DIALOGUE BOX ----------
+        const dialogueBoxX = 40;
+        const dialogueBoxY = height - 130;
+        const dialogueBoxWidth = width - 80;
+        const dialogueBoxHeight = 100;
 
-        // ---------- PLACEHOLDER FOR COMMIT 2-5 ----------
-        //add dialogue, panels, and logic here
+        // Background
+        const dialogueBg = this.add.graphics();
+        dialogueBg.fillStyle(0x0d1b2a, 0.92);
+        dialogueBg.fillRoundedRect(dialogueBoxX, dialogueBoxY, dialogueBoxWidth, dialogueBoxHeight, 16);
+        dialogueBg.lineStyle(2, 0xf5e56b, 0.4);
+        dialogueBg.strokeRoundedRect(dialogueBoxX, dialogueBoxY, dialogueBoxWidth, dialogueBoxHeight, 16);
 
-        console.log('ToteBoardScene: initialised');
+        // WAAF Portrait (above dialogue, right side)
+        const portraitX = width - 110;
+        const portraitY = dialogueBoxY - 60;
+
+        if (this.textures.exists('waaf-mascot')) {
+            this.add.image(portraitX, portraitY, 'waaf-mascot')
+                .setScale(0.16)
+                .setDepth(10);
+        } else {
+            this.add.text(portraitX, portraitY - 5, 'WAAF', {
+                fontSize: '14px',
+                fill: '#fff',
+                fontFamily: 'Courier New',
+                fontStyle: 'bold'
+            }).setOrigin(0.5).setDepth(10);
+        }
+
+        // Dialogue text
+        this.dialogueText = this.add.text(110, height - 100, 'Tote board live. Watch the states — squadrons don\'t just sit ready.', {
+            fontSize: '17px',
+            fill: '#c8e6c9',
+            fontFamily: 'Courier New',
+            fontStyle: 'italic',
+            wordWrap: { width: width - 120 }
+        });
+
+       
+
+              // ---------- STATE PANELS ----------
+        const panelWidth = 180;
+        const panelHeight = 120;
+        const panelY = height / 2 - 80;
+        const spacing = 40;
+        const totalWidth = this.states.length * panelWidth + (this.states.length - 1) * spacing;
+        const startX = (width - totalWidth) / 2;
+
+        this.panelObjects = [];
+
+        this.states.forEach((state, index) => {
+            const x = startX + index * (panelWidth + spacing);
+            const panel = this.add.graphics();
+            
+            // Default dark panel
+            panel.fillStyle(0x1a2a3a, 0.9);
+            panel.fillRoundedRect(x, panelY, panelWidth, panelHeight, 12);
+            panel.lineStyle(2, 0x4a6a8a, 0.6);
+            panel.strokeRoundedRect(x, panelY, panelWidth, panelHeight, 12);
+            
+            // State label
+            const label = this.add.text(x + panelWidth/2, panelY + 50, state, {
+                fontSize: '20px',
+                fill: '#b0c4de',
+                fontFamily: 'Courier New',
+                fontStyle: 'bold',
+                align: 'center'
+            }).setOrigin(0.5);
+
+            // Store references
+            this.panelObjects.push({
+                x: x,
+                y: panelY,
+                width: panelWidth,
+                height: panelHeight,
+                label: label,
+                state: state,
+                index: index,
+                graphics: panel,
+                isHighlighted: false
+            });
+        });
+
+       
     }
 }
