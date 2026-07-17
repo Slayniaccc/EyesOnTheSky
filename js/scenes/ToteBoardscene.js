@@ -127,7 +127,17 @@ class ToteBoardScene extends Phaser.Scene {
             });
         });
 
-       
+               // ---------- START THE FIRST ROUND ----------
+        this.currentRound = 0;
+        this.startRound();
+
+        // ---------- FALLBACK TIMEOUT ----------
+        this.time.delayedCall(30000, () => {
+            if (!this.gameOver) {
+                console.warn('ToteBoard timed out – forcing transition to DecisionScene');
+                this.scene.start('DecisionScene');
+            }
+        });
     }
         // ---------- HIGHLIGHT PANEL ----------
     highlightPanel(index) {
