@@ -158,5 +158,43 @@ class ToteBoardScene extends Phaser.Scene {
             panel.isHighlighted = false;
         });
     }
+    // ---------- START A NEW ROUND ----------
+    startRound() {
+        if (this.gameOver) return;
 
+        // Choose a random state to highlight
+        const randomIndex = Phaser.Math.Between(0, this.states.length - 1);
+        this.targetState = this.states[randomIndex];
+        this.targetIndex = randomIndex;
+
+        // Highlight the target
+        this.clearHighlights();
+        this.highlightPanel(randomIndex);
+
+        // WAAF call-out
+        const waafLines = [
+            `"Tap the board when it says: ${this.targetState}!"`,
+            `"There, ${this.targetState}. Tap it!"`,
+            `"Look sharp — ${this.targetState} now!"`,
+            `"That's the one — ${this.targetState}. Go!"`
+        ];
+        const lineIndex = Phaser.Math.Between(0, waafLines.length - 1);
+        this.dialogueText.setText(waafLines[lineIndex]);
+
+        // Start timer
+        this.isWaitingForTap = true;
+        this.roundComplete = false;
+
+        if (this.timerEvent) {
+            this.timerEvent.remove();
+        }
+
+        this.timerEvent = this.time.delayedCall(this.timerDelay, () => {
+            if (this.isWaitingForTap && !this.roundComplete) {
+                this.handleMissedTap(); // we'll add in 4c
+            }
+        });
+
+      
+    }
 }
