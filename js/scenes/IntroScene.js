@@ -75,7 +75,7 @@ if (this.textures.exists('waaf-mascot')) {
     g.destroy();
     this.add.image(mascotX, mascotY, 'waaf-mascot').setScale(0.9);
 }
-        // ---------- DOWDING SYSTEM OVERLAY (hidden initially) ----------
+  
                 // ---------- DOWDING SYSTEM OVERLAY (container) ----------
         const overlayContainer = this.add.container(0, 0);
         overlayContainer.setDepth(20);
@@ -92,20 +92,45 @@ if (this.textures.exists('waaf-mascot')) {
         if (this.textures.exists('dowding-diagram')) {
             diagramImage = this.add.image(width / 2, height / 2 - 10, 'dowding-diagram')
                 .setDisplaySize(Math.min(width - 80, 700), Math.min(height - 180, 500));
-        } else {
-            // KEEP the old fallback code HERE for now (we will improve it in Commit 3)
-            const g = this.make.graphics({ add: false });
-            g.fillStyle(0x1a2a3a);
-            g.fillRoundedRect(0, 0, 700, 380, 12);
-            g.lineStyle(2, 0xf5e56b, 0.3);
-            g.strokeRoundedRect(0, 0, 700, 380, 12);
-            g.generateTexture('dowding-fallback', 700, 380);
-            g.destroy();
-            diagramImage = this.add.image(width / 2, height / 2 - 10, 'dowding-fallback');
-            // (Keep the text lines here too for now)
+                } else {
+            // Fallback: text-based diagram in its own container
+            const fallbackContainer = this.add.container(0, 0);
+            
+            const fallbackBg = this.add.graphics();
+            fallbackBg.fillStyle(0x1a2a3a);
+            fallbackBg.fillRoundedRect(0, 0, 700, 380, 12);
+            fallbackBg.lineStyle(2, 0xf5e56b, 0.3);
+            fallbackBg.strokeRoundedRect(0, 0, 700, 380, 12);
+            fallbackContainer.add(fallbackBg);
+
+            const lines = [
+                'THE DOWDING SYSTEM', '',
+                'Radar (Chain Home)   →   Fighter Command HQ',
+                '         ↓                      ↓',
+                'Royal Observer Corps   →   Tote Board',
+                '         ↓                      ↓',
+                'Sector Stations   →   Squadrons Scrambled',
+                '         ↓',
+                'INTERCEPT!'
+            ];
+            lines.forEach((line, i) => {
+                const isTitle = i === 0;
+                const text = this.add.text(350, 20 + i * 30, line, {
+                    fontSize: isTitle ? '26px' : '16px',
+                    fill: isTitle ? '#f5e56b' : '#b0c4de',
+                    fontFamily: 'Courier New',
+                    fontStyle: isTitle ? 'bold' : 'normal',
+                    align: 'center'
+                }).setOrigin(0.5);
+                fallbackContainer.add(text);
+            });
+
+            fallbackContainer.x = width / 2 - 350;
+            fallbackContainer.y = height / 2 - 190;
+            diagramImage = fallbackContainer;
         }
         if (diagramImage) overlayContainer.add(diagramImage);
-                // ---------- TAP-TO-DISMISS ZONE ----------
+             
                 // ---------- TAP-TO-DISMISS ZONE ----------
         const dismissZone = this.add.zone(0, 0, width, height)
             .setInteractive({ useHandCursor: true })
