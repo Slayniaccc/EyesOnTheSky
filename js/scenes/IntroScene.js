@@ -81,6 +81,54 @@ if (this.textures.exists('waaf-mascot')) {
         dowdingOverlay.fillRect(0, 0, width, height);
         dowdingOverlay.setDepth(20);
         dowdingOverlay.setVisible(false);
+                // ---------- DOWDING SYSTEM DIAGRAM ----------
+        let diagramImage = null;
+        this.fallbackTexts = []; // Store fallback text objects so we can hide them later
+
+        if (this.textures.exists('dowding-diagram')) {
+            // Use the loaded image
+            diagramImage = this.add.image(width / 2, height / 2 - 10, 'dowding-diagram')
+                .setDisplaySize(Math.min(width - 80, 700), Math.min(height - 180, 500))
+                .setDepth(21)
+                .setVisible(false);
+        } else {
+            // Fallback: draw a text-based diagram
+            const g = this.make.graphics({ add: false });
+            g.fillStyle(0x1a2a3a);
+            g.fillRoundedRect(0, 0, 700, 380, 12);
+            g.lineStyle(2, 0xf5e56b, 0.3);
+            g.strokeRoundedRect(0, 0, 700, 380, 12);
+            g.generateTexture('dowding-fallback', 700, 380);
+            g.destroy();
+
+            diagramImage = this.add.image(width / 2, height / 2 - 10, 'dowding-fallback')
+                .setDepth(21)
+                .setVisible(false);
+
+            // Add text on top of the fallback
+            const lines = [
+                'THE DOWDING SYSTEM',
+                '',
+                'Radar (Chain Home)   →   Fighter Command HQ',
+                '         ↓                      ↓',
+                'Royal Observer Corps   →   Tote Board',
+                '         ↓                      ↓',
+                'Sector Stations   →   Squadrons Scrambled',
+                '         ↓',
+                'INTERCEPT!'
+            ];
+            lines.forEach((line, i) => {
+                const isTitle = i === 0;
+                const textObj = this.add.text(width / 2, 160 + i * 30, line, {
+                    fontSize: isTitle ? '26px' : '16px',
+                    fill: isTitle ? '#f5e56b' : '#b0c4de',
+                    fontFamily: 'Courier New',
+                    fontStyle: isTitle ? 'bold' : 'normal',
+                    align: 'center'
+                }).setOrigin(0.5).setDepth(22).setVisible(false);
+                this.fallbackTexts.push(textObj);
+            });
+        }
 
 // ---------- START BUTTON ----------
 const btnBg = this.add.graphics();
