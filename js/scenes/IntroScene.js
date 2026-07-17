@@ -75,7 +75,12 @@ if (this.textures.exists('waaf-mascot')) {
     g.destroy();
     this.add.image(mascotX, mascotY, 'waaf-mascot').setScale(0.9);
 }
-
+        // ---------- DOWDING SYSTEM OVERLAY (hidden initially) ----------
+        const dowdingOverlay = this.add.graphics();
+        dowdingOverlay.fillStyle(0x000000, 0.92);
+        dowdingOverlay.fillRect(0, 0, width, height);
+        dowdingOverlay.setDepth(20);
+        dowdingOverlay.setVisible(false);
 
 // ---------- START BUTTON ----------
 const btnBg = this.add.graphics();
