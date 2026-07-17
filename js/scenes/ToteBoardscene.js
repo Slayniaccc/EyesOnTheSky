@@ -197,4 +197,50 @@ class ToteBoardScene extends Phaser.Scene {
 
       
     }
+        // ---------- HANDLE MISSED TAP ----------
+    handleMissedTap() {
+        if (this.roundComplete) return;
+        if (this.gameOver) return;
+
+        this.isWaitingForTap = false;
+
+        // Flash correct panel red
+        const panel = this.panelObjects[this.targetIndex];
+        if (panel) {
+            this.tweens.add({
+                targets: panel.graphics,
+                alpha: 0.3,
+                duration: 150,
+                yoyo: true,
+                repeat: 1,
+                onStart: () => {
+                    panel.graphics.clear();
+                    panel.graphics.fillStyle(0xff4444, 0.9);
+                    panel.graphics.fillRoundedRect(panel.x, panel.y, panel.width, panel.height, 12);
+                    panel.graphics.lineStyle(4, 0xff4444, 1.0);
+                    panel.graphics.strokeRoundedRect(panel.x, panel.y, panel.width, panel.height, 12);
+                },
+                onComplete: () => {
+                    this.highlightPanel(this.targetIndex);
+                }
+            });
+        }
+
+        this.dialogueText.setText('"Missed it. That state just changed. We\'ll catch the next one."');
+
+        // Move to next round after delay
+        this.time.delayedCall(1500, () => {
+            this.currentRound++;
+            if (this.currentRound >= this.maxRounds) {
+                this.gameOver = true;
+                this.dialogueText.setText('"Tote board complete. Well done. Now to the decision room."');
+                this.time.delayedCall(2000, () => {
+                    this.scene.start('DecisionScene');
+                });
+                return;
+            }
+            this.timerDelay = Math.max(500, this.timerDelay - 200);
+            this.startRound();
+        });
+    }
 }
