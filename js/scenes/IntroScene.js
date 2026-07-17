@@ -7,14 +7,14 @@ class IntroScene extends Phaser.Scene {
         this.load.image('waaf-mascot', 'assets/images/waaf-mascot.png');
          this.load.image('dowding-diagram', 'assets/images/dowdingsystemexplanation.png');
         
-        // Note: The key 'waaf-mascot' matches what you use in create()
+       
     }
     create() {
-    const { width, height } = this.scale;  // Destructure screen size,gives game's width and height in pixels
+    const { width, height } = this.scale; 
 
     // Solid dark blue background
-    const bg = this.add.graphics(); // Create a graphics object for the background
-    bg.fillStyle(0x0d1b2a); //colour set to a very dark navy blue (hexadecimal color code)
+    const bg = this.add.graphics(); 
+    bg.fillStyle(0x0d1b2a); 
     bg.fillRect(0, 0, width, height);
 
     // Plotting-table grid overlay
@@ -31,14 +31,14 @@ class IntroScene extends Phaser.Scene {
     grid.strokePath();
 
 // ---------- TITLE ----------
-this.add.text(width / 2, 110, 'EYES ON THE SKY', { //also sets X and Y coordinates of the text, in this case, the center of the screen
+this.add.text(width / 2, 110, 'EYES ON THE SKY', {
     fontSize: '54px',
     fill: '#f5e56b',
     fontFamily: 'Courier New',
     fontStyle: 'bold',
-    stroke: '#2d1b0e', //sets the colour of the outline
-    strokeThickness: 8 //how thick the outline is
-}).setOrigin(0.5); //anchor point moved to the center of the text, so it is centered on the screen
+    stroke: '#2d1b0e', 
+    strokeThickness: 8 
+}).setOrigin(0.5); 
 
 this.add.text(width / 2, 175, 'Battle of Britain – Plotting Table', {
     fontSize: '20px',
@@ -55,10 +55,10 @@ this.add.text(width / 2, 210, 'Summer 1940', {
 
 // ---------- WAAF MASCOT ----------
 let mascotX = width / 2 + 90;
-let mascotY = 370; //places the mascot 37
+let mascotY = 370; 
 
 if (this.textures.exists('waaf-mascot')) {
-    this.add.image(mascotX, mascotY, 'waaf-mascot').setScale(0.55); // slightly smaller mascot
+    this.add.image(mascotX, mascotY, 'waaf-mascot').setScale(0.55); 
 } else {
     // Fallback: draw a simple mascot using graphics
     const g = this.make.graphics({ add: false });
@@ -87,13 +87,13 @@ if (this.textures.exists('waaf-mascot')) {
         overlayBg.fillRect(0, 0, width, height);
         overlayContainer.add(overlayBg);
 
-        // Diagram (keep the existing image/fallback logic, just add it to the container)
+       
         let diagramImage = null;
         if (this.textures.exists('dowding-diagram')) {
             diagramImage = this.add.image(width / 2, height / 2 - 10, 'dowding-diagram')
                 .setDisplaySize(Math.min(width - 80, 700), Math.min(height - 180, 500));
                 } else {
-            // Fallback: text-based diagram in its own container
+         
             const fallbackContainer = this.add.container(0, 0);
             
             const fallbackBg = this.add.graphics();
@@ -153,11 +153,11 @@ if (this.textures.exists('waaf-mascot')) {
 // ---------- START BUTTON ----------
 const btnBg = this.add.graphics();
 btnBg.fillStyle(0x2d6a4f, 0.9);
-btnBg.fillRoundedRect(width / 2 - 100, 510, 200, 60, 12); //corner radius in pixels
+btnBg.fillRoundedRect(width / 2 - 100, 510, 200, 60, 12); 
 btnBg.lineStyle(2, 0xf5e56b);
 btnBg.strokeRoundedRect(width / 2 - 100, 510, 200, 60, 12);
 
-const startBtn = this.add.text(width / 2, 540, '▶  BEGIN  ◀', { //center,540px from the very top
+const startBtn = this.add.text(width / 2, 540, '▶  BEGIN  ◀', {
     fontSize: '28px',
     fill: '#ffffff',
     fontFamily: 'Courier New'
