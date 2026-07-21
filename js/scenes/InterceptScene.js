@@ -34,10 +34,203 @@ class InterceptScene extends Phaser.Scene {
         });
 
         console.log('✅ InterceptScene: initialised');
+                    // ---------- AIRFIELD MARKER ----------
+        const airfieldX = 200;
+        const airfieldY = 400;
+
+        // Blue square marker (like a wooden block on the table)
+        const marker = this.add.graphics();
+        marker.fillStyle(0x2266cc, 0.8);
+        marker.fillRoundedRect(airfieldX - 25, airfieldY - 25, 50, 50, 6);
+        marker.lineStyle(2, 0x88ccff, 0.8);
+        marker.strokeRoundedRect(airfieldX - 25, airfieldY - 25, 50, 50, 6);
+
+        // "RAF" label inside the marker
+        this.add.text(airfieldX, airfieldY - 4, 'RAF', {
+            fontSize: '14px',
+            fill: '#88ccff',
+            fontFamily: 'Courier New',
+            fontStyle: 'bold'
+        }).setOrigin(0.5);
+
+        // Runway symbol (small white lines inside)
+        for (let i = -15; i <= 15; i += 10) {
+            this.add.rectangle(airfieldX + i, airfieldY + 12, 4, 4, 0x88ccff, 0.5);
+        }
+
+        // Label under the marker
+        this.add.text(airfieldX, airfieldY + 40, 'AIRFIELD', {
+            fontSize: '10px',
+            fill: '#88ccff',
+            fontFamily: 'Courier New'
+        }).setOrigin(0.5);
+                // ---------- LUDWIK'S PLANE MARKER ----------
+        const plane = this.add.triangle(airfieldX, airfieldY - 5, 0, -16, -12, 10, 12, 10, 0x4488cc);
+        plane.setDepth(5);
+        plane.setInteractive({ useHandCursor: true });
+
+        // Small wing markers
+        const wingLeft = this.add.rectangle(airfieldX - 16, airfieldY - 5, 8, 3, 0x66aadd);
+        const wingRight = this.add.rectangle(airfieldX + 16, airfieldY - 5, 8, 3, 0x66aadd);
+
+        // "L" label on the plane
+        this.add.text(airfieldX, airfieldY - 8, 'L', {
+            fontSize: '10px',
+            fill: '#ffffff',
+            fontFamily: 'Courier New',
+            fontStyle: 'bold'
+        }).setOrigin(0.5);
+
+        // Store references
+        this.ludwikPlane = plane;
+        this.ludwikWings = [wingLeft, wingRight];
+        this.airfieldX = airfieldX;
+        this.airfieldY = airfieldY;
+                // ---------- BOUNCY IDLE ANIMATION ----------
+        const planeGroup = [plane, wingLeft, wingRight];
+        this.tweens.add({
+            targets: planeGroup,
+            y: airfieldY - 15,
+            duration: 600,
+            yoyo: true,
+            repeat: -1,
+            ease: 'Sine.easeInOut'
+        });
+
+        // Slight rotation for extra liveliness
+        this.tweens.add({
+            targets: planeGroup,
+            angle: 3,
+            duration: 800,
+            yoyo: true,
+            repeat: -1,
+            ease: 'Sine.easeInOut'
+        });
+        
+                // ---------- PHASE STATE ----------
+        this.phase = 'form_up';
+        this.collectedCount = 0;
+        this.totalSquadrons = 3;
+        this.isAirfieldView = false;
+                // ---------- COUNTER ----------
+    
+        this.counterText = this.add.text(20, 50, '✈️ 0/' + this.totalSquadrons + ' joined', {
+            fontSize: '16px',
+            fill: '#ffd700',
+            fontFamily: 'Courier New'
+        });
+                // ---------- SQUADRON MARKERS ----------
+        const squadrons = [
+            { label: '303 Squadron', startX: 60, startY: 120, color: 0x66ccff, delay: 1000 },
+            { label: 'No. 1 Squadron RAF', startX: 700, startY: 100, color: 0x66ddff, delay: 2500 },
+            { label: 'No. 19 Squadron RAF', startX: 600, startY: 450, color: 0x66eeff, delay: 4000 }
+        ];
+
+        this.squadronMarkers = [];
+
+             squadrons.forEach((sq, index) => {
+            const marker = this.add.triangle(sq.startX, sq.startY, 0, -14, -10, 8, 10, 8, sq.color);
+            marker.setDepth(5);
+            marker.setVisible(false);
+            marker.setInteractive({ useHandCursor: true });
+            marker.label = sq.label;
+            marker.collected = false;
+            marker.arrived = false;
+            marker.index = index;
+            this.squadronMarkers.push(marker);
+
+            // ---------- ARRIVAL ANIMATION ----------
+            this.time.delayedCall(sq.delay, () => {
+                marker.setVisible(true);
+                marker.arrived = true;
+
+                // "TAP ME!" label
+                const tapLabel = this.add.text(marker.x, marker.y - 30, '👆 TAP ME!', {
+                    fontSize: '14px',
+                    fill: '#ffd700',
+                    fontFamily: 'Courier New',
+                    fontStyle: 'bold'
+                }).setOrigin(0.5);
+                this.tweens.add({
+                    targets: tapLabel,
+                    alpha: 0,
+                    duration: 2000,
+                    onComplete: () => tapLabel.destroy()
+                });
+
+                // ---------- CLICK HANDLER ----------
+                marker.on('pointerdown', () => {
+                    if (marker.collected || !marker.arrived) return;
+                    marker.collected = true;
+                    this.collectedCount++;
+
+                    // Calculate formation position
+                    const offsetX = -80 + (this.collectedCount - 1) * 80;
+                    const offsetY = -30 + (this.collectedCount - 1) * 30;
+
+                    // Swoosh trail
+                    const swoosh = this.add.graphics();
+                    swoosh.lineStyle(3, 0xffd700, 0.6);
+                    swoosh.beginPath();
+                    swoosh.moveTo(marker.x, marker.y);
+                    swoosh.lineTo(this.airfieldX + offsetX, this.airfieldY + offsetY);
+                    swoosh.strokePath();
+                    this.tweens.add({
+                        targets: swoosh,
+                        alpha: 0,
+                        duration: 600,
+                        onComplete: () => swoosh.destroy()
+                    });
+
+                    // "JOINED!" flash label
+                    const joinedLabel = this.add.text(marker.x, marker.y - 40, sq.label + ' JOINED! ✅', {
+                        fontSize: '14px',
+                        fill: '#44ff44',
+                        fontFamily: 'Courier New',
+                        fontStyle: 'bold'
+                    }).setOrigin(0.5);
+                    this.tweens.add({
+                        targets: joinedLabel,
+                        y: marker.y - 80,
+                        alpha: 0,
+                        duration: 1200,
+                        onComplete: () => joinedLabel.destroy()
+                    });
+
+                    // Move to formation (V shape)
+                    this.tweens.add({
+                        targets: marker,
+                        x: this.airfieldX + offsetX,
+                        y: this.airfieldY + offsetY,
+                        duration: 600,
+                        ease: 'Back.easeOut'
+                    });
+
+                    // Update counter with bounce
+                    this.counterText.setText('✈️ ' + this.collectedCount + '/' + this.totalSquadrons + ' joined');
+                    this.tweens.add({
+                        targets: this.counterText,
+                        scaleX: 1.3,
+                        scaleY: 1.3,
+                        duration: 100,
+                        yoyo: true
+                    });
+
+                    // Check if all collected
+                    if (this.collectedCount === this.totalSquadrons) {
+                        this.dialogueText.setText('"Now we\'re ready. Poles, British, all of us. One formation, one mission."');
+                        this.time.delayedCall(1000, () => {
+                            this.formationComplete();
+                        });
+                    }
+                }); // Closes the click handler
+
+            }); // Closes the delayedCall
+
+        }); // Closes the forEach loop (THIS WAS MISSING!)
     }
-
     // ---------- HELPER METHODS ----------
-
+    
     createMapBackground(width, height) {
         if (this.textures.exists('map')) {
             this.add.image(width / 2, height / 2, 'map').setDisplaySize(width, height);
@@ -119,222 +312,29 @@ class InterceptScene extends Phaser.Scene {
                 fontStyle: 'bold'
             }).setOrigin(0.5).setDepth(10);
         }
-
+        
+        
         this.add.text(portraitX, portraitY + 50, 'Ludwik', {
             fontSize: '12px',
             fill: '#f5e56b',
             fontFamily: 'Courier New'
         }).setOrigin(0.5);
-                // ---------- AIRFIELD MARKER ----------
-        const airfieldX = 200;
-        const airfieldY = 400;
+    }   
 
-        // Blue square marker (like a wooden block on the table)
-        const marker = this.add.graphics();
-        marker.fillStyle(0x2266cc, 0.8);
-        marker.fillRoundedRect(airfieldX - 25, airfieldY - 25, 50, 50, 6);
-        marker.lineStyle(2, 0x88ccff, 0.8);
-        marker.strokeRoundedRect(airfieldX - 25, airfieldY - 25, 50, 50, 6);
 
-        // "RAF" label inside the marker
-        this.add.text(airfieldX, airfieldY - 4, 'RAF', {
-            fontSize: '14px',
-            fill: '#88ccff',
-            fontFamily: 'Courier New',
-            fontStyle: 'bold'
-        }).setOrigin(0.5);
-
-        // Runway symbol (small white lines inside)
-        for (let i = -15; i <= 15; i += 10) {
-            this.add.rectangle(airfieldX + i, airfieldY + 12, 4, 4, 0x88ccff, 0.5);
-        }
-
-        // Label under the marker
-        this.add.text(airfieldX, airfieldY + 40, 'AIRFIELD', {
-            fontSize: '10px',
-            fill: '#88ccff',
-            fontFamily: 'Courier New'
-        }).setOrigin(0.5);
-                // ---------- LUDWIK'S PLANE MARKER ----------
-        const plane = this.add.triangle(airfieldX, airfieldY - 5, 0, -16, -12, 10, 12, 10, 0x4488cc);
-        plane.setDepth(5);
-        plane.setInteractive({ useHandCursor: true });
-
-        // Small wing markers
-        const wingLeft = this.add.rectangle(airfieldX - 16, airfieldY - 5, 8, 3, 0x66aadd);
-        const wingRight = this.add.rectangle(airfieldX + 16, airfieldY - 5, 8, 3, 0x66aadd);
-
-        // "L" label on the plane
-        this.add.text(airfieldX, airfieldY - 8, 'L', {
-            fontSize: '10px',
-            fill: '#ffffff',
-            fontFamily: 'Courier New',
-            fontStyle: 'bold'
-        }).setOrigin(0.5);
-
-        // Store references
-        this.ludwikPlane = plane;
-        this.ludwikWings = [wingLeft, wingRight];
-        this.airfieldX = airfieldX;
-        this.airfieldY = airfieldY;
-                // ---------- BOUNCY IDLE ANIMATION ----------
-        const planeGroup = [plane, wingLeft, wingRight];
-        this.tweens.add({
-            targets: planeGroup,
-            y: airfieldY - 15,
-            duration: 600,
-            yoyo: true,
-            repeat: -1,
-            ease: 'Sine.easeInOut'
-        });
-
-        // Slight rotation for extra liveliness
-        this.tweens.add({
-            targets: planeGroup,
-            angle: 3,
-            duration: 800,
-            yoyo: true,
-            repeat: -1,
-            ease: 'Sine.easeInOut'
-        });
-        
-                // ---------- PHASE STATE ----------
-        this.phase = 'form_up';
-        this.collectedCount = 0;
-        this.totalSquadrons = 3;
-        this.isAirfieldView = false;
-                // ---------- COUNTER ----------
-        this.collectedCount = 0;
-        this.totalSquadrons = 3;
-        this.counterText = this.add.text(20, 50, '✈️ 0/' + this.totalSquadrons + ' joined', {
-            fontSize: '16px',
-            fill: '#ffd700',
-            fontFamily: 'Courier New'
-        });
-                // ---------- SQUADRON MARKERS ----------
-        const squadrons = [
-            { label: '303 Squadron', startX: 60, startY: 120, color: 0x66ccff, delay: 1000 },
-            { label: 'No. 1 Squadron RAF', startX: 700, startY: 100, color: 0x66ddff, delay: 2500 },
-            { label: 'No. 19 Squadron RAF', startX: 750, startY: 550, color: 0x66eeff, delay: 4000 }
-        ];
-
-        this.squadronMarkers = [];
-
-        squadrons.forEach((sq, index) => {
-            const marker = this.add.triangle(sq.startX, sq.startY, 0, -14, -10, 8, 10, 8, sq.color);
-            marker.setDepth(5);
-            marker.setVisible(false);
-            marker.setInteractive({ useHandCursor: true });
-            marker.label = sq.label;
-            marker.collected = false;
-            marker.arrived = false;
-            marker.index = index;
-            this.squadronMarkers.push(marker);
-        });
-                    // ---------- ARRIVAL ANIMATION ----------
-            this.time.delayedCall(sq.delay, () => {
-                marker.setVisible(true);
-                marker.arrived = true;
-
-                // "TAP ME!" label
-                const tapLabel = this.add.text(marker.x, marker.y - 30, '👆 TAP ME!', {
-                    fontSize: '14px',
-                    fill: '#ffd700',
-                    fontFamily: 'Courier New',
-                    fontStyle: 'bold'
-                }).setOrigin(0.5);
-                this.tweens.add({
-                    targets: tapLabel,
-                    alpha: 0,
-                    duration: 2000,
-                    onComplete: () => tapLabel.destroy()
-                });
-
-                // Trail effect
-                const trail = this.add.graphics();
-                trail.lineStyle(2, sq.color, 0.6);
-                trail.beginPath();
-                trail.moveTo(sq.startX - 80, sq.startY);
-                trail.lineTo(sq.startX, sq.startY);
-                trail.strokePath();
-                this.tweens.add({
-                    targets: trail,
-                    alpha: 0,
-                    duration: 1000,
-                    onComplete: () => trail.destroy()
-                });
-
-                this.dialogueText.setText(`"There, ${sq.label}. Tap them to join the formation!"`);
-            });
-                        // ---------- CLICK HANDLER ----------
-            marker.on('pointerdown', () => {
-                if (marker.collected || !marker.arrived) return;
-                marker.collected = true;
-                this.collectedCount++;
-
-                // Update counter with bounce
-                this.counterText.setText('✈️ ' + this.collectedCount + '/' + this.totalSquadrons + ' joined');
-                this.tweens.add({
-                    targets: this.counterText,
-                    scaleX: 1.3,
-                    scaleY: 1.3,
-                    duration: 100,
-                    yoyo: true
-                });
-
-                // "JOINED!" flash label
-                const joinedLabel = this.add.text(marker.x, marker.y - 40, sq.label + ' JOINED! ✅', {
-                    fontSize: '14px',
-                    fill: '#44ff44',
-                    fontFamily: 'Courier New',
-                    fontStyle: 'bold'
-                }).setOrigin(0.5);
-                this.tweens.add({
-                    targets: joinedLabel,
-                    y: marker.y - 80,
-                    alpha: 0,
-                    duration: 1200,
-                    onComplete: () => joinedLabel.destroy()
-                });
-            });
-                            // Swoosh trail
-                const swoosh = this.add.graphics();
-                swoosh.lineStyle(3, 0xffd700, 0.6);
-                swoosh.beginPath();
-                swoosh.moveTo(marker.x, marker.y);
-                swoosh.lineTo(this.airfieldX + offsetX, this.airfieldY + offsetY);
-                swoosh.strokePath();
-                this.tweens.add({
-                    targets: swoosh,
-                    alpha: 0,
-                    duration: 600,
-                    onComplete: () => swoosh.destroy()
-                });
-
-                // Move to formation (V shape)
-                const offsetX = -80 + (this.collectedCount - 1) * 80;
-                const offsetY = -30 + (this.collectedCount - 1) * 30;
-                this.tweens.add({
-                    targets: marker,
-                    x: this.airfieldX + offsetX,
-                    y: this.airfieldY + offsetY,
-                    duration: 600,
-                    ease: 'Back.easeOut'
-                });
-
-                // Check if all collected
-                if (this.collectedCount === this.totalSquadrons) {
-                    this.dialogueText.setText('"Now we\'re ready. Poles, British, all of us. One formation, one mission."');
-                    this.time.delayedCall(1000, () => {
-                        this.formationComplete();
-                    });
-                }
+      
+      
+       // ---------- FORMATION COMPLETE ----------
+    formationComplete() {
+        console.log('✅ Formation complete!');
+        // Commit 4 will add sparkle burst + lock-in animation
     }
-    
-    
-        // ---------- ZOOM-IN TRANSITION PLACEHOLDER ----------
+
+    // ---------- ZOOM-IN TRANSITION ----------
     switchToAirfieldView() {
         console.log('🔄 Switching to real airfield view...');
-        // This will be filled in later commits
+        // Commit 5 will add the real airfield view
     }
+
 }
+
