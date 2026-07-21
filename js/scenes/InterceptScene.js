@@ -211,7 +211,29 @@ class InterceptScene extends Phaser.Scene {
             fill: '#ffd700',
             fontFamily: 'Courier New'
         });
+                // ---------- SQUADRON MARKERS ----------
+        const squadrons = [
+            { label: '303 Squadron', startX: 60, startY: 120, color: 0x66ccff, delay: 1000 },
+            { label: 'No. 1 Squadron RAF', startX: 700, startY: 100, color: 0x66ddff, delay: 2500 },
+            { label: 'No. 19 Squadron RAF', startX: 750, startY: 550, color: 0x66eeff, delay: 4000 }
+        ];
+
+        this.squadronMarkers = [];
+
+        squadrons.forEach((sq, index) => {
+            const marker = this.add.triangle(sq.startX, sq.startY, 0, -14, -10, 8, 10, 8, sq.color);
+            marker.setDepth(5);
+            marker.setVisible(false);
+            marker.setInteractive({ useHandCursor: true });
+            marker.label = sq.label;
+            marker.collected = false;
+            marker.arrived = false;
+            marker.index = index;
+            this.squadronMarkers.push(marker);
+        });
     }
+    
+    
         // ---------- ZOOM-IN TRANSITION PLACEHOLDER ----------
     switchToAirfieldView() {
         console.log('🔄 Switching to real airfield view...');
