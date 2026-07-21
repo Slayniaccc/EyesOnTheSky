@@ -155,6 +155,28 @@ class InterceptScene extends Phaser.Scene {
             fill: '#88ccff',
             fontFamily: 'Courier New'
         }).setOrigin(0.5);
+                // ---------- LUDWIK'S PLANE MARKER ----------
+        const plane = this.add.triangle(airfieldX, airfieldY - 5, 0, -16, -12, 10, 12, 10, 0x4488cc);
+        plane.setDepth(5);
+        plane.setInteractive({ useHandCursor: true });
+
+        // Small wing markers
+        const wingLeft = this.add.rectangle(airfieldX - 16, airfieldY - 5, 8, 3, 0x66aadd);
+        const wingRight = this.add.rectangle(airfieldX + 16, airfieldY - 5, 8, 3, 0x66aadd);
+
+        // "L" label on the plane
+        this.add.text(airfieldX, airfieldY - 8, 'L', {
+            fontSize: '10px',
+            fill: '#ffffff',
+            fontFamily: 'Courier New',
+            fontStyle: 'bold'
+        }).setOrigin(0.5);
+
+        // Store references
+        this.ludwikPlane = plane;
+        this.ludwikWings = [wingLeft, wingRight];
+        this.airfieldX = airfieldX;
+        this.airfieldY = airfieldY;
         
     }
 }
