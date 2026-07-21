@@ -266,6 +266,37 @@ class InterceptScene extends Phaser.Scene {
 
                 this.dialogueText.setText(`"There, ${sq.label}. Tap them to join the formation!"`);
             });
+                        // ---------- CLICK HANDLER ----------
+            marker.on('pointerdown', () => {
+                if (marker.collected || !marker.arrived) return;
+                marker.collected = true;
+                this.collectedCount++;
+
+                // Update counter with bounce
+                this.counterText.setText('✈️ ' + this.collectedCount + '/' + this.totalSquadrons + ' joined');
+                this.tweens.add({
+                    targets: this.counterText,
+                    scaleX: 1.3,
+                    scaleY: 1.3,
+                    duration: 100,
+                    yoyo: true
+                });
+
+                // "JOINED!" flash label
+                const joinedLabel = this.add.text(marker.x, marker.y - 40, sq.label + ' JOINED! ✅', {
+                    fontSize: '14px',
+                    fill: '#44ff44',
+                    fontFamily: 'Courier New',
+                    fontStyle: 'bold'
+                }).setOrigin(0.5);
+                this.tweens.add({
+                    targets: joinedLabel,
+                    y: marker.y - 80,
+                    alpha: 0,
+                    duration: 1200,
+                    onComplete: () => joinedLabel.destroy()
+                });
+            });
     }
     
     
