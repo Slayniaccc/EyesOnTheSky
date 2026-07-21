@@ -203,6 +203,14 @@ class InterceptScene extends Phaser.Scene {
         this.collectedCount = 0;
         this.totalSquadrons = 3;
         this.isAirfieldView = false;
+                // ---------- COUNTER ----------
+        this.collectedCount = 0;
+        this.totalSquadrons = 3;
+        this.counterText = this.add.text(20, 50, '✈️ 0/' + this.totalSquadrons + ' joined', {
+            fontSize: '16px',
+            fill: '#ffd700',
+            fontFamily: 'Courier New'
+        });
     }
         // ---------- ZOOM-IN TRANSITION PLACEHOLDER ----------
     switchToAirfieldView() {
