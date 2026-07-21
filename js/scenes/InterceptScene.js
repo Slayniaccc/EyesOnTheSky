@@ -297,6 +297,38 @@ class InterceptScene extends Phaser.Scene {
                     onComplete: () => joinedLabel.destroy()
                 });
             });
+                            // Swoosh trail
+                const swoosh = this.add.graphics();
+                swoosh.lineStyle(3, 0xffd700, 0.6);
+                swoosh.beginPath();
+                swoosh.moveTo(marker.x, marker.y);
+                swoosh.lineTo(this.airfieldX + offsetX, this.airfieldY + offsetY);
+                swoosh.strokePath();
+                this.tweens.add({
+                    targets: swoosh,
+                    alpha: 0,
+                    duration: 600,
+                    onComplete: () => swoosh.destroy()
+                });
+
+                // Move to formation (V shape)
+                const offsetX = -80 + (this.collectedCount - 1) * 80;
+                const offsetY = -30 + (this.collectedCount - 1) * 30;
+                this.tweens.add({
+                    targets: marker,
+                    x: this.airfieldX + offsetX,
+                    y: this.airfieldY + offsetY,
+                    duration: 600,
+                    ease: 'Back.easeOut'
+                });
+
+                // Check if all collected
+                if (this.collectedCount === this.totalSquadrons) {
+                    this.dialogueText.setText('"Now we\'re ready. Poles, British, all of us. One formation, one mission."');
+                    this.time.delayedCall(1000, () => {
+                        this.formationComplete();
+                    });
+                }
     }
     
     
