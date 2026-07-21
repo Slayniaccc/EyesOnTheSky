@@ -231,6 +231,41 @@ class InterceptScene extends Phaser.Scene {
             marker.index = index;
             this.squadronMarkers.push(marker);
         });
+                    // ---------- ARRIVAL ANIMATION ----------
+            this.time.delayedCall(sq.delay, () => {
+                marker.setVisible(true);
+                marker.arrived = true;
+
+                // "TAP ME!" label
+                const tapLabel = this.add.text(marker.x, marker.y - 30, '👆 TAP ME!', {
+                    fontSize: '14px',
+                    fill: '#ffd700',
+                    fontFamily: 'Courier New',
+                    fontStyle: 'bold'
+                }).setOrigin(0.5);
+                this.tweens.add({
+                    targets: tapLabel,
+                    alpha: 0,
+                    duration: 2000,
+                    onComplete: () => tapLabel.destroy()
+                });
+
+                // Trail effect
+                const trail = this.add.graphics();
+                trail.lineStyle(2, sq.color, 0.6);
+                trail.beginPath();
+                trail.moveTo(sq.startX - 80, sq.startY);
+                trail.lineTo(sq.startX, sq.startY);
+                trail.strokePath();
+                this.tweens.add({
+                    targets: trail,
+                    alpha: 0,
+                    duration: 1000,
+                    onComplete: () => trail.destroy()
+                });
+
+                this.dialogueText.setText(`"There, ${sq.label}. Tap them to join the formation!"`);
+            });
     }
     
     
