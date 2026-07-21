@@ -198,5 +198,15 @@ class InterceptScene extends Phaser.Scene {
             ease: 'Sine.easeInOut'
         });
         
+                // ---------- PHASE STATE ----------
+        this.phase = 'form_up';
+        this.collectedCount = 0;
+        this.totalSquadrons = 3;
+        this.isAirfieldView = false;
+    }
+        // ---------- ZOOM-IN TRANSITION PLACEHOLDER ----------
+    switchToAirfieldView() {
+        console.log('🔄 Switching to real airfield view...');
+        // This will be filled in later commits
     }
 }
