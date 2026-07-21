@@ -177,6 +177,26 @@ class InterceptScene extends Phaser.Scene {
         this.ludwikWings = [wingLeft, wingRight];
         this.airfieldX = airfieldX;
         this.airfieldY = airfieldY;
+                // ---------- BOUNCY IDLE ANIMATION ----------
+        const planeGroup = [plane, wingLeft, wingRight];
+        this.tweens.add({
+            targets: planeGroup,
+            y: airfieldY - 15,
+            duration: 600,
+            yoyo: true,
+            repeat: -1,
+            ease: 'Sine.easeInOut'
+        });
+
+        // Slight rotation for extra liveliness
+        this.tweens.add({
+            targets: planeGroup,
+            angle: 3,
+            duration: 800,
+            yoyo: true,
+            repeat: -1,
+            ease: 'Sine.easeInOut'
+        });
         
     }
 }
