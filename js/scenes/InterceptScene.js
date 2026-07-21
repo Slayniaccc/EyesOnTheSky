@@ -125,5 +125,36 @@ class InterceptScene extends Phaser.Scene {
             fill: '#f5e56b',
             fontFamily: 'Courier New'
         }).setOrigin(0.5);
+                // ---------- AIRFIELD MARKER ----------
+        const airfieldX = 200;
+        const airfieldY = 400;
+
+        // Blue square marker (like a wooden block on the table)
+        const marker = this.add.graphics();
+        marker.fillStyle(0x2266cc, 0.8);
+        marker.fillRoundedRect(airfieldX - 25, airfieldY - 25, 50, 50, 6);
+        marker.lineStyle(2, 0x88ccff, 0.8);
+        marker.strokeRoundedRect(airfieldX - 25, airfieldY - 25, 50, 50, 6);
+
+        // "RAF" label inside the marker
+        this.add.text(airfieldX, airfieldY - 4, 'RAF', {
+            fontSize: '14px',
+            fill: '#88ccff',
+            fontFamily: 'Courier New',
+            fontStyle: 'bold'
+        }).setOrigin(0.5);
+
+        // Runway symbol (small white lines inside)
+        for (let i = -15; i <= 15; i += 10) {
+            this.add.rectangle(airfieldX + i, airfieldY + 12, 4, 4, 0x88ccff, 0.5);
+        }
+
+        // Label under the marker
+        this.add.text(airfieldX, airfieldY + 40, 'AIRFIELD', {
+            fontSize: '10px',
+            fill: '#88ccff',
+            fontFamily: 'Courier New'
+        }).setOrigin(0.5);
+        
     }
 }
