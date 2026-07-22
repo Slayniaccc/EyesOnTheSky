@@ -597,7 +597,101 @@ startInterceptPhase() {
             this.dialogueText.setText('"Now we\'re in the air. Let\'s find those enemy planes."');
             this.startInterceptPhase();
         });
+                // ---- MAKE FORMATION DRAGGABLE ----
+        this.formationGroup = [this.ludwikPlane, ...this.squadronMarkers];
+        
+        // Make each plane in the formation draggable
+        this.formationGroup.forEach(plane => {
+            plane.setInteractive({ draggable: true, useHandCursor: true });
+            
+            plane.on('drag', (pointer, dragX, dragY) => {
+                // Move all planes together
+                const dx = dragX - plane.x;
+                const dy = dragY - plane.y;
+                this.formationGroup.forEach(p => {
+                    p.x += dx;
+                    p.y += dy;
+                });
+                
+                // Update progress bar
+                this.updateInterceptProgress();
+            });
+        });
     }
-
+        updateInterceptProgress() {
+        const { width } = this.scale;
+        
+        // Calculate average position of formation
+        const avgX = this.formationGroup.reduce((sum, p) => sum + p.x, 0) / this.formationGroup.length;
+        const avgY = this.formationGroup.reduce((sum, p) => sum + p.y, 0) / this.formationGroup.length;
+        
+        // Calculate progress based on distance to intercept point (550, 280)
+        const distToIntercept = Phaser.Math.Distance.Between(avgX, avgY, 550, 280);
+        const maxDist = 400;
+        const progress = Phaser.Math.Clamp(1 - (distToIntercept / maxDist), 0, 1);
+        const progressPercent = Math.round(progress * 100);
+        
+        // Update progress bar
+        this.progressFill.clear();
+        const fillWidth = 4 + progress * 292;
+        this.progressFill.fillStyle(progress > 0.7 ? 0x44ff44 : progress > 0.4 ? 0xffaa44 : 0xff4444);
+        this.progressFill.fillRoundedRect(width/2 - 147, height - 42, fillWidth, 16, 8);
+        
+        this.progressLabel.setText('INTERCEPT: ' + progressPercent + '%');
+        
+        // Check if intercept is successful
+        if (progress > 0.85 && !this.interceptDone) {
+            this.interceptSuccessful();
+        }
+    }
+    interceptSuccessful() {
+        if (this.interceptDone) return;
+        this.interceptDone = true;
+        
+        // ---- SHIELD OVER CITY ----
+        const shield = this.add.graphics();
+        shield.fillStyle(0x44ff44, 0.2);
+        shield.fillCircle(this.cityX, this.cityY, 50);
+        shield.lineStyle(4, 0x44ff44, 0.8);
+        shield.strokeCircle(this.cityX, this.cityY, 35);
+        
+        // Shield icon
+        this.add.text(this.cityX, this.cityY - 5, '🛡️', {
+            fontSize: '50px'
+        }).setOrigin(0.5);
+        
+        // ---- CHEERING PARTICLES ----
+        for (let i = 0; i < 30; i++) {
+            const particle = this.add.circle(
+                this.cityX + Phaser.Math.Between(-60, 60),
+                this.cityY + Phaser.Math.Between(-60, 60),
+                4,
+                0x44ff44,
+                0.8
+            );
+            this.tweens.add({
+                targets: particle,
+                y: particle.y - Phaser.Math.Between(60, 150),
+                x: particle.x + Phaser.Math.Between(-40, 40),
+                alpha: 0,
+                duration: 1000 + Phaser.Math.Between(0, 500),
+                onComplete: () => particle.destroy()
+            });
+        }
+        
+        // ---- UPDATE DIALOGUE ----
+        this.dialogueText.setText('"Hold the line. They know we\'re here, make them think twice about coming through."');
+        
+        // ---- PROCEED TO PHASE 3 ----
+        this.phase = 'escort';
+        this.time.delayedCall(2500, () => {
+            this.startEscortPhase();
+        });
+            startEscortPhase() {
+        console.log('🔄 Starting Phase 3 - Escort...');
+        this.dialogueText.setText('"Hold the line. They know we\'re here, make them think twice about coming through."');
+        // Commit 7 will add the full escort mechanics
+    }
+    }
 }
 
