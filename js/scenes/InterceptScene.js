@@ -508,6 +508,27 @@ startInterceptPhase() {
         // ---- STORE FORMATION GROUP FOR DRAGGING ----
         this.formationGroup = [this.ludwikPlane, ...this.squadronMarkers];
         this.interceptDone = false;
+      
+                // ---- MAKE FORMATION DRAGGABLE ----
+        this.formationGroup = [this.ludwikPlane, ...this.squadronMarkers];
+        
+        // Make each plane in the formation draggable
+        this.formationGroup.forEach(plane => {
+            plane.setInteractive({ draggable: true, useHandCursor: true });
+            
+            plane.on('drag', (pointer, dragX, dragY) => {
+                // Move all planes together
+                const dx = dragX - plane.x;
+                const dy = dragY - plane.y;
+                this.formationGroup.forEach(p => {
+                    p.x += dx;
+                    p.y += dy;
+                });
+                
+                // Update progress bar
+                this.updateInterceptProgress();
+            });
+        });
 }
     // ---------- ZOOM-IN TRANSITION ----------
     switchToAirfieldView() {
@@ -592,30 +613,10 @@ startInterceptPhase() {
             marker.y = height - 100 + i * 10;
         });
 
-        // ---- CONTINUE TO PHASE 2 ----
+              // ---- CONTINUE TO PHASE 2 ----
         this.time.delayedCall(1000, () => {
             this.dialogueText.setText('"Now we\'re in the air. Let\'s find those enemy planes."');
             this.startInterceptPhase();
-        });
-                // ---- MAKE FORMATION DRAGGABLE ----
-        this.formationGroup = [this.ludwikPlane, ...this.squadronMarkers];
-        
-        // Make each plane in the formation draggable
-        this.formationGroup.forEach(plane => {
-            plane.setInteractive({ draggable: true, useHandCursor: true });
-            
-            plane.on('drag', (pointer, dragX, dragY) => {
-                // Move all planes together
-                const dx = dragX - plane.x;
-                const dy = dragY - plane.y;
-                this.formationGroup.forEach(p => {
-                    p.x += dx;
-                    p.y += dy;
-                });
-                
-                // Update progress bar
-                this.updateInterceptProgress();
-            });
         });
     }
         updateInterceptProgress() {
@@ -687,11 +688,12 @@ startInterceptPhase() {
         this.time.delayedCall(2500, () => {
             this.startEscortPhase();
         });
+    }
             startEscortPhase() {
         console.log('🔄 Starting Phase 3 - Escort...');
         this.dialogueText.setText('"Hold the line. They know we\'re here, make them think twice about coming through."');
         // Commit 7 will add the full escort mechanics
     }
     }
-}
+
 
