@@ -690,7 +690,7 @@ startInterceptPhase() {
         });
     }
             startEscortPhase() {
-           startEscortPhase() {
+         
         console.log('🔄 Starting Phase 3 - Escort...');
         this.phase = 'escort';
         this.turnedBack = 0;
@@ -717,6 +717,27 @@ startInterceptPhase() {
                 });
                 return;
             }
+
+                // ---- CONFETTI CELEBRATION ----
+                const { width, height } = this.scale;
+                const colors = [0xff4444, 0x44ff44, 0x4444ff, 0xffdd44, 0xff44ff, 0x44ffdd];
+                for (let i = 0; i < 40; i++) {
+                    const confetti = this.add.rectangle(
+                        width / 2 + Phaser.Math.Between(-200, 200),
+                        height / 2 + Phaser.Math.Between(-100, 100),
+                        6, 10,
+                        colors[Phaser.Math.Between(0, colors.length - 1)]
+                    );
+                    this.tweens.add({
+                        targets: confetti,
+                        y: confetti.y + Phaser.Math.Between(100, 300),
+                        x: confetti.x + Phaser.Math.Between(-100, 100),
+                        angle: Phaser.Math.Between(0, 720),
+                        alpha: 0,
+                        duration: 1500 + Phaser.Math.Between(0, 500),
+                        onComplete: () => confetti.destroy()
+                    });
+                }
 
             const enemy = this.enemyFormation[turnIndex];
 
@@ -767,6 +788,6 @@ startInterceptPhase() {
         this.time.delayedCall(1000, turnNext);
     }
     }
-    }
+    
 
 
