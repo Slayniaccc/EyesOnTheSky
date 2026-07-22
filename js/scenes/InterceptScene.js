@@ -690,9 +690,82 @@ startInterceptPhase() {
         });
     }
             startEscortPhase() {
+           startEscortPhase() {
         console.log('🔄 Starting Phase 3 - Escort...');
+        this.phase = 'escort';
+        this.turnedBack = 0;
+        this.totalEnemies = this.enemyFormation.length;
+
+        // ---- TALLY COUNTER ----
+        this.tallyText = this.add.text(20, 50, '🚫 TURNED BACK: 0/' + this.totalEnemies, {
+            fontSize: '16px',
+            fill: '#ffd700',
+            fontFamily: 'Courier New'
+        });
+
+        // ---- LUDWIK'S LINE ----
         this.dialogueText.setText('"Hold the line. They know we\'re here, make them think twice about coming through."');
-        // Commit 7 will add the full escort mechanics
+
+        // ---- TURN ENEMIES BACK ONE BY ONE ----
+        let turnIndex = 0;
+        const turnNext = () => {
+            if (turnIndex >= this.enemyFormation.length) {
+                // All enemies turned back!
+                this.dialogueText.setText('"All enemy planes turned back! Mission complete!"');
+                this.time.delayedCall(2000, () => {
+                    this.showResult();
+                });
+                return;
+            }
+
+            const enemy = this.enemyFormation[turnIndex];
+
+            // ---- RETREAT ARROW ----
+            const arrow = this.add.graphics();
+            arrow.lineStyle(3, 0xff4444, 0.8);
+            arrow.moveTo(enemy.x, enemy.y);
+            arrow.lineTo(enemy.x - 80, enemy.y - 40);
+            arrow.strokePath();
+            this.tweens.add({
+                targets: arrow,
+                alpha: 0,
+                duration: 1000,
+                onComplete: () => arrow.destroy()
+            });
+
+            // ---- TURN ENEMY AROUND ----
+            this.tweens.add({
+                targets: enemy,
+                x: enemy.x - 250,
+                y: enemy.y + 100,
+                angle: 180,
+                duration: 1500,
+                ease: 'Sine.easeOut',
+                onStart: () => {
+                    enemy.setFillStyle(0x444466);
+                },
+                onComplete: () => {
+                    this.turnedBack++;
+                    this.tallyText.setText('🚫 TURNED BACK: ' + this.turnedBack + '/' + this.totalEnemies);
+                    
+                    // Bounce the tally
+                    this.tweens.add({
+                        targets: this.tallyText,
+                        scaleX: 1.3,
+                        scaleY: 1.3,
+                        duration: 100,
+                        yoyo: true
+                    });
+                    
+                    turnIndex++;
+                    this.time.delayedCall(600, turnNext);
+                }
+            });
+        };
+
+        // Start turning enemies after a delay
+        this.time.delayedCall(1000, turnNext);
+    }
     }
     }
 
