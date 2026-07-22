@@ -21,3 +21,28 @@ game.registry.set('score', 0);
 game.registry.set('raids', []);
 game.registry.set('interceptSuccess', false);
 game.registry.set('playerChoices', {}); 
+  function jumpToScene(sceneKey) {
+            const game = window.game;
+            if (game) {
+                game.scene.stopAll();
+                game.scene.start(sceneKey);
+            }
+        }
+
+        // Keyboard shortcuts: 1-5
+        document.addEventListener('keydown', function(e) {
+            const game = window.game;
+            if (!game) return;
+            const sceneMap = {
+                '1': 'IntroScene',
+                '2': 'DetectionScene',
+                '3': 'ToteBoardScene',
+                '4': 'DecisionScene',
+                '5': 'InterceptScene'
+            };
+            if (e.key in sceneMap) {
+                game.scene.stopAll();
+                game.scene.start(sceneMap[e.key]);
+                console.log('🔀 Jumped to:', sceneMap[e.key]);
+            }
+        });

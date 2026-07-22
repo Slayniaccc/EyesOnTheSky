@@ -254,3 +254,6 @@ class ToteBoardScene extends Phaser.Scene {
         });
     }
 }
+
+//intro scene is 200 lines,tote board 250 lines,detection scene is 350 lines
+//need to refractor the code to make it more modular and reusable, especially the panel highlighting and dialogue management.
