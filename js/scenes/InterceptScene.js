@@ -326,8 +326,28 @@ class InterceptScene extends Phaser.Scene {
       
        // ---------- FORMATION COMPLETE ----------
     formationComplete() {
-        console.log('✅ Formation complete!');
-        // Commit 4 will add sparkle burst + lock-in animation
+       console.log('✅ Formation complete!');
+
+    // Lock planes into V formation
+    const formationGroup = [this.ludwikPlane, ...this.squadronMarkers];
+    const vicPositions = [
+        { x: 0, y: 0 },      // Lead (Ludwik)
+        { x: -80, y: 40 },   // Left wing
+        { x: 80, y: 40 },    // Right wing
+        { x: -140, y: 80 },  // Far left
+        { x: 140, y: 80 }    // Far right
+    ];
+
+    formationGroup.forEach((plane, i) => {
+        this.tweens.add({
+            targets: plane,
+            x: this.airfieldX + vicPositions[i].x,
+            y: this.airfieldY + vicPositions[i].y,
+            duration: 500,
+            delay: i * 100,
+            ease: 'Back.easeOut'
+        });
+    });
     }
 
     // ---------- ZOOM-IN TRANSITION ----------
