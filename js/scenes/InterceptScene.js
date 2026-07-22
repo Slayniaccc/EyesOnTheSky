@@ -347,6 +347,7 @@ class InterceptScene extends Phaser.Scene {
             delay: i * 100,
             ease: 'Back.easeOut'
         });
+        });
             // Sparkle burst
     for (let i = 0; i < 25; i++) {
         const spark = this.add.circle(
@@ -366,9 +367,39 @@ class InterceptScene extends Phaser.Scene {
             onComplete: () => spark.destroy()
         });
     }
+ 
+        // "FORMATION COMPLETE!" overlay
+    const overlay = this.add.text(
+        this.airfieldX,
+        this.airfieldY - 100,
+        '✨ FORMATION COMPLETE! ✨',
+        {
+            fontSize: '26px',
+            fill: '#ffd700',
+            fontFamily: 'Courier New',
+            fontStyle: 'bold',
+            stroke: '#000000',
+            strokeThickness: 4
+        }
+    ).setOrigin(0.5);
+
+    this.tweens.add({
+        targets: overlay,
+        alpha: 0,
+        duration: 1800,
+        delay: 1200,
+        onComplete: () => overlay.destroy()
+    });
+
+    // Trigger Phase 2
+    this.time.delayedCall(2800, () => {
+        this.startInterceptPhase();
     });
     }
-
+startInterceptPhase() {
+    console.log('🔄 Starting Phase 2 - Intercept...');
+    this.dialogueText.setText('"Don\'t chase them, cut them off. Get between them and the city. That\'s our job."');
+}
     // ---------- ZOOM-IN TRANSITION ----------
     switchToAirfieldView() {
         console.log('🔄 Switching to real airfield view...');
