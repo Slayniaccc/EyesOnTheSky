@@ -103,6 +103,12 @@ class ToteBoardScene extends Phaser.Scene {
             panel.fillRoundedRect(x, panelY, panelWidth, panelHeight, 12);
             panel.lineStyle(2, 0x4a6a8a, 0.6);
             panel.strokeRoundedRect(x, panelY, panelWidth, panelHeight, 12);
+             // ---- MAKE PANEL TAPPABLE ----
+    panel.setInteractive(
+        new Phaser.Geom.Rectangle(x, panelY, panelWidth, panelHeight),
+        Phaser.Geom.Rectangle.Contains
+    );
+    panel.on('pointerdown', () => this.handlePanelTap(index));
             
             // State label
             const label = this.add.text(x + panelWidth/2, panelY + 50, state, {
@@ -207,6 +213,68 @@ class ToteBoardScene extends Phaser.Scene {
 
       
     }
+    // ---------- HANDLE PLAYER TAP ----------
+handlePanelTap(index) {
+    if (!this.isWaitingForTap || this.roundComplete || this.gameOver) return;
+
+    this.roundComplete = true;
+    this.isWaitingForTap = false;
+
+    if (this.timerEvent) {
+        this.timerEvent.remove();
+    }
+
+    if (index === this.targetIndex) {
+        // ---- CORRECT TAP ----
+        const panel = this.panelObjects[index];
+        this.tweens.add({
+            targets: panel.graphics,
+            alpha: 0.3,
+            duration: 120,
+            yoyo: true,
+            onStart: () => {
+                panel.graphics.clear();
+                panel.graphics.fillStyle(0x44ff44, 0.9);
+                panel.graphics.fillRoundedRect(panel.x, panel.y, panel.width, panel.height, 12);
+                panel.graphics.lineStyle(4, 0x44ff44, 1.0);
+                panel.graphics.strokeRoundedRect(panel.x, panel.y, panel.width, panel.height, 12);
+            }
+        });
+        this.dialogueText.setText('"Got it! Right on the money."');
+    } else {
+        // ---- WRONG PANEL TAPPED ----
+        const panel = this.panelObjects[index];
+        this.tweens.add({
+            targets: panel.graphics,
+            alpha: 0.3,
+            duration: 120,
+            yoyo: true,
+            onStart: () => {
+                panel.graphics.clear();
+                panel.graphics.fillStyle(0xff4444, 0.9);
+                panel.graphics.fillRoundedRect(panel.x, panel.y, panel.width, panel.height, 12);
+                panel.graphics.lineStyle(4, 0xff4444, 1.0);
+                panel.graphics.strokeRoundedRect(panel.x, panel.y, panel.width, panel.height, 12);
+            }
+        });
+        this.dialogueText.setText('"Wrong board — that wasn\'t the right state."');
+    }
+
+    // Move to next round after a short delay
+    this.time.delayedCall(1200, () => {
+        this.currentRound++;
+        if (this.currentRound >= this.maxRounds) {
+            this.gameOver = true;
+            this.dialogueText.setText('"Tote board complete. Well done. Now to the decision room."');
+            this.time.delayedCall(2000, () => {
+                this.scene.start('DecisionScene');
+            });
+            return;
+        }
+        this.timerDelay = Math.max(500, this.timerDelay - 200);
+        this.startRound();
+    });
+}
         // ---------- HANDLE MISSED TAP ----------
     handleMissedTap() {
         if (this.roundComplete) return;
