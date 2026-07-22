@@ -397,8 +397,117 @@ class InterceptScene extends Phaser.Scene {
     });
     }
 startInterceptPhase() {
-    console.log('🔄 Starting Phase 2 - Intercept...');
-    this.dialogueText.setText('"Don\'t chase them, cut them off. Get between them and the city. That\'s our job."');
+     this.phase = 'intercept';
+        this.dialogueText.setText('"Don\'t chase them, cut them off. Get between them and the city. That\'s our job."');
+
+        const { width, height } = this.scale;
+
+        // ---- CITY MARKER ----
+        this.cityX = 720;
+        this.cityY = 320;
+
+        // City circle
+        this.add.circle(this.cityX, this.cityY, 25, 0x44aa44, 0.4);
+        this.add.circle(this.cityX, this.cityY, 30, 0x44aa44, 0.15);
+        
+        // City label
+        this.add.text(this.cityX, this.cityY + 45, '🏙️ CITY', {
+            fontSize: '14px',
+            fill: '#88ff88',
+            fontFamily: 'Courier New'
+        }).setOrigin(0.5);
+
+        // Small building shapes inside the city
+        for (let i = -12; i <= 12; i += 8) {
+            this.add.rectangle(this.cityX + i, this.cityY + 5, 4, 10, 0x66dd66, 0.5);
+        }
+
+        // ---- ENEMY FORMATION ----
+        this.enemyFormation = [];
+        const enemyStartX = 850;
+        const enemyStartY = 200;
+        
+        for (let i = 0; i < 5; i++) {
+            const enemy = this.add.triangle(
+                enemyStartX + i * 25,
+                enemyStartY + i * 12,
+                0, -14,
+                -10, 8,
+                10, 8,
+                0x888888
+            );
+            enemy.setDepth(4);
+            enemy.originalX = enemy.x;
+            enemy.originalY = enemy.y;
+            this.enemyFormation.push(enemy);
+        }
+
+        // Move enemy toward city
+        this.tweens.add({
+            targets: this.enemyFormation,
+            x: this.cityX - 50,
+            y: this.cityY - 30,
+            duration: 10000,
+            ease: 'Linear',
+            onComplete: () => {
+                // If enemy reaches city before intercept, show fail state
+                if (!this.interceptDone) {
+                    this.dialogueText.setText('"Too slow! The enemy reached the city."');
+                }
+            }
+        });
+
+        // ---- DOTTED INTERCEPT LINE ----
+        const line = this.add.graphics();
+        line.lineStyle(2, 0xffaa44, 0.4);
+        line.setDepth(3);
+        
+        // Draw dashed line from formation area to intercept point
+        for (let i = 0; i < 20; i++) {
+            const t = i / 20;
+            const x = 300 + t * 350;
+            const y = 300 - t * 50;
+            if (i % 2 === 0) {
+                line.moveTo(x, y);
+                line.lineTo(x + 12, y - 6);
+            }
+        }
+        line.strokePath();
+
+        // ---- INTERCEPT POINT INDICATOR ----
+        this.add.circle(550, 280, 8, 0xffaa44, 0.3);
+        this.add.text(550, 300, '▲ INTERCEPT', {
+            fontSize: '10px',
+            fill: '#ffaa44',
+            fontFamily: 'Courier New'
+        }).setOrigin(0.5);
+
+        // ---- PROGRESS BAR ----
+        const barX = width / 2 - 150;
+        const barY = height - 45;
+
+        // Background
+        this.progressBg = this.add.graphics();
+        this.progressBg.fillStyle(0x333333, 0.8);
+        this.progressBg.fillRoundedRect(barX, barY, 300, 22, 11);
+        this.progressBg.lineStyle(1, 0x888888, 0.5);
+        this.progressBg.strokeRoundedRect(barX, barY, 300, 22, 11);
+
+        // Fill (starts at 0%)
+        this.progressFill = this.add.graphics();
+        this.progressFill.fillStyle(0x44ff44);
+        this.progressFill.fillRoundedRect(barX + 3, barY + 3, 4, 16, 8);
+
+        // Label
+        this.progressLabel = this.add.text(width / 2, barY + 14, 'INTERCEPT: 0%', {
+            fontSize: '11px',
+            fill: '#ffffff',
+            fontFamily: 'Courier New'
+        }).setOrigin(0.5);
+
+        // ---- STORE FORMATION GROUP FOR DRAGGING ----
+        this.formationGroup = [this.ludwikPlane, ...this.squadronMarkers];
+        this.interceptDone = false;
 }
     // ---------- ZOOM-IN TRANSITION ----------
     switchToAirfieldView() {
