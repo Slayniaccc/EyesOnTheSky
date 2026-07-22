@@ -393,7 +393,7 @@ class InterceptScene extends Phaser.Scene {
 
     // Trigger Phase 2
     this.time.delayedCall(2800, () => {
-        this.startInterceptPhase();
+        this.switchToAirfieldView();
     });
     }
 startInterceptPhase() {
@@ -511,8 +511,92 @@ startInterceptPhase() {
 }
     // ---------- ZOOM-IN TRANSITION ----------
     switchToAirfieldView() {
-        console.log('🔄 Switching to real airfield view...');
-        // Commit 5 will add the real airfield view
+        // ---- FADE OUT PLOTTING TABLE ----
+        this.cameras.main.fadeOut(800, 0, 0, 0);
+        this.cameras.main.once('camerafadeoutcomplete', () => {
+            // ---- CLEAR PLOTTING TABLE ELEMENTS ----
+            // Hide the grid, coastlines, and plotting-table markers
+            this.children.list.forEach(child => {
+                if (child.type === 'Graphics' || child.type === 'Image') {
+                    child.setVisible(false);
+                }
+            });
+
+            // ---- BUILD AIRFIELD VIEW ----
+            this.buildAirfieldView();
+
+            // ---- FADE IN ----
+            this.cameras.main.fadeIn(800);
+        });
+    }
+
+    buildAirfieldView() {
+        const { width, height } = this.scale;
+
+        // ---- SKY BACKGROUND ----
+        const sky = this.add.graphics();
+        sky.fillStyle(0x87CEEB);
+        sky.fillRect(0, 0, width, height);
+
+        // ---- CLOUDS ----
+        for (let i = 0; i < 4; i++) {
+            const cloud = this.add.graphics();
+            cloud.fillStyle(0xffffff, 0.7);
+            cloud.fillCircle(100 + i * 200, 60 + i * 30, 40 + i * 10);
+            cloud.fillCircle(130 + i * 200, 50 + i * 30, 30 + i * 10);
+            cloud.fillCircle(80 + i * 200, 70 + i * 30, 30 + i * 10);
+        }
+
+        // ---- SUN ----
+        this.add.circle(50, 50, 35, 0xffdd44, 0.4);
+
+        // ---- GRASS ----
+        this.add.rectangle(0, height - 150, width, 150, 0x4a8a3a);
+
+        // ---- RUNWAY ----
+        const runway = this.add.graphics();
+        runway.fillStyle(0x666666);
+        runway.fillRoundedRect(width / 2 - 200, height - 100, 400, 40, 5);
+        runway.lineStyle(2, 0x888888);
+        runway.strokeRoundedRect(width / 2 - 200, height - 100, 400, 40, 5);
+
+        // Runway stripes
+        for (let x = width / 2 - 180; x <= width / 2 + 180; x += 40) {
+            this.add.rectangle(x, height - 100, 15, 6, 0xffffff);
+        }
+
+        // ---- AIRFIELD LABEL ----
+        this.add.text(width / 2, height - 140, '🛩️ AIRFIELD', {
+            fontSize: '20px',
+            fill: '#ffffff',
+            fontFamily: 'Courier New',
+            fontStyle: 'bold',
+            stroke: '#000000',
+            strokeThickness: 3
+        }).setOrigin(0.5);
+
+        // ---- CONVERT MARKERS TO REAL PLANES ----
+        // Make Ludwik's plane a real Spitfire
+        this.ludwikPlane.setVisible(true);
+        this.ludwikPlane.setFillStyle(0x4488cc);
+        this.ludwikPlane.setScale(1.5);
+        this.ludwikPlane.x = width / 2 - 100;
+        this.ludwikPlane.y = height - 110;
+
+        // Convert squadron markers to real planes
+        this.squadronMarkers.forEach((marker, i) => {
+            marker.setVisible(true);
+            marker.setFillStyle(0x66ccff);
+            marker.setScale(1.5);
+            marker.x = width / 2 - 100 + (i + 1) * 50;
+            marker.y = height - 100 + i * 10;
+        });
+
+        // ---- CONTINUE TO PHASE 2 ----
+        this.time.delayedCall(1000, () => {
+            this.dialogueText.setText('"Now we\'re in the air. Let\'s find those enemy planes."');
+            this.startInterceptPhase();
+        });
     }
 
 }
