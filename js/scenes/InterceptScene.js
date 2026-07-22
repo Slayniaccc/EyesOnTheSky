@@ -347,6 +347,25 @@ class InterceptScene extends Phaser.Scene {
             delay: i * 100,
             ease: 'Back.easeOut'
         });
+            // Sparkle burst
+    for (let i = 0; i < 25; i++) {
+        const spark = this.add.circle(
+            this.airfieldX + Phaser.Math.Between(-60, 60),
+            this.airfieldY + Phaser.Math.Between(-60, 60),
+            3,
+            0xffd700,
+            0.9
+        );
+        this.tweens.add({
+            targets: spark,
+            x: spark.x + Phaser.Math.Between(-80, 80),
+            y: spark.y + Phaser.Math.Between(-80, 80),
+            alpha: 0,
+            scale: 3,
+            duration: 700,
+            onComplete: () => spark.destroy()
+        });
+    }
     });
     }
 
