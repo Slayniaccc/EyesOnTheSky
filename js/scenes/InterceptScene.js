@@ -787,6 +787,71 @@ startInterceptPhase() {
         // Start turning enemies after a delay
         this.time.delayedCall(1000, turnNext);
     }
+        showResult() {
+        const successRate = this.turnedBack / this.totalEnemies;
+        let resultMessage = '';
+        let resultColor = '';
+        let outcome = '';
+
+        if (successRate === 1) {
+            // ---- FULL SUCCESS ----
+            outcome = 'success';
+            resultMessage = '"Radar saw them. The Corps tracked them. Park sent us. We held the line. That\'s how Britain stayed free."';
+            resultColor = '#44ff44';
+
+            // City saved animation (pulsing shield)
+            this.tweens.add({
+                targets: this.add.circle(this.cityX, this.cityY, 40, 0x44ff44, 0.3),
+                scale: 2,
+                alpha: 0,
+                duration: 800,
+                repeat: 2
+            });
+
+            // Fly back animation for formation
+            this.formationGroup.forEach((plane, i) => {
+                this.tweens.add({
+                    targets: plane,
+                    x: 50 + i * 30,
+                    y: 50 + i * 10,
+                    duration: 1500,
+                    delay: i * 150,
+                    ease: 'Sine.easeInOut'
+                });
+            });
+
+        } else if (successRate >= 0.5) {
+            // ---- PARTIAL SUCCESS ----
+            outcome = 'partial';
+            resultMessage = '"We held most of them. The system worked, next time we\'ll be faster."';
+            resultColor = '#ffaa44';
+
+            // Small damage marker
+            this.add.text(this.cityX, this.cityY - 5, '⚠️', { fontSize: '40px' }).setOrigin(0.5);
+
+        } else {
+            // ---- FAIL ----
+            outcome = 'fail';
+            resultMessage = '"We were too slow today. But the system still tracked them. Tomorrow we\'ll be ready."';
+            resultColor = '#ff4444';
+
+            // Shadow marker over city
+            this.add.circle(this.cityX, this.cityY, 25, 0x444444, 0.6);
+            this.add.text(this.cityX, this.cityY - 5, '?', { fontSize: '30px', fill: '#666' }).setOrigin(0.5);
+        }
+
+        // Update dialogue
+        this.dialogueText.setText(resultMessage);
+        this.dialogueText.setFill(resultColor);
+
+        // Store outcome for ResultScene
+        this.game.registry.set('interceptOutcome', outcome);
+
+        // Transition to ResultScene
+        this.time.delayedCall(4000, () => {
+            this.scene.start('ResultScene');
+        });
+    }
     }
     
 
