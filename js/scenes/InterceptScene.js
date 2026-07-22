@@ -397,139 +397,143 @@ class InterceptScene extends Phaser.Scene {
     });
     }
 startInterceptPhase() {
-     this.phase = 'intercept';
-        this.dialogueText.setText('"Don\'t chase them, cut them off. Get between them and the city. That\'s our job."');
 
-        const { width, height } = this.scale;
+    console.log('🔄 Starting Phase 2 - Intercept...');
+    this.phase = 'intercept';
+     this.interceptDone = false;
+    this.dialogueText.setText('"Don\'t chase them, cut them off. Get between them and the city. That\'s our job."');
 
-        // ---- CITY MARKER ----
-        this.cityX = 720;
-        this.cityY = 320;
+    const { width, height } = this.scale;
 
-        // City circle
-        this.add.circle(this.cityX, this.cityY, 25, 0x44aa44, 0.4);
-        this.add.circle(this.cityX, this.cityY, 30, 0x44aa44, 0.15);
-        
-        // City label
-        this.add.text(this.cityX, this.cityY + 45, '🏙️ CITY', {
-            fontSize: '14px',
-            fill: '#88ff88',
-            fontFamily: 'Courier New'
-        }).setOrigin(0.5);
+    // ---- CITY MARKER ----
+    this.cityX = 720;
+    this.cityY = 320;
 
-        // Small building shapes inside the city
-        for (let i = -12; i <= 12; i += 8) {
-            this.add.rectangle(this.cityX + i, this.cityY + 5, 4, 10, 0x66dd66, 0.5);
-        }
+            this.cityGraphics = this.add.circle(this.cityX, this.cityY, 25, 0x44aa44, 0.4);
+    this.add.circle(this.cityX, this.cityY, 30, 0x44aa44, 0.15);
+    this.add.text(this.cityX, this.cityY + 45, '🏙️ CITY', {
+        fontSize: '14px',
+        fill: '#88ff88',
+        fontFamily: 'Courier New'
+    }).setOrigin(0.5);
 
-        // ---- ENEMY FORMATION ----
-        this.enemyFormation = [];
-        const enemyStartX = 850;
-        const enemyStartY = 200;
-        
-        for (let i = 0; i < 5; i++) {
-            const enemy = this.add.triangle(
-                enemyStartX + i * 25,
-                enemyStartY + i * 12,
-                0, -14,
-                -10, 8,
-                10, 8,
-                0x888888
-            );
-            enemy.setDepth(4);
-            enemy.originalX = enemy.x;
-            enemy.originalY = enemy.y;
-            this.enemyFormation.push(enemy);
-        }
+    for (let i = -12; i <= 12; i += 8) {
+        this.add.rectangle(this.cityX + i, this.cityY + 5, 4, 10, 0x66dd66, 0.5);
+    }
 
-        // Move enemy toward city
-        this.tweens.add({
-            targets: this.enemyFormation,
-            x: this.cityX - 50,
-            y: this.cityY - 30,
-            duration: 10000,
-            ease: 'Linear',
-            onComplete: () => {
-                // If enemy reaches city before intercept, show fail state
-                if (!this.interceptDone) {
-                    this.dialogueText.setText('"Too slow! The enemy reached the city."');
-                }
-            }
-        });
+    // ---- ENEMY FORMATION ----
+    this.enemyFormation = [];
+    const enemyStartX = 850;
+    const enemyStartY = 200;
+    
+    for (let i = 0; i < 5; i++) {
+        const enemy = this.add.triangle(
+            enemyStartX + i * 25,
+            enemyStartY + i * 12,
+            0, -14,
+            -10, 8,
+            10, 8,
+            0x888888
+        );
+        enemy.setDepth(4);
+        this.enemyFormation.push(enemy);
+    }
 
-        // ---- DOTTED INTERCEPT LINE ----
-        const line = this.add.graphics();
-        line.lineStyle(2, 0xffaa44, 0.4);
-        line.setDepth(3);
-        
-        // Draw dashed line from formation area to intercept point
-        for (let i = 0; i < 20; i++) {
-            const t = i / 20;
-            const x = 300 + t * 350;
-            const y = 300 - t * 50;
-            if (i % 2 === 0) {
-                line.moveTo(x, y);
-                line.lineTo(x + 12, y - 6);
+    console.log('👾 Enemy formation created:', this.enemyFormation.length, 'planes');
+
+    // Move enemy toward city
+   // Move enemy toward city
+    this.enemyApproachTween = this.tweens.add({
+        targets: this.enemyFormation,
+        x: this.cityX - 50,
+        y: this.cityY - 30,
+        duration: 10000,
+        ease: 'Linear',
+        onComplete: () => {
+            if (!this.interceptDone) {
+                this.dialogueText.setText('"Too slow! The enemy reached the city."');
+                this.time.delayedCall(1500, () => this.showResult());
             }
         }
-        line.strokePath();
+    });
+    // ---- DOTTED INTERCEPT LINE ----
+    const line = this.add.graphics();
+    line.lineStyle(2, 0xffaa44, 0.4);
+    line.setDepth(3);
+    
+    for (let i = 0; i < 20; i++) {
+        const t = i / 20;
+        const x = 300 + t * 350;
+        const y = 300 - t * 50;
+        if (i % 2 === 0) {
+            line.moveTo(x, y);
+            line.lineTo(x + 12, y - 6);
+        }
+    }
+    line.strokePath();
 
-        // ---- INTERCEPT POINT INDICATOR ----
-        this.add.circle(550, 280, 8, 0xffaa44, 0.3);
-        this.add.text(550, 300, '▲ INTERCEPT', {
-            fontSize: '10px',
-            fill: '#ffaa44',
-            fontFamily: 'Courier New'
-        }).setOrigin(0.5);
+    this.add.circle(550, 280, 8, 0xffaa44, 0.3);
+    this.add.text(550, 300, '▲ INTERCEPT', {
+        fontSize: '10px',
+        fill: '#ffaa44',
+        fontFamily: 'Courier New'
+    }).setOrigin(0.5);
 
-        // ---- PROGRESS BAR ----
-        const barX = width / 2 - 150;
-        const barY = height - 45;
+    // ---- PROGRESS BAR ----
+    const barX = width / 2 - 150;
+    const barY = height - 45;
 
-        // Background
-        this.progressBg = this.add.graphics();
-        this.progressBg.fillStyle(0x333333, 0.8);
-        this.progressBg.fillRoundedRect(barX, barY, 300, 22, 11);
-        this.progressBg.lineStyle(1, 0x888888, 0.5);
-        this.progressBg.strokeRoundedRect(barX, barY, 300, 22, 11);
+    this.progressBg = this.add.graphics();
+    this.progressBg.fillStyle(0x333333, 0.8);
+    this.progressBg.fillRoundedRect(barX, barY, 300, 22, 11);
+    this.progressBg.lineStyle(1, 0x888888, 0.5);
+    this.progressBg.strokeRoundedRect(barX, barY, 300, 22, 11);
 
-        // Fill (starts at 0%)
-        this.progressFill = this.add.graphics();
-        this.progressFill.fillStyle(0x44ff44);
-        this.progressFill.fillRoundedRect(barX + 3, barY + 3, 4, 16, 8);
+    this.progressFill = this.add.graphics();
+    this.progressFill.fillStyle(0x44ff44);
+    this.progressFill.fillRoundedRect(barX + 3, barY + 3, 4, 16, 8);
 
-        // Label
-        this.progressLabel = this.add.text(width / 2, barY + 14, 'INTERCEPT: 0%', {
-            fontSize: '11px',
-            fill: '#ffffff',
-            fontFamily: 'Courier New'
-        }).setOrigin(0.5);
+    this.progressLabel = this.add.text(width / 2, barY + 14, 'INTERCEPT: 0%', {
+        fontSize: '11px',
+        fill: '#ffffff',
+        fontFamily: 'Courier New'
+    }).setOrigin(0.5);
 
-        // ---- STORE FORMATION GROUP FOR DRAGGING ----
-        this.formationGroup = [this.ludwikPlane, ...this.squadronMarkers];
-        this.interceptDone = false;
-      
-                // ---- MAKE FORMATION DRAGGABLE ----
-        this.formationGroup = [this.ludwikPlane, ...this.squadronMarkers];
-        
-        // Make each plane in the formation draggable
-        this.formationGroup.forEach(plane => {
-            plane.setInteractive({ draggable: true, useHandCursor: true });
-            
-            plane.on('drag', (pointer, dragX, dragY) => {
-                // Move all planes together
-                const dx = dragX - plane.x;
-                const dy = dragY - plane.y;
-                this.formationGroup.forEach(p => {
-                    p.x += dx;
-                    p.y += dy;
-                });
-                
-                // Update progress bar
-                this.updateInterceptProgress();
-            });
+    // ---- STORE FORMATION GROUP ----
+    this.formationGroup = [this.ludwikPlane, ...this.squadronMarkers];
+
+    // ---- MAKE FORMATION DRAGGABLE ----
+  // ---- STORE FORMATION GROUP ----
+    this.formationGroup = [this.ludwikPlane, ...this.squadronMarkers];
+
+    // Disable individual plane input so only the drag zone responds
+    this.formationGroup.forEach(p => p.disableInteractive());
+
+    // ---- MAKE FORMATION DRAGGABLE (single zone for whole formation) ----
+    const avgX = this.formationGroup.reduce((sum, p) => sum + p.x, 0) / this.formationGroup.length;
+    const avgY = this.formationGroup.reduce((sum, p) => sum + p.y, 0) / this.formationGroup.length;
+
+    this.formationDragZone = this.add.zone(avgX, avgY, 260, 160)
+        .setInteractive({ draggable: true, useHandCursor: true });
+
+    this.formationDragZone.on('drag', (pointer, dragX, dragY) => {
+        const dx = dragX - this.formationDragZone.x;
+        const dy = dragY - this.formationDragZone.y;
+
+        this.formationDragZone.x = dragX;
+        this.formationDragZone.y = dragY;
+
+        this.formationGroup.forEach(p => {
+            p.x += dx;
+            p.y += dy;
         });
+
+        this.updateInterceptProgress();
+    });
 }
+   
+
+
     // ---------- ZOOM-IN TRANSITION ----------
     switchToAirfieldView() {
         // ---- FADE OUT PLOTTING TABLE ----
@@ -538,6 +542,8 @@ startInterceptPhase() {
             // ---- CLEAR PLOTTING TABLE ELEMENTS ----
             // Hide the grid, coastlines, and plotting-table markers
             this.children.list.forEach(child => {
+                if (this.enemyFormation && this.enemyFormation.includes(child)) return;
+                  if (child === this.cityGraphics) return;
                 if (child.type === 'Graphics' || child.type === 'Image') {
                     child.setVisible(false);
                 }
@@ -596,22 +602,23 @@ startInterceptPhase() {
             strokeThickness: 3
         }).setOrigin(0.5);
 
-        // ---- CONVERT MARKERS TO REAL PLANES ----
-        // Make Ludwik's plane a real Spitfire
-        this.ludwikPlane.setVisible(true);
+              this.ludwikPlane.setVisible(true);
         this.ludwikPlane.setFillStyle(0x4488cc);
         this.ludwikPlane.setScale(1.5);
         this.ludwikPlane.x = width / 2 - 100;
         this.ludwikPlane.y = height - 110;
+        this.ludwikPlane.setInteractive({ draggable: true, useHandCursor: true }); // <-- ADD THIS
 
-        // Convert squadron markers to real planes
         this.squadronMarkers.forEach((marker, i) => {
             marker.setVisible(true);
             marker.setFillStyle(0x66ccff);
             marker.setScale(1.5);
             marker.x = width / 2 - 100 + (i + 1) * 50;
             marker.y = height - 100 + i * 10;
+            marker.setInteractive({ draggable: true, useHandCursor: true }); // <-- ADD THIS
         });
+                // ---- UPDATE FORMATION GROUP ----
+        this.formationGroup = [this.ludwikPlane, ...this.squadronMarkers];
 
               // ---- CONTINUE TO PHASE 2 ----
         this.time.delayedCall(1000, () => {
@@ -620,7 +627,7 @@ startInterceptPhase() {
         });
     }
         updateInterceptProgress() {
-        const { width } = this.scale;
+        const { width, height } = this.scale;
         
         // Calculate average position of formation
         const avgX = this.formationGroup.reduce((sum, p) => sum + p.x, 0) / this.formationGroup.length;
@@ -644,11 +651,19 @@ startInterceptPhase() {
         if (progress > 0.85 && !this.interceptDone) {
             this.interceptSuccessful();
         }
-    }
+        }
     interceptSuccessful() {
         if (this.interceptDone) return;
         this.interceptDone = true;
-        
+
+        if (this.enemyApproachTween) {
+            this.enemyApproachTween.stop();
+        }
+
+        if (this.formationDragZone) {
+            this.formationDragZone.destroy();
+            this.formationDragZone = null;
+        }
         // ---- SHIELD OVER CITY ----
         const shield = this.add.graphics();
         shield.fillStyle(0x44ff44, 0.2);
@@ -689,104 +704,101 @@ startInterceptPhase() {
             this.startEscortPhase();
         });
     }
-            startEscortPhase() {
-         
-        console.log('🔄 Starting Phase 3 - Escort...');
-        this.phase = 'escort';
-        this.turnedBack = 0;
-        this.totalEnemies = this.enemyFormation.length;
+           startEscortPhase() {
+    console.log('🔄 Starting Phase 3 - Escort...');
+    this.phase = 'escort';
+    this.turnedBack = 0;
+    this.totalEnemies = this.enemyFormation.length;
 
-        // ---- TALLY COUNTER ----
-        this.tallyText = this.add.text(20, 50, '🚫 TURNED BACK: 0/' + this.totalEnemies, {
-            fontSize: '16px',
-            fill: '#ffd700',
-            fontFamily: 'Courier New'
-        });
+    // ---- TALLY COUNTER ----
+    this.tallyText = this.add.text(20, 50, '🚫 TURNED BACK: 0/' + this.totalEnemies, {
+        fontSize: '16px',
+        fill: '#ffd700',
+        fontFamily: 'Courier New'
+    });
 
-        // ---- LUDWIK'S LINE ----
-        this.dialogueText.setText('"Hold the line. They know we\'re here, make them think twice about coming through."');
+    this.dialogueText.setText('"Hold the line. They know we\'re here, make them think twice about coming through."');
 
-        // ---- TURN ENEMIES BACK ONE BY ONE ----
-        let turnIndex = 0;
-        const turnNext = () => {
-            if (turnIndex >= this.enemyFormation.length) {
-                // All enemies turned back!
-                this.dialogueText.setText('"All enemy planes turned back! Mission complete!"');
-                this.time.delayedCall(2000, () => {
-                    this.showResult();
+    let turnIndex = 0;
+    const turnNext = () => {
+        if (turnIndex >= this.enemyFormation.length) {
+            // All enemies turned back!
+            this.dialogueText.setText('"All enemy planes turned back! Mission complete!"');
+
+            // ---- CONFETTI CELEBRATION (MOVED HERE - OUTSIDE THE LOOP) ----
+            const { width, height } = this.scale;
+            const colors = [0xff4444, 0x44ff44, 0x4444ff, 0xffdd44, 0xff44ff, 0x44ffdd];
+            for (let i = 0; i < 40; i++) {
+                const confetti = this.add.rectangle(
+                    width / 2 + Phaser.Math.Between(-200, 200),
+                    height / 2 + Phaser.Math.Between(-100, 100),
+                    6, 10,
+                    colors[Phaser.Math.Between(0, colors.length - 1)]
+                );
+                this.tweens.add({
+                    targets: confetti,
+                    y: confetti.y + Phaser.Math.Between(100, 300),
+                    x: confetti.x + Phaser.Math.Between(-100, 100),
+                    angle: Phaser.Math.Between(0, 720),
+                    alpha: 0,
+                    duration: 1500 + Phaser.Math.Between(0, 500),
+                    onComplete: () => confetti.destroy()
                 });
-                return;
             }
 
-                // ---- CONFETTI CELEBRATION ----
-                const { width, height } = this.scale;
-                const colors = [0xff4444, 0x44ff44, 0x4444ff, 0xffdd44, 0xff44ff, 0x44ffdd];
-                for (let i = 0; i < 40; i++) {
-                    const confetti = this.add.rectangle(
-                        width / 2 + Phaser.Math.Between(-200, 200),
-                        height / 2 + Phaser.Math.Between(-100, 100),
-                        6, 10,
-                        colors[Phaser.Math.Between(0, colors.length - 1)]
-                    );
-                    this.tweens.add({
-                        targets: confetti,
-                        y: confetti.y + Phaser.Math.Between(100, 300),
-                        x: confetti.x + Phaser.Math.Between(-100, 100),
-                        angle: Phaser.Math.Between(0, 720),
-                        alpha: 0,
-                        duration: 1500 + Phaser.Math.Between(0, 500),
-                        onComplete: () => confetti.destroy()
-                    });
-                }
-
-            const enemy = this.enemyFormation[turnIndex];
-
-            // ---- RETREAT ARROW ----
-            const arrow = this.add.graphics();
-            arrow.lineStyle(3, 0xff4444, 0.8);
-            arrow.moveTo(enemy.x, enemy.y);
-            arrow.lineTo(enemy.x - 80, enemy.y - 40);
-            arrow.strokePath();
-            this.tweens.add({
-                targets: arrow,
-                alpha: 0,
-                duration: 1000,
-                onComplete: () => arrow.destroy()
+            this.time.delayedCall(2000, () => {
+                this.showResult();
             });
+            return;
+        }
 
-            // ---- TURN ENEMY AROUND ----
-            this.tweens.add({
-                targets: enemy,
-                x: enemy.x - 250,
-                y: enemy.y + 100,
-                angle: 180,
-                duration: 1500,
-                ease: 'Sine.easeOut',
-                onStart: () => {
-                    enemy.setFillStyle(0x444466);
-                },
-                onComplete: () => {
-                    this.turnedBack++;
-                    this.tallyText.setText('🚫 TURNED BACK: ' + this.turnedBack + '/' + this.totalEnemies);
-                    
-                    // Bounce the tally
-                    this.tweens.add({
-                        targets: this.tallyText,
-                        scaleX: 1.3,
-                        scaleY: 1.3,
-                        duration: 100,
-                        yoyo: true
-                    });
-                    
-                    turnIndex++;
-                    this.time.delayedCall(600, turnNext);
-                }
-            });
-        };
+        const enemy = this.enemyFormation[turnIndex];
 
-        // Start turning enemies after a delay
-        this.time.delayedCall(1000, turnNext);
-    }
+        // ---- RETREAT ARROW ----
+        const arrow = this.add.graphics();
+        arrow.lineStyle(3, 0xff4444, 0.8);
+        arrow.moveTo(enemy.x, enemy.y);
+        arrow.lineTo(enemy.x - 80, enemy.y - 40);
+        arrow.strokePath();
+        this.tweens.add({
+            targets: arrow,
+            alpha: 0,
+            duration: 1000,
+            onComplete: () => arrow.destroy()
+        });
+
+        // ---- TURN ENEMY AROUND ----
+        this.tweens.add({
+            targets: enemy,
+            x: enemy.x - 250,
+            y: enemy.y + 100,
+            angle: 180,
+            duration: 1500,
+            ease: 'Sine.easeOut',
+            onStart: () => {
+                enemy.setFillStyle(0x444466);
+            },
+            onComplete: () => {
+                this.turnedBack++;
+                this.tallyText.setText('🚫 TURNED BACK: ' + this.turnedBack + '/' + this.totalEnemies);
+
+                // Bounce the tally
+                this.tweens.add({
+                    targets: this.tallyText,
+                    scaleX: 1.3,
+                    scaleY: 1.3,
+                    duration: 100,
+                    yoyo: true
+                });
+
+                turnIndex++;
+                this.time.delayedCall(600, turnNext);
+            }
+        });
+    };
+
+    this.time.delayedCall(1000, turnNext);
+}
         showResult() {
         const successRate = this.turnedBack / this.totalEnemies;
         let resultMessage = '';
@@ -841,8 +853,8 @@ startInterceptPhase() {
         }
 
         // Update dialogue
-        this.dialogueText.setText(resultMessage);
-        this.dialogueText.setFill(resultColor);
+       this.dialogueText.setText(resultMessage);
+        this.dialogueText.setColor(resultColor);
 
         // Store outcome for ResultScene
         this.game.registry.set('interceptOutcome', outcome);
@@ -851,8 +863,8 @@ startInterceptPhase() {
         this.time.delayedCall(4000, () => {
             this.scene.start('ResultScene');
         });
-    }
-    }
+        }
     
 
 
+    }
