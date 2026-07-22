@@ -6,6 +6,7 @@ class ToteBoardScene extends Phaser.Scene {
     preload() {
         // Load the tote board background image
         this.load.image('tote-board', 'assets/images/toteboard.png');
+          this.load.image('waaf-mascot', 'assets/images/waaf-mascot.png');
         console.log('ToteBoardScene: preloading tote-board.png');
     }
 

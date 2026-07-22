@@ -7,6 +7,7 @@ class DetectionScene extends Phaser.Scene {
 preload() {
     // Try to load the detailed map image
     this.load.image('map', 'assets/images/mapbackground.png');
+      this.load.image('waaf-mascot', 'assets/images/waaf-mascot.png');
     console.log('🔵 DetectionScene: preloading mapbackground.png');
 }
     
@@ -88,13 +89,13 @@ create() {
         dialogueBg.lineStyle(2, 0xf5e56b, 0.4);
         dialogueBg.strokeRoundedRect(dialogueBoxX, dialogueBoxY, dialogueBoxWidth, dialogueBoxHeight, 16);
         // ---------- WAAF PORTRAIT (above dialogue, right side) ----------
-        const portraitX = width - 110;
-        const portraitY = dialogueBoxY - 60;
+        const portraitX = width - 220;
+        const portraitY = dialogueBoxY - 250;
 
         // Place the mascot image inside the circle
         if (this.textures.exists('waaf-mascot')) {
             this.add.image(portraitX, portraitY, 'waaf-mascot')
-                .setScale(0.16)
+                .setScale(0.3)
                 .setDepth(10);
         } else {
             this.add.text(portraitX, portraitY - 5, 'WAAF', { // X and Y coordinates of the text, in this case, the center of the screen
