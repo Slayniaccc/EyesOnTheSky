@@ -7,6 +7,7 @@ class InterceptScene extends Phaser.Scene {
         this.load.image('map', 'assets/images/mapbackground.png');
         this.load.image('ludwik', 'assets/images/ludwik.png');
         this.load.image('raf-plane', 'assets/images/raf-plane.png');
+        this.load.image('german-plane', 'assets/images/german_plane.png');
         // Not on disk yet — drop a real photo/illustration here and it's used automatically,
         // falling back to the drawn scene in drawAirfieldBackgroundFallback() until then.
         this.load.image('airfield-bg', 'assets/images/airfield-bg.png');
@@ -440,18 +441,21 @@ startInterceptPhase() {
 
     // ---- ENEMY FORMATION ----
     this.enemyFormation = [];
+    this.usingEnemySprite = this.textures.exists('german-plane');
     const enemyStartX = 850;
     const enemyStartY = 200;
-    
+
     for (let i = 0; i < 5; i++) {
-        const enemy = this.add.triangle(
-            enemyStartX + i * 25,
-            enemyStartY + i * 12,
-            0, -14,
-            -10, 8,
-            10, 8,
-            0x888888
-        );
+        const x = enemyStartX + i * 25;
+        const y = enemyStartY + i * 12;
+        let enemy;
+        if (this.usingEnemySprite) {
+            // Same map-view scale as the RAF planes so both sides read as the
+            // same "size" of marker on the plotting table.
+            enemy = this.add.image(x, y, 'german-plane').setScale(this.rafPlaneMapScale);
+        } else {
+            enemy = this.add.triangle(x, y, 0, -14, -10, 8, 10, 8, 0x888888);
+        }
         enemy.setDepth(4);
         this.enemyFormation.push(enemy);
     }
@@ -859,7 +863,11 @@ startInterceptPhase() {
             duration: 1500,
             ease: 'Sine.easeOut',
             onStart: () => {
-                enemy.setFillStyle(0x444466);
+                if (this.usingEnemySprite) {
+                    enemy.setTint(0x444466);
+                } else {
+                    enemy.setFillStyle(0x444466);
+                }
             },
             onComplete: () => {
                 this.turnedBack++;
