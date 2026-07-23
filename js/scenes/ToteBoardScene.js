@@ -102,7 +102,8 @@ class ToteBoardScene extends BaseGameScene {
                 fill: '#b0c4de',
                 fontFamily: 'Courier New',
                 fontStyle: 'bold',
-                align: 'center'
+                align: 'center',
+                wordWrap: { width: panelWidth - 24 }
             }).setOrigin(0.5);
 
             // Store references
