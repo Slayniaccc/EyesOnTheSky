@@ -6,11 +6,14 @@ class IntroScene extends Phaser.Scene {
         // Load your mascot image
         this.load.image('waaf-mascot', 'assets/images/waaf-mascot.png');
          this.load.image('dowding-diagram', 'assets/images/dowdingsystemexplanation.png');
-        
-       
+
+        // Preload all game audio here once — the cache is shared across every scene.
+        AudioManager.preloadAll(this);
     }
     create() {
-    const { width, height } = this.scale; 
+    const { width, height } = this.scale;
+
+    AudioManager.playMusic(this, AudioManager.manifest.music.bunkerAmbience);
 
     // Solid dark blue background
     const bg = this.add.graphics(); 
@@ -139,6 +142,7 @@ if (this.textures.exists('waaf-mascot')) {
         overlayContainer.add(dismissZone);
 
         dismissZone.on('pointerdown', () => {
+            AudioManager.playSFX(this, AudioManager.manifest.sfx.buttonClick);
             overlayContainer.setVisible(false);
             dismissZone.setVisible(false);
             startBtn.setVisible(true);
@@ -166,6 +170,7 @@ startBtn.setVisible(false);
 btnBg.setVisible(false);
 // ---------- BUTTON CLICK ----------
 startBtn.on('pointerdown', () => {
+    AudioManager.playSFX(this, AudioManager.manifest.sfx.buttonClick);
     this.cameras.main.fadeOut(500, 0, 0, 0);
     this.cameras.main.once('camerafadeoutcomplete', () => {
         this.scene.start('DetectionScene');

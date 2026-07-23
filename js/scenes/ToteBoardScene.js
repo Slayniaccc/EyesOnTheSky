@@ -58,12 +58,12 @@ class ToteBoardScene extends Phaser.Scene {
         dialogueBg.strokeRoundedRect(dialogueBoxX, dialogueBoxY, dialogueBoxWidth, dialogueBoxHeight, 16);
 
         // WAAF Portrait (above dialogue, right side)
-        const portraitX = width - 110;
-        const portraitY = dialogueBoxY - 60;
+        const portraitX = width - 220;
+        const portraitY = dialogueBoxY - 180;
 
         if (this.textures.exists('waaf-mascot')) {
             this.add.image(portraitX, portraitY, 'waaf-mascot')
-                .setScale(0.16)
+                .setScale(0.3)
                 .setDepth(10);
         } else {
             this.add.text(portraitX, portraitY - 5, 'WAAF', {
@@ -217,6 +217,8 @@ class ToteBoardScene extends Phaser.Scene {
     // ---------- HANDLE PLAYER TAP ----------
 handlePanelTap(index) {
     if (!this.isWaitingForTap || this.roundComplete || this.gameOver) return;
+
+    AudioManager.playSFX(this, AudioManager.manifest.sfx.buttonClick);
 
     this.roundComplete = true;
     this.isWaitingForTap = false;

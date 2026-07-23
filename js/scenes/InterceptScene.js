@@ -161,6 +161,7 @@ class InterceptScene extends Phaser.Scene {
                 // ---------- CLICK HANDLER ----------
                 marker.on('pointerdown', () => {
                     if (marker.collected || !marker.arrived) return;
+                    AudioManager.playSFX(this, AudioManager.manifest.sfx.buttonClick);
                     marker.collected = true;
                     this.collectedCount++;
 

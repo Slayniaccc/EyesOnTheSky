@@ -124,6 +124,7 @@ class DecisionScene extends Phaser.Scene {
                 }
 
                 if (droppedOn) {
+                    AudioManager.playSFX(this, AudioManager.manifest.sfx.buttonClick);
                     // Snap to sector
                     marker.x = droppedOn.x;
                     marker.y = droppedOn.y;
@@ -159,6 +160,7 @@ class DecisionScene extends Phaser.Scene {
 
         // 4. Button click handler
         continueBtn.on('pointerdown', () => {
+            AudioManager.playSFX(this, AudioManager.manifest.sfx.buttonClick);
             this.currentLineIndex++;
 
             if (this.currentLineIndex < this.parkLines.length) {

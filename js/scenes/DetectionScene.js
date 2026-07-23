@@ -52,6 +52,8 @@ create() {
             blip.on('pointerdown', () => {
             if (this.detectionStage !== 'radar_blip' || blip.getData('resolved')) return;
 
+            AudioManager.playSFX(this, AudioManager.manifest.sfx.radarPing);
+
             blip.setData('resolved', true);
             blip.disableInteractive();
             this.tweens.killTweensOf(blip);
@@ -217,6 +219,8 @@ create() {
             sprite.on('pointerdown', () => {
                 if (!sprite.lit) return;
                 if (sprite.tapped) return;
+
+                AudioManager.playSFX(this, AudioManager.manifest.sfx.buttonClick);
 
                 sprite.tapped = true;
                 this.rocPostsTapped++;
