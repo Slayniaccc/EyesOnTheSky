@@ -1,4 +1,4 @@
-class ToteBoardScene extends Phaser.Scene {
+class ToteBoardScene extends BaseGameScene {
     constructor() {
         super('ToteBoardScene');
     }
@@ -27,11 +27,7 @@ class ToteBoardScene extends Phaser.Scene {
         }
 
         // ---------- TOP BAR UI ----------
-        this.add.text(20, 20, '◈ TOTE BOARD', {
-            fontSize: '18px',
-            fill: '#ffd700',
-            fontFamily: 'Courier New'
-        });
+        this.createTopBar('TOTE BOARD');
 
         // ---------- STATE MACHINE VARIABLES ----------
         this.states = ['Available', 'Ordered to Readiness', 'Left Ground'];
@@ -45,53 +41,23 @@ class ToteBoardScene extends Phaser.Scene {
         this.isWaitingForTap = false;
         this.gameOver = false;
                 // ---------- WAAF DIALOGUE BOX ----------
-        const dialogueBoxX = 40;
-        const dialogueBoxY = height - 130;
-        const dialogueBoxWidth = width - 80;
-        const dialogueBoxHeight = 100;
-
-        // Background
-        const dialogueBg = this.add.graphics();
-        dialogueBg.fillStyle(0x0d1b2a, 0.92);
-        dialogueBg.fillRoundedRect(dialogueBoxX, dialogueBoxY, dialogueBoxWidth, dialogueBoxHeight, 16);
-        dialogueBg.lineStyle(2, 0xf5e56b, 0.4);
-        dialogueBg.strokeRoundedRect(dialogueBoxX, dialogueBoxY, dialogueBoxWidth, dialogueBoxHeight, 16);
+        this.createDialogueBox(width, height);
 
         // WAAF Portrait — same standard corner badge as Keith Park/Ludwik/
         // DetectionScene, nudged up slightly (height-210) to keep the label
         // clear of the dialogue box now that the circle is bigger (radius 60,
         // was 40). The state panels end at x:760, y:390 at this canvas size,
         // so this spot is clear of them.
-        const portraitX = width - 110;
-        const portraitY = height - 210;
-
-        const circleRadius = 60;
-        const circleBg = this.add.graphics();
-        circleBg.fillStyle(0x2d1b0e, 0.9);
-        circleBg.fillCircle(portraitX, portraitY, circleRadius);
-        circleBg.lineStyle(3, 0xf5e56b, 0.7);
-        circleBg.strokeCircle(portraitX, portraitY, circleRadius);
-
-        if (this.textures.exists('waaf-mascot-bust')) {
-            const mascot = this.add.image(portraitX, portraitY, 'waaf-mascot-bust').setDepth(10);
-            // Fit inside the gold circle itself, sized to the full diameter so
-            // she fills the badge rather than floating small in the middle.
-            const circleFitSize = circleRadius * 2;
-            mascot.setScale(Math.min(circleFitSize / mascot.width, circleFitSize / mascot.height));
-        } else {
-            this.add.text(portraitX, portraitY - 5, 'WAAF', {
-                fontSize: '14px',
-                fill: '#fff',
-                fontFamily: 'Courier New',
-                fontStyle: 'bold'
-            }).setOrigin(0.5).setDepth(10);
-        }
-
-        this.add.text(portraitX, portraitY + circleRadius + 15, 'WAAF', {
-            fontSize: '12px',
-            fill: '#f5e56b',
-            fontFamily: 'Courier New'
-        }).setOrigin(0.5);
+        this.createPortraitBadge(width - 110, height - 210, {
+            radius: 60,
+            textureKey: 'waaf-mascot-bust',
+            fallbackText: 'WAAF',
+            fallbackFontSize: '14px',
+            fallbackFill: '#fff',
+            nameLabel: 'WAAF',
+            sizing: { fitToCircle: true },
+            labelGap: 15
+        });
 
         // Dialogue text
         this.dialogueText = this.add.text(110, height - 100, 'Tote board live. Watch the states — squadrons don\'t just sit ready.', {
