@@ -6,7 +6,7 @@ const config = {
     height: 700,
     parent: 'game-container',
     backgroundColor: '#1a1a2e',
-    scene: [IntroScene, DetectionScene, ToteBoardScene, DecisionScene, InterceptScene], 
+    scene: [IntroScene, DetectionScene, ToteBoardScene, DecisionScene, InterceptScene, DebugMenuScene],
     scale: {
         mode: Phaser.Scale.FIT,
         autoCenter: Phaser.Scale.CENTER_BOTH

@@ -27,7 +27,13 @@ const AudioManager = {
         // Add entries here as lines get scripted/recorded, e.g.:
         // waaf: { toteIntro: { key: 'waaf-tote-intro', path: 'assets/audio/waaf-lines/tote-intro.mp3', volume: 0.6 } }
         voice: {
-            waaf: {},
+            // Static (non-interpolated) WAAF lines from DetectionScene's dialogue box.
+            waaf: {
+                detectionWelcome: { key: 'waaf-detection-welcome', path: 'assets/audio/waaf-lines/detection-welcome.mp3', volume: 0.6 },
+                radarComplete: { key: 'waaf-radar-complete', path: 'assets/audio/waaf-lines/radar-complete.mp3', volume: 0.6 },
+                raidOverLand: { key: 'waaf-raid-over-land', path: 'assets/audio/waaf-lines/raid-over-land.mp3', volume: 0.6 },
+                rocComplete: { key: 'waaf-roc-complete', path: 'assets/audio/waaf-lines/roc-complete.mp3', volume: 0.6 }
+            },
             keithPark: {},
             ludwik: {},
             // Narrates the four Dowding System steps on IntroScene's diagram page.

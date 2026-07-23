@@ -48,7 +48,14 @@ create() {
             repeat: -1
             });
 
-            blip.setInteractive({ useHandCursor: true });
+            // Visual blip stays small (radius 8) but the tappable area is a generous
+            // fixed 48px-diameter circle, meeting the 44px min touch-target guideline
+            // regardless of the pulsing scale tween's current size.
+            blip.setInteractive({
+                useHandCursor: true,
+                hitArea: new Phaser.Geom.Circle(0, 0, 24),
+                hitAreaCallback: Phaser.Geom.Circle.Contains
+            });
             blip.on('pointerdown', () => {
             if (this.detectionStage !== 'radar_blip' || blip.getData('resolved')) return;
 
@@ -67,6 +74,7 @@ create() {
             }
 
             this.dialogueText.setText('"Radar picked up several contacts out at sea. We\'ll plot them now."');
+            AudioManager.playVoice(this, AudioManager.manifest.voice.waaf.radarComplete);
             this.detectionStage = 'raid_moving';
             this.spawnRaidMarker();
             });
@@ -90,23 +98,9 @@ create() {
         dialogueBg.fillRoundedRect(dialogueBoxX, dialogueBoxY, dialogueBoxWidth, dialogueBoxHeight, 16);
         dialogueBg.lineStyle(2, 0xf5e56b, 0.4);
         dialogueBg.strokeRoundedRect(dialogueBoxX, dialogueBoxY, dialogueBoxWidth, dialogueBoxHeight, 16);
-        // ---------- WAAF PORTRAIT (above dialogue, right side) ----------
-        const portraitX = width - 220;
-        const portraitY = dialogueBoxY - 250;
+        // ---------- WAAF PORTRAIT (bottom-right corner badge, same treatment as Keith Park/Ludwik) ----------
+        this.createWaafPortrait(width, height);
 
-        // Place the mascot image inside the circle
-        if (this.textures.exists('waaf-mascot')) {
-            this.add.image(portraitX, portraitY, 'waaf-mascot')
-                .setScale(0.3)
-                .setDepth(10);
-        } else {
-            this.add.text(portraitX, portraitY - 5, 'WAAF', { // X and Y coordinates of the text, in this case, the center of the screen
-                fontSize: '14px',
-                fill: '#fff',
-                fontFamily: 'Courier New',
-                fontStyle: 'bold'
-            }).setOrigin(0.5).setDepth(10);
-        }
         this.dialogueText = this.add.text(110, height - 100, 'Welcome to Fighter Command. Tap each radar blip when it flashes.', {
             fontSize: '17px',
             fill: '#c8e6c9',
@@ -114,6 +108,7 @@ create() {
             fontStyle: 'italic',
             wordWrap: { width: width - 120 }
         });
+        AudioManager.playVoice(this, AudioManager.manifest.voice.waaf.detectionWelcome);
 
         // ---------- STATE MACHINE (NEW) ----------
         this.detectionStage = 'radar_blip';
@@ -160,6 +155,7 @@ create() {
 
                 // Update dialogue to WAAF line 2
                 this.dialogueText.setText('"Now it\'s over land, Observer Corps\' job. Watch the posts light up."');
+                AudioManager.playVoice(this, AudioManager.manifest.voice.waaf.raidOverLand);
 
                 // Move to next stage
                 this.detectionStage = 'roc_sequence';
@@ -184,21 +180,23 @@ create() {
         // Create unlit ROC posts
         this.rocPostObjects = [];
         rocPositions.forEach((pos, index) => {
-            // Draw a small tower shape
+            // Draw a tower shape — sized up from the original 24x44 texture
+            // (~1.8x) so the icon itself reads clearly, not just its hit area.
             const g = this.make.graphics({ add: false });
-            g.fillStyle(0x444444);
-            g.fillRect(-8, -16, 16, 32);
-            g.fillStyle(0x333333);
-            g.fillCircle(0, -18, 10);
-            g.generateTexture('roc_post_' + index, 24, 44);
+            g.fillStyle(0x666666);
+            g.fillRect(-14, -29, 29, 58);
+            g.fillStyle(0x555555);
+            g.fillCircle(0, -32, 18);
+            g.generateTexture('roc_post_' + index, 44, 80);
             g.destroy();
 
-            // Create the sprite with a larger interactive hit area
+            // Interactive hit area is bigger still (100px diameter) — comfortably
+            // past the 44px minimum touch target for small fingers.
             const sprite = this.add.image(pos.x, pos.y, 'roc_post_' + index)
                 .setDepth(6)
                 .setInteractive({
                     useHandCursor: true,
-                    hitArea: new Phaser.Geom.Circle(0, 0, 28),
+                    hitArea: new Phaser.Geom.Circle(0, 0, 50),
                     hitAreaCallback: Phaser.Geom.Circle.Contains
                 });
 
@@ -207,11 +205,14 @@ create() {
             sprite.index = index;
             sprite.tapped = false;
             sprite.lit = false;
-            sprite.label = this.add.text(pos.x, pos.y + 30, pos.label, {
-                fontSize: '10px',
-                fill: '#666',
-                fontFamily: 'Courier New'
-            }).setOrigin(0.5);
+            sprite.label = this.add.text(pos.x, pos.y + 55, pos.label, {
+                fontSize: '15px',
+                fill: '#999',
+                fontFamily: 'Courier New',
+                fontStyle: 'bold',
+                stroke: '#000000',
+                strokeThickness: 3
+            }).setOrigin(0.5).setDepth(6);
 
             this.rocPostObjects.push(sprite);
 
@@ -239,6 +240,7 @@ create() {
                 // Check if all tapped
                 if (this.rocPostsTapped === this.totalRocPosts) {
                     this.dialogueText.setText('"Radar sees them coming across the Channel, but once they\'re over land, that\'s where we lose them. That\'s why we need the Observer Corps."');
+                    AudioManager.playVoice(this, AudioManager.manifest.voice.waaf.rocComplete);
                     this.detectionStage = 'complete';
                     
                     // Advance after 3 seconds
@@ -266,6 +268,22 @@ create() {
                 duration: 200,
                 yoyo: true,
                 repeat: 2
+            });
+
+            // "TAP ME!" prompt so kids know it just became interactive
+            const tapHint = this.add.text(post.x, post.y - 60, '👆 TAP!', {
+                fontSize: '14px',
+                fill: '#ffd700',
+                fontFamily: 'Courier New',
+                fontStyle: 'bold'
+            }).setOrigin(0.5).setDepth(7);
+            this.tweens.add({
+                targets: tapHint,
+                y: tapHint.y - 20,
+                alpha: 0,
+                duration: 1600,
+                delay: 400,
+                onComplete: () => tapHint.destroy()
             });
 
             currentIndex++;
@@ -325,5 +343,38 @@ create() {
         }
         grid.strokePath();
     }
-    
+
+    createWaafPortrait(width, height) {
+        const portraitX = width - 110;
+        const portraitY = height - 200;
+
+        // Circular background
+        const circleBg = this.add.graphics();
+        circleBg.fillStyle(0x2d1b0e, 0.9);
+        circleBg.fillCircle(portraitX, portraitY, 40);
+        circleBg.lineStyle(3, 0xf5e56b, 0.7);
+        circleBg.strokeCircle(portraitX, portraitY, 40);
+
+        if (this.textures.exists('waaf-mascot')) {
+            const mascot = this.add.image(portraitX, portraitY, 'waaf-mascot').setDepth(10);
+            // waaf-mascot.png is a wide 1920x1080 source (unlike Keith/Ludwik's tall
+            // portraits), so fit-to-box instead of reusing their raw 0.15 scale —
+            // that literal value would render this nearly 300px wide.
+            const boxSize = 200;
+            mascot.setScale(Math.min(boxSize / mascot.width, boxSize / mascot.height));
+        } else {
+            this.add.text(portraitX, portraitY - 5, 'WAAF', {
+                fontSize: '14px',
+                fill: '#f5e56b',
+                fontFamily: 'Courier New',
+                fontStyle: 'bold'
+            }).setOrigin(0.5).setDepth(10);
+        }
+
+        this.add.text(portraitX, portraitY + 50, 'WAAF', {
+            fontSize: '12px',
+            fill: '#f5e56b',
+            fontFamily: 'Courier New'
+        }).setOrigin(0.5);
+    }
 }
