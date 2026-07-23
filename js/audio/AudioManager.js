@@ -30,7 +30,13 @@ const AudioManager = {
             waaf: {},
             keithPark: {},
             ludwik: {},
-            dowdingNarrator: {}
+            // Narrates the four Dowding System steps on IntroScene's diagram page.
+            dowdingNarrator: {
+                step1: { key: 'dowding-step1', path: 'assets/audio/dowding-narrator-lines/step1.mp3', volume: 0.7 },
+                step2: { key: 'dowding-step2', path: 'assets/audio/dowding-narrator-lines/step2.mp3', volume: 0.7 },
+                step3: { key: 'dowding-step3', path: 'assets/audio/dowding-narrator-lines/step3.mp3', volume: 0.7 },
+                step4: { key: 'dowding-step4', path: 'assets/audio/dowding-narrator-lines/step4.mp3', volume: 0.7 }
+            }
         }
     },
 
