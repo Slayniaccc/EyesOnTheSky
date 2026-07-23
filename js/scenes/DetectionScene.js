@@ -7,7 +7,7 @@ class DetectionScene extends Phaser.Scene {
 preload() {
     // Try to load the detailed map image
     this.load.image('map', 'assets/images/mapbackground.png');
-      this.load.image('waaf-mascot', 'assets/images/waaf-mascot.png');
+      this.load.image('waaf-mascot-bust', 'assets/images/waaf-mascot-bust.png');
     console.log('🔵 DetectionScene: preloading mapbackground.png');
 }
     
@@ -344,37 +344,43 @@ create() {
         grid.strokePath();
     }
 
+    // Same badge treatment as Keith Park (DecisionScene) and Ludwik
+    // (InterceptScene): circular medallion, bust portrait, name label below.
     createWaafPortrait(width, height) {
-        // waaf-mascot.png is a full standing figure (tall/narrow, unlike Keith
-        // Park's and Ludwik's head-and-shoulders busts), so she gets standing
-        // room in the corner instead of their small circular badge — a full
-        // body doesn't read well shrunk into an 80px medallion.
+        // Nudged up from the standard height-200 spot to keep the label
+        // clear of the dialogue box (top edge at height-130) now that the
+        // circle is bigger (radius 60, was 40).
         const portraitX = width - 110;
-        const portraitY = height - 300;
-        const targetHeight = 280;
+        const portraitY = height - 210;
 
-        if (this.textures.exists('waaf-mascot')) {
-            const mascot = this.add.image(portraitX, portraitY, 'waaf-mascot').setDepth(10);
-            mascot.setScale(targetHeight / mascot.height);
-            // Bottom edge lands at portraitY + targetHeight/2 = height-160 (=540
-            // here), comfortably above the dialogue box's top edge at height-130
-            // (=570) — she has setDepth(10) and the box doesn't, so anything
-            // past that edge would visibly draw on top of the box.
+        const circleRadius = 60;
+        const circleBg = this.add.graphics();
+        circleBg.fillStyle(0x2d1b0e, 0.9);
+        circleBg.fillCircle(portraitX, portraitY, circleRadius);
+        circleBg.lineStyle(3, 0xf5e56b, 0.7);
+        circleBg.strokeCircle(portraitX, portraitY, circleRadius);
+
+        if (this.textures.exists('waaf-mascot-bust')) {
+            const mascot = this.add.image(portraitX, portraitY, 'waaf-mascot-bust').setDepth(10);
+            // Fit inside the gold circle itself, unlike Keith/Ludwik whose
+            // portraits overflow past their (smaller) circle. Sized to the
+            // full diameter so she fills the badge rather than floating small
+            // in the middle of it.
+            const circleFitSize = circleRadius * 2;
+            mascot.setScale(Math.min(circleFitSize / mascot.width, circleFitSize / mascot.height));
         } else {
-            this.add.text(portraitX, portraitY, 'WAAF', {
-                fontSize: '16px',
+            this.add.text(portraitX, portraitY - 5, 'WAAF', {
+                fontSize: '18px',
                 fill: '#f5e56b',
                 fontFamily: 'Courier New',
                 fontStyle: 'bold'
             }).setOrigin(0.5).setDepth(10);
         }
 
-        this.add.text(portraitX, portraitY + targetHeight / 2 + 14, 'WAAF', {
+        this.add.text(portraitX, portraitY + circleRadius + 15, 'WAAF', {
             fontSize: '12px',
             fill: '#f5e56b',
-            fontFamily: 'Courier New',
-            stroke: '#000000',
-            strokeThickness: 3
-        }).setOrigin(0.5).setDepth(10);
+            fontFamily: 'Courier New'
+        }).setOrigin(0.5);
     }
 }

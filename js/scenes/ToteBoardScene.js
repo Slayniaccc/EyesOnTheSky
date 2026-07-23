@@ -6,7 +6,7 @@ class ToteBoardScene extends Phaser.Scene {
     preload() {
         // Load the tote board background image
         this.load.image('tote-board', 'assets/images/toteboard.png');
-          this.load.image('waaf-mascot', 'assets/images/waaf-mascot.png');
+          this.load.image('waaf-mascot-bust', 'assets/images/waaf-mascot-bust.png');
         console.log('ToteBoardScene: preloading tote-board.png');
     }
 
@@ -57,14 +57,27 @@ class ToteBoardScene extends Phaser.Scene {
         dialogueBg.lineStyle(2, 0xf5e56b, 0.4);
         dialogueBg.strokeRoundedRect(dialogueBoxX, dialogueBoxY, dialogueBoxWidth, dialogueBoxHeight, 16);
 
-        // WAAF Portrait (above dialogue, right side)
-        const portraitX = width - 220;
-        const portraitY = dialogueBoxY - 180;
+        // WAAF Portrait — same standard corner badge as Keith Park/Ludwik/
+        // DetectionScene, nudged up slightly (height-210) to keep the label
+        // clear of the dialogue box now that the circle is bigger (radius 60,
+        // was 40). The state panels end at x:760, y:390 at this canvas size,
+        // so this spot is clear of them.
+        const portraitX = width - 110;
+        const portraitY = height - 210;
 
-        if (this.textures.exists('waaf-mascot')) {
-            this.add.image(portraitX, portraitY, 'waaf-mascot')
-                .setScale(0.3)
-                .setDepth(10);
+        const circleRadius = 60;
+        const circleBg = this.add.graphics();
+        circleBg.fillStyle(0x2d1b0e, 0.9);
+        circleBg.fillCircle(portraitX, portraitY, circleRadius);
+        circleBg.lineStyle(3, 0xf5e56b, 0.7);
+        circleBg.strokeCircle(portraitX, portraitY, circleRadius);
+
+        if (this.textures.exists('waaf-mascot-bust')) {
+            const mascot = this.add.image(portraitX, portraitY, 'waaf-mascot-bust').setDepth(10);
+            // Fit inside the gold circle itself, sized to the full diameter so
+            // she fills the badge rather than floating small in the middle.
+            const circleFitSize = circleRadius * 2;
+            mascot.setScale(Math.min(circleFitSize / mascot.width, circleFitSize / mascot.height));
         } else {
             this.add.text(portraitX, portraitY - 5, 'WAAF', {
                 fontSize: '14px',
@@ -73,6 +86,12 @@ class ToteBoardScene extends Phaser.Scene {
                 fontStyle: 'bold'
             }).setOrigin(0.5).setDepth(10);
         }
+
+        this.add.text(portraitX, portraitY + circleRadius + 15, 'WAAF', {
+            fontSize: '12px',
+            fill: '#f5e56b',
+            fontFamily: 'Courier New'
+        }).setOrigin(0.5);
 
         // Dialogue text
         this.dialogueText = this.add.text(110, height - 100, 'Tote board live. Watch the states — squadrons don\'t just sit ready.', {

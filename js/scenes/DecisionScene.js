@@ -5,6 +5,7 @@ class DecisionScene extends Phaser.Scene {
     preload() {
         this.load.image('map', 'assets/images/mapbackground.png');
         this.load.image('keith-park', 'assets/images/keithpark.png');
+        this.load.image('waaf-mascot-bust', 'assets/images/waaf-mascot-bust.png');
         console.log('🔵 DecisionScene: preloading assets');
     }
     create() {
@@ -19,6 +20,7 @@ class DecisionScene extends Phaser.Scene {
         this.createGrid(width, height);
           this.createDialogueBox(width, height);
         this.createKeithParkPortrait(width, height);
+        this.createWaafPortrait(width, height);
          //dialogue logic
           this.parkLines = [
             '"Air Vice-Marshal Keith Park here. Fighter Command split Britain into four groups, 10, 11, 12, 13. Mine is 11 Group: London and the south-east."',
@@ -169,6 +171,7 @@ class DecisionScene extends Phaser.Scene {
                 // All Park lines finished – WAAF handoff
                 this.dialogueText.setText('"Two raids inbound. Drag each marker to the correct sector station."');
                 this.dialogueText.setFill('#c8e6c9'); // WAAF green
+                this.showWaafPortrait();
                 continueBtn.setVisible(false);
 
                 // Show the raid markers
@@ -244,6 +247,7 @@ class DecisionScene extends Phaser.Scene {
     createKeithParkPortrait(width, height) {
         const portraitX = width - 110;
         const portraitY = height - 200;
+        const elements = [];
 
         // Circular background
         const circleBg = this.add.graphics();
@@ -251,23 +255,75 @@ class DecisionScene extends Phaser.Scene {
         circleBg.fillCircle(portraitX, portraitY, 40);
         circleBg.lineStyle(3, 0xf5e56b, 0.7);
         circleBg.strokeCircle(portraitX, portraitY, 40);
+        elements.push(circleBg);
 
         if (this.textures.exists('keith-park')) {
-            this.add.image(portraitX, portraitY, 'keith-park').setScale(0.15).setDepth(10);
+            elements.push(this.add.image(portraitX, portraitY, 'keith-park').setScale(0.15).setDepth(10));
         } else {
-            this.add.text(portraitX, portraitY - 5, 'KP', {
+            elements.push(this.add.text(portraitX, portraitY - 5, 'KP', {
                 fontSize: '22px',
                 fill: '#f5e56b',
                 fontFamily: 'Courier New',
                 fontStyle: 'bold'
-            }).setOrigin(0.5).setDepth(10);
+            }).setOrigin(0.5).setDepth(10));
         }
 
-        this.add.text(portraitX, portraitY + 50, 'Keith Park', {
+        elements.push(this.add.text(portraitX, portraitY + 50, 'Keith Park', {
             fontSize: '12px',
             fill: '#f5e56b',
             fontFamily: 'Courier New'
-        }).setOrigin(0.5);
+        }).setOrigin(0.5));
+
+        this.keithPortraitElements = elements;
+    }
+
+    // Styled identically to createKeithParkPortrait — same badge, same spot —
+    // so swapping speakers reads as a clean portrait swap, not a new UI element.
+    createWaafPortrait(width, height) {
+        const portraitX = width - 110;
+        const portraitY = height - 200;
+        const elements = [];
+
+        const circleBg = this.add.graphics();
+        circleBg.fillStyle(0x2d1b0e, 0.9);
+        circleBg.fillCircle(portraitX, portraitY, 40);
+        circleBg.lineStyle(3, 0xf5e56b, 0.7);
+        circleBg.strokeCircle(portraitX, portraitY, 40);
+        elements.push(circleBg);
+
+        if (this.textures.exists('waaf-mascot-bust')) {
+            const mascot = this.add.image(portraitX, portraitY, 'waaf-mascot-bust').setDepth(10);
+            // Width-matched to Keith's rendered width (212px) rather than
+            // height — this crop is squarer than his tall portrait, so fitting
+            // by height alone would render her ~317px wide.
+            mascot.setScale(212 / mascot.width);
+            elements.push(mascot);
+        } else {
+            elements.push(this.add.text(portraitX, portraitY - 5, 'W', {
+                fontSize: '22px',
+                fill: '#f5e56b',
+                fontFamily: 'Courier New',
+                fontStyle: 'bold'
+            }).setOrigin(0.5).setDepth(10));
+        }
+
+        elements.push(this.add.text(portraitX, portraitY + 50, 'WAAF', {
+            fontSize: '12px',
+            fill: '#f5e56b',
+            fontFamily: 'Courier New'
+        }).setOrigin(0.5));
+
+        elements.forEach((el) => el.setVisible(false));
+        this.waafPortraitElements = elements;
+    }
+
+    showWaafPortrait() {
+        if (this.keithPortraitElements) {
+            this.keithPortraitElements.forEach((el) => el.setVisible(false));
+        }
+        if (this.waafPortraitElements) {
+            this.waafPortraitElements.forEach((el) => el.setVisible(true));
+        }
     }
   
   // 1. Define raid data
