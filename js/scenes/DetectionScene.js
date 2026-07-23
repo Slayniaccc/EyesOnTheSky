@@ -345,36 +345,36 @@ create() {
     }
 
     createWaafPortrait(width, height) {
+        // waaf-mascot.png is a full standing figure (tall/narrow, unlike Keith
+        // Park's and Ludwik's head-and-shoulders busts), so she gets standing
+        // room in the corner instead of their small circular badge — a full
+        // body doesn't read well shrunk into an 80px medallion.
         const portraitX = width - 110;
-        const portraitY = height - 200;
-
-        // Circular background
-        const circleBg = this.add.graphics();
-        circleBg.fillStyle(0x2d1b0e, 0.9);
-        circleBg.fillCircle(portraitX, portraitY, 40);
-        circleBg.lineStyle(3, 0xf5e56b, 0.7);
-        circleBg.strokeCircle(portraitX, portraitY, 40);
+        const portraitY = height - 300;
+        const targetHeight = 280;
 
         if (this.textures.exists('waaf-mascot')) {
             const mascot = this.add.image(portraitX, portraitY, 'waaf-mascot').setDepth(10);
-            // waaf-mascot.png is a wide 1920x1080 source (unlike Keith/Ludwik's tall
-            // portraits), so fit-to-box instead of reusing their raw 0.15 scale —
-            // that literal value would render this nearly 300px wide.
-            const boxSize = 200;
-            mascot.setScale(Math.min(boxSize / mascot.width, boxSize / mascot.height));
+            mascot.setScale(targetHeight / mascot.height);
+            // Bottom edge lands at portraitY + targetHeight/2 = height-160 (=540
+            // here), comfortably above the dialogue box's top edge at height-130
+            // (=570) — she has setDepth(10) and the box doesn't, so anything
+            // past that edge would visibly draw on top of the box.
         } else {
-            this.add.text(portraitX, portraitY - 5, 'WAAF', {
-                fontSize: '14px',
+            this.add.text(portraitX, portraitY, 'WAAF', {
+                fontSize: '16px',
                 fill: '#f5e56b',
                 fontFamily: 'Courier New',
                 fontStyle: 'bold'
             }).setOrigin(0.5).setDepth(10);
         }
 
-        this.add.text(portraitX, portraitY + 50, 'WAAF', {
+        this.add.text(portraitX, portraitY + targetHeight / 2 + 14, 'WAAF', {
             fontSize: '12px',
             fill: '#f5e56b',
-            fontFamily: 'Courier New'
-        }).setOrigin(0.5);
+            fontFamily: 'Courier New',
+            stroke: '#000000',
+            strokeThickness: 3
+        }).setOrigin(0.5).setDepth(10);
     }
 }
