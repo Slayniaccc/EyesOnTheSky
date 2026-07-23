@@ -6,6 +6,10 @@ class InterceptScene extends Phaser.Scene {
     preload() {
         this.load.image('map', 'assets/images/mapbackground.png');
         this.load.image('ludwik', 'assets/images/ludwik.png');
+        this.load.image('raf-plane', 'assets/images/raf-plane.png');
+        // Not on disk yet — drop a real photo/illustration here and it's used automatically,
+        // falling back to the drawn scene in drawAirfieldBackgroundFallback() until then.
+        this.load.image('airfield-bg', 'assets/images/airfield-bg.png');
         console.log('🔵 InterceptScene: preloading assets');
     }
 
@@ -65,29 +69,39 @@ class InterceptScene extends Phaser.Scene {
             fontFamily: 'Courier New'
         }).setOrigin(0.5);
                 // ---------- LUDWIK'S PLANE MARKER ----------
-        const plane = this.add.triangle(airfieldX, airfieldY - 5, 0, -16, -12, 10, 12, 10, 0x4488cc);
+        this.usingPlaneSprite = this.textures.exists('raf-plane');
+        this.rafPlaneMapScale = 0.05;
+        this.rafPlaneAirfieldScale = 0.14;
+
+        let plane, wingLeft, wingRight;
+        if (this.usingPlaneSprite) {
+            plane = this.add.image(airfieldX, airfieldY - 5, 'raf-plane').setScale(this.rafPlaneMapScale);
+        } else {
+            plane = this.add.triangle(airfieldX, airfieldY - 5, 0, -16, -12, 10, 12, 10, 0x4488cc);
+            // Small wing markers (fallback only — the sprite already has wings painted on)
+            wingLeft = this.add.rectangle(airfieldX - 16, airfieldY - 5, 8, 3, 0x66aadd);
+            wingRight = this.add.rectangle(airfieldX + 16, airfieldY - 5, 8, 3, 0x66aadd);
+        }
         plane.setDepth(5);
         plane.setInteractive({ useHandCursor: true });
-
-        // Small wing markers
-        const wingLeft = this.add.rectangle(airfieldX - 16, airfieldY - 5, 8, 3, 0x66aadd);
-        const wingRight = this.add.rectangle(airfieldX + 16, airfieldY - 5, 8, 3, 0x66aadd);
 
         // "L" label on the plane
         this.add.text(airfieldX, airfieldY - 8, 'L', {
             fontSize: '10px',
             fill: '#ffffff',
             fontFamily: 'Courier New',
-            fontStyle: 'bold'
-        }).setOrigin(0.5);
+            fontStyle: 'bold',
+            stroke: '#000000',
+            strokeThickness: 2
+        }).setOrigin(0.5).setDepth(6);
 
         // Store references
         this.ludwikPlane = plane;
-        this.ludwikWings = [wingLeft, wingRight];
+        this.ludwikWings = wingLeft ? [wingLeft, wingRight] : [];
         this.airfieldX = airfieldX;
         this.airfieldY = airfieldY;
                 // ---------- BOUNCY IDLE ANIMATION ----------
-        const planeGroup = [plane, wingLeft, wingRight];
+        const planeGroup = [plane, ...this.ludwikWings];
         this.tweens.add({
             targets: planeGroup,
             y: airfieldY - 15,
@@ -129,7 +143,9 @@ class InterceptScene extends Phaser.Scene {
         this.squadronMarkers = [];
 
              squadrons.forEach((sq, index) => {
-            const marker = this.add.triangle(sq.startX, sq.startY, 0, -14, -10, 8, 10, 8, sq.color);
+            const marker = this.usingPlaneSprite
+                ? this.add.image(sq.startX, sq.startY, 'raf-plane').setScale(this.rafPlaneMapScale)
+                : this.add.triangle(sq.startX, sq.startY, 0, -14, -10, 8, 10, 8, sq.color);
             marker.setDepth(5);
             marker.setVisible(false);
             marker.setInteractive({ useHandCursor: true });
@@ -561,36 +577,11 @@ startInterceptPhase() {
     buildAirfieldView() {
         const { width, height } = this.scale;
 
-        // ---- SKY BACKGROUND ----
-        const sky = this.add.graphics();
-        sky.fillStyle(0x87CEEB);
-        sky.fillRect(0, 0, width, height);
-
-        // ---- CLOUDS ----
-        for (let i = 0; i < 4; i++) {
-            const cloud = this.add.graphics();
-            cloud.fillStyle(0xffffff, 0.7);
-            cloud.fillCircle(100 + i * 200, 60 + i * 30, 40 + i * 10);
-            cloud.fillCircle(130 + i * 200, 50 + i * 30, 30 + i * 10);
-            cloud.fillCircle(80 + i * 200, 70 + i * 30, 30 + i * 10);
-        }
-
-        // ---- SUN ----
-        this.add.circle(50, 50, 35, 0xffdd44, 0.4);
-
-        // ---- GRASS ----
-        this.add.rectangle(0, height - 150, width, 150, 0x4a8a3a);
-
-        // ---- RUNWAY ----
-        const runway = this.add.graphics();
-        runway.fillStyle(0x666666);
-        runway.fillRoundedRect(width / 2 - 200, height - 100, 400, 40, 5);
-        runway.lineStyle(2, 0x888888);
-        runway.strokeRoundedRect(width / 2 - 200, height - 100, 400, 40, 5);
-
-        // Runway stripes
-        for (let x = width / 2 - 180; x <= width / 2 + 180; x += 40) {
-            this.add.rectangle(x, height - 100, 15, 6, 0xffffff);
+        // ---- BACKGROUND ----
+        if (this.textures.exists('airfield-bg')) {
+            this.add.image(width / 2, height / 2, 'airfield-bg').setDisplaySize(width, height);
+        } else {
+            this.drawAirfieldBackgroundFallback(width, height);
         }
 
         // ---- AIRFIELD LABEL ----
@@ -604,16 +595,16 @@ startInterceptPhase() {
         }).setOrigin(0.5);
 
               this.ludwikPlane.setVisible(true);
-        this.ludwikPlane.setFillStyle(0x4488cc);
-        this.ludwikPlane.setScale(1.5);
+        if (!this.usingPlaneSprite) this.ludwikPlane.setFillStyle(0x4488cc);
+        this.ludwikPlane.setScale(this.usingPlaneSprite ? this.rafPlaneAirfieldScale : 1.5);
         this.ludwikPlane.x = width / 2 - 100;
         this.ludwikPlane.y = height - 110;
         this.ludwikPlane.setInteractive({ draggable: true, useHandCursor: true }); // <-- ADD THIS
 
         this.squadronMarkers.forEach((marker, i) => {
             marker.setVisible(true);
-            marker.setFillStyle(0x66ccff);
-            marker.setScale(1.5);
+            if (!this.usingPlaneSprite) marker.setFillStyle(0x66ccff);
+            marker.setScale(this.usingPlaneSprite ? this.rafPlaneAirfieldScale : 1.5);
             marker.x = width / 2 - 100 + (i + 1) * 50;
             marker.y = height - 100 + i * 10;
             marker.setInteractive({ draggable: true, useHandCursor: true }); // <-- ADD THIS
@@ -627,6 +618,97 @@ startInterceptPhase() {
             this.startInterceptPhase();
         });
     }
+
+    // Drawn airfield scene used until a real assets/images/airfield-bg.png is added.
+    drawAirfieldBackgroundFallback(width, height) {
+        const fieldTop = height - 150;
+
+        // ---- SKY (gradient) ----
+        const sky = this.add.graphics();
+        sky.fillGradientStyle(0x4a90d9, 0x4a90d9, 0xbfe3f5, 0xbfe3f5, 1);
+        sky.fillRect(0, 0, width, fieldTop);
+
+        // ---- SUN ----
+        this.add.circle(60, 55, 35, 0xffdd44, 0.5);
+
+        // ---- CLOUDS ----
+        for (let i = 0; i < 4; i++) {
+            const cloud = this.add.graphics();
+            cloud.fillStyle(0xffffff, 0.75);
+            cloud.fillCircle(100 + i * 200, 60 + i * 30, 40 + i * 10);
+            cloud.fillCircle(130 + i * 200, 50 + i * 30, 30 + i * 10);
+            cloud.fillCircle(80 + i * 200, 70 + i * 30, 30 + i * 10);
+        }
+
+        // ---- DISTANT TREE LINE ----
+        const treeLine = this.add.graphics();
+        treeLine.fillStyle(0x2d5a2d, 0.85);
+        for (let x = -20, i = 0; x <= width + 20; x += 55, i++) {
+            const h = 26 + (i % 3) * 8;
+            treeLine.fillTriangle(x, fieldTop, x - 26, fieldTop + h, x + 26, fieldTop + h);
+        }
+
+        // ---- GRASS FIELD (mowed stripes) ----
+        const grass = this.add.graphics();
+        grass.fillStyle(0x4a8a3a);
+        grass.fillRect(0, fieldTop, width, 150);
+        grass.fillStyle(0x53964a, 0.4);
+        for (let x = 0; x < width; x += 60) {
+            grass.fillRect(x, fieldTop, 30, 150);
+        }
+
+        // ---- TAXIWAY (hangar to runway) ----
+        const taxiway = this.add.graphics();
+        taxiway.fillStyle(0x555555);
+        taxiway.fillRoundedRect(70, fieldTop, 60, 100, 4);
+
+        // ---- HANGAR ----
+        const hangar = this.add.graphics();
+        hangar.fillStyle(0x8a7a6a);
+        hangar.fillRect(20, fieldTop - 80, 130, 90);
+        hangar.fillStyle(0x6a5a4a);
+        hangar.beginPath();
+        hangar.arc(85, fieldTop - 80, 65, Math.PI, 0, false);
+        hangar.fillPath();
+        hangar.lineStyle(2, 0x3a2a1a, 0.5);
+        hangar.strokeRect(20, fieldTop - 80, 130, 90);
+        for (let x = 40; x < 140; x += 20) {
+            hangar.beginPath();
+            hangar.moveTo(x, fieldTop - 80);
+            hangar.lineTo(x, fieldTop + 10);
+            hangar.strokePath();
+        }
+        // RAF roundel on the hangar face
+        this.add.circle(85, fieldTop - 40, 14, 0x1e3a8a);
+        this.add.circle(85, fieldTop - 40, 9, 0xffffff);
+        this.add.circle(85, fieldTop - 40, 4, 0xcc2222);
+
+        // ---- CONTROL TOWER ----
+        const tower = this.add.graphics();
+        tower.fillStyle(0xd9cdb8);
+        tower.fillRect(width - 110, fieldTop - 110, 45, 110);
+        tower.fillStyle(0x8a2020);
+        tower.fillTriangle(width - 118, fieldTop - 110, width - 87, fieldTop - 130, width - 57, fieldTop - 110);
+        tower.fillStyle(0x88ccee, 0.85);
+        tower.fillRect(width - 102, fieldTop - 85, 29, 16);
+
+        // ---- WINDSOCK ----
+        this.add.rectangle(width - 150, fieldTop - 30, 3, 60, 0x555555);
+        this.add.triangle(width - 148, fieldTop - 35, -14, -6, -14, 6, 14, 0).setFillStyle(0xff6633, 0.85);
+
+        // ---- RUNWAY ----
+        const runway = this.add.graphics();
+        runway.fillStyle(0x555555);
+        runway.fillRoundedRect(width / 2 - 200, height - 100, 400, 40, 5);
+        runway.lineStyle(2, 0x777777);
+        runway.strokeRoundedRect(width / 2 - 200, height - 100, 400, 40, 5);
+
+        // Runway centreline dashes
+        for (let x = width / 2 - 180; x <= width / 2 + 180; x += 40) {
+            this.add.rectangle(x, height - 80, 16, 4, 0xffffff, 0.9);
+        }
+    }
+
         updateInterceptProgress() {
         const { width, height } = this.scale;
         
