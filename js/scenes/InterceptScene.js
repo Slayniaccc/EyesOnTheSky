@@ -71,7 +71,11 @@ class InterceptScene extends Phaser.Scene {
         }).setOrigin(0.5);
                 // ---------- LUDWIK'S PLANE MARKER ----------
         this.usingPlaneSprite = this.textures.exists('raf-plane');
-        this.rafPlaneMapScale = 0.05;
+        // Was 0.05 (~40px) — bumped up for better visibility on the plotting
+        // table. This also scales the German planes (see enemyOffsets below),
+        // which intentionally share this constant so both sides stay the same
+        // size on the map.
+        this.rafPlaneMapScale = 0.07;
         this.rafPlaneAirfieldScale = 0.14;
 
         let plane, wingLeft, wingRight;
@@ -444,10 +448,20 @@ startInterceptPhase() {
     this.usingEnemySprite = this.textures.exists('german-plane');
     const enemyStartX = 850;
     const enemyStartY = 200;
+    // Loose gaggle formation, spread wide enough that 40px sprites don't
+    // overlap (the old 25/12px-per-plane spacing was tighter than the planes
+    // themselves).
+    const enemyOffsets = [
+        { x: 0, y: 0 },
+        { x: 70, y: 30 },
+        { x: -70, y: 30 },
+        { x: 130, y: 60 },
+        { x: -130, y: 60 }
+    ];
 
-    for (let i = 0; i < 5; i++) {
-        const x = enemyStartX + i * 25;
-        const y = enemyStartY + i * 12;
+    enemyOffsets.forEach((offset) => {
+        const x = enemyStartX + offset.x;
+        const y = enemyStartY + offset.y;
         let enemy;
         if (this.usingEnemySprite) {
             // Same map-view scale as the RAF planes so both sides read as the
@@ -458,18 +472,29 @@ startInterceptPhase() {
         }
         enemy.setDepth(4);
         this.enemyFormation.push(enemy);
-    }
+    });
 
     console.log('👾 Enemy formation created:', this.enemyFormation.length, 'planes');
 
-    // Move enemy toward city
-   // Move enemy toward city
+    // Move enemy toward city as a group. A Phaser tween on an array target
+    // sends every target to the SAME absolute x/y — it doesn't preserve each
+    // plane's offset — so tweening this.enemyFormation directly collapsed all
+    // 5 planes onto one point over the 10s approach, turning the readable
+    // sprites into an overlapping tangle. Instead, tween a single "leader"
+    // point and re-apply each plane's original offset from it every frame.
+    const enemyLeader = { x: enemyStartX, y: enemyStartY };
     this.enemyApproachTween = this.tweens.add({
-        targets: this.enemyFormation,
+        targets: enemyLeader,
         x: this.cityX - 50,
         y: this.cityY - 30,
         duration: 10000,
         ease: 'Linear',
+        onUpdate: () => {
+            this.enemyFormation.forEach((enemy, i) => {
+                enemy.x = enemyLeader.x + enemyOffsets[i].x;
+                enemy.y = enemyLeader.y + enemyOffsets[i].y;
+            });
+        },
         onComplete: () => {
             if (!this.interceptDone) {
                 this.dialogueText.setText('"Too slow! The enemy reached the city."');
