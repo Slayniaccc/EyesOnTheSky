@@ -5,7 +5,6 @@ class DecisionScene extends BaseGameScene {
     preload() {
         this.load.image('map', 'assets/images/mapbackground.png');
         this.load.image('keith-park', 'assets/images/keithpark.png');
-        this.load.image('waaf-mascot-bust', 'assets/images/waaf-mascot-bust.png');
         console.log('🔵 DecisionScene: preloading assets');
     }
     create() {
@@ -15,18 +14,11 @@ class DecisionScene extends BaseGameScene {
           this.createMapBackground(width, height);
         this.createGrid(width, height);
           this.createDialogueBox(width, height);
-        this.keithPortraitElements = this.createPortraitBadge(width - 110, height - 200, {
+        this.createPortraitBadge(width - 110, height - 200, {
             textureKey: 'keith-park',
             fallbackText: 'KP',
             nameLabel: 'Keith Park',
             sizing: { scale: 0.15 }
-        });
-        this.waafPortraitElements = this.createPortraitBadge(width - 110, height - 200, {
-            textureKey: 'waaf-mascot-bust',
-            fallbackText: 'W',
-            nameLabel: 'WAAF',
-            sizing: { matchWidth: 212 },
-            startHidden: true
         });
          //dialogue logic
           this.parkLines = [
@@ -175,10 +167,10 @@ class DecisionScene extends BaseGameScene {
             if (this.currentLineIndex < this.parkLines.length) {
                 this.dialogueText.setText(this.parkLines[this.currentLineIndex]);
                       } else {
-                // All Park lines finished – WAAF handoff
+                // All Park lines finished – WAAF handoff (dialogue only; his
+                // portrait stays up for the rest of the scene)
                 this.dialogueText.setText('"Two raids inbound. Drag each marker to the correct sector station."');
                 this.dialogueText.setFill('#c8e6c9'); // WAAF green
-                this.showWaafPortrait();
                 continueBtn.setVisible(false);
 
                 // Show the raid markers
@@ -195,15 +187,6 @@ class DecisionScene extends BaseGameScene {
     // createMapBackground, createGrid, createDialogueBox, and
     // createPortraitBadge now live in BaseGameScene (this class extends it).
 
-    showWaafPortrait() {
-        if (this.keithPortraitElements) {
-            this.keithPortraitElements.forEach((el) => el.setVisible(false));
-        }
-        if (this.waafPortraitElements) {
-            this.waafPortraitElements.forEach((el) => el.setVisible(true));
-        }
-    }
-  
   // 1. Define raid data
        
 
