@@ -1,4 +1,4 @@
-class DetectionScene extends Phaser.Scene {
+class DetectionScene extends BaseGameScene {
     constructor() {
         super('DetectionScene');
         this.raidMarkers = [];
@@ -17,19 +17,6 @@ create() {
   // ---------- MAP BACKGROUND (with fallback) ----------
         this.createMapBackground(width, height);
         this.createGrid(width, height);
-
-    // Grid
-    const grid = this.add.graphics();
-    grid.lineStyle(0.5, 0x3a2a1a, 0.3); //width,colour,opacity
-    for (let x = 0; x <= width; x += 50) {
-        grid.moveTo(x, 0);
-        grid.lineTo(x, height);
-    }
-    for (let y = 0; y <= height; y += 40) {
-        grid.moveTo(0, y);
-        grid.lineTo(width, y);
-    }
-    grid.strokePath(); //draws all the mapped out lines at once
 
             // ---------- RADAR BLIPS ----------
         const blipPositions = [
@@ -83,23 +70,19 @@ create() {
         });
              
                    //top bar ui
-        this.add.text(20, 20, '◈ DETECTION PHASE', {
-            fontSize: '18px',
-            fill: '#ffd700',
-            fontFamily: 'Courier New'
-        });
+        this.createTopBar('DETECTION PHASE');
                     // ---------- WAAF DIALOGUE BOX (NEW - BOTTOM OF SCREEN) ----------
-        const dialogueBoxX = 40;
-        const dialogueBoxY = height - 130;
-        const dialogueBoxWidth = width - 80;
-        const dialogueBoxHeight = 100;
-        const dialogueBg = this.add.graphics();
-        dialogueBg.fillStyle(0x0d1b2a, 0.92);
-        dialogueBg.fillRoundedRect(dialogueBoxX, dialogueBoxY, dialogueBoxWidth, dialogueBoxHeight, 16);
-        dialogueBg.lineStyle(2, 0xf5e56b, 0.4);
-        dialogueBg.strokeRoundedRect(dialogueBoxX, dialogueBoxY, dialogueBoxWidth, dialogueBoxHeight, 16);
+        this.createDialogueBox(width, height);
         // ---------- WAAF PORTRAIT (bottom-right corner badge, same treatment as Keith Park/Ludwik) ----------
-        this.createWaafPortrait(width, height);
+        this.createPortraitBadge(width - 110, height - 210, {
+            radius: 60,
+            textureKey: 'waaf-mascot-bust',
+            fallbackText: 'WAAF',
+            fallbackFontSize: '18px',
+            nameLabel: 'WAAF',
+            sizing: { fitToCircle: true },
+            labelGap: 15
+        });
 
         this.dialogueText = this.add.text(110, height - 100, 'Welcome to Fighter Command. Tap each radar blip when it flashes.', {
             fontSize: '17px',
@@ -297,90 +280,6 @@ create() {
         // Start the sequence after a short delay
         this.time.delayedCall(800, lightNextPost);
     }
-        createMapBackground(width, height) {
-        if (this.textures.exists('map')) {
-            this.add.image(width / 2, height / 2, 'map').setDisplaySize(width, height);
-            console.log('✅ Using mapbackground.png');
-        } else {
-            console.log('❌ map not found – using drawn fallback');
-            const bg = this.add.graphics();
-            bg.fillStyle(0x0d1b2a);
-            bg.fillRect(0, 0, width, height);
-
-            const coast = this.add.graphics();
-            coast.lineStyle(2, 0x4a6a8a, 0.4);
-            coast.beginPath();
-            coast.moveTo(0, 350);
-            coast.lineTo(200, 320);
-            coast.lineTo(350, 340);
-            coast.lineTo(500, 300);
-            coast.lineTo(650, 330);
-            coast.lineTo(800, 290);
-            coast.lineTo(900, 310);
-            coast.strokePath();
-
-            coast.lineStyle(2, 0x6a4a3a, 0.3);
-            coast.beginPath();
-            coast.moveTo(0, 500);
-            coast.lineTo(200, 520);
-            coast.lineTo(400, 490);
-            coast.lineTo(600, 510);
-            coast.lineTo(900, 480);
-            coast.strokePath();
-        }
-    }
-
-    createGrid(width, height) {
-        const grid = this.add.graphics();
-        grid.lineStyle(0.5, 0x3a2a1a, 0.3);
-        for (let x = 0; x <= width; x += 50) {
-            grid.moveTo(x, 0);
-            grid.lineTo(x, height);
-        }
-        for (let y = 0; y <= height; y += 40) {
-            grid.moveTo(0, y);
-            grid.lineTo(width, y);
-        }
-        grid.strokePath();
-    }
-
-    // Same badge treatment as Keith Park (DecisionScene) and Ludwik
-    // (InterceptScene): circular medallion, bust portrait, name label below.
-    createWaafPortrait(width, height) {
-        // Nudged up from the standard height-200 spot to keep the label
-        // clear of the dialogue box (top edge at height-130) now that the
-        // circle is bigger (radius 60, was 40).
-        const portraitX = width - 110;
-        const portraitY = height - 210;
-
-        const circleRadius = 60;
-        const circleBg = this.add.graphics();
-        circleBg.fillStyle(0x2d1b0e, 0.9);
-        circleBg.fillCircle(portraitX, portraitY, circleRadius);
-        circleBg.lineStyle(3, 0xf5e56b, 0.7);
-        circleBg.strokeCircle(portraitX, portraitY, circleRadius);
-
-        if (this.textures.exists('waaf-mascot-bust')) {
-            const mascot = this.add.image(portraitX, portraitY, 'waaf-mascot-bust').setDepth(10);
-            // Fit inside the gold circle itself, unlike Keith/Ludwik whose
-            // portraits overflow past their (smaller) circle. Sized to the
-            // full diameter so she fills the badge rather than floating small
-            // in the middle of it.
-            const circleFitSize = circleRadius * 2;
-            mascot.setScale(Math.min(circleFitSize / mascot.width, circleFitSize / mascot.height));
-        } else {
-            this.add.text(portraitX, portraitY - 5, 'WAAF', {
-                fontSize: '18px',
-                fill: '#f5e56b',
-                fontFamily: 'Courier New',
-                fontStyle: 'bold'
-            }).setOrigin(0.5).setDepth(10);
-        }
-
-        this.add.text(portraitX, portraitY + circleRadius + 15, 'WAAF', {
-            fontSize: '12px',
-            fill: '#f5e56b',
-            fontFamily: 'Courier New'
-        }).setOrigin(0.5);
-    }
+        // createMapBackground, createGrid, createDialogueBox, and
+        // createPortraitBadge now live in BaseGameScene (this class extends it).
 }
