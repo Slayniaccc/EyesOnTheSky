@@ -23,7 +23,7 @@ const AudioManager = {
             planeFlyby: { key: 'plane-flyby-ambience', path: 'assets/audio/plane-flyby-ambience.wav', volume: 0.08, loop: true }
         },
         sfx: {
-            buttonClick: { key: 'sfx-click', path: 'assets/audio/sfx/click.mp3', volume: 0.5 },
+            buttonClick: { key: 'sfx-click', path: 'assets/audio/sfx/click.wav', volume: 0.5 },
             radarPing: { key: 'sfx-radar-ping', path: 'assets/audio/sfx/radar-ping.mp3', volume: 0.5 },
             radioStatic: { key: 'sfx-radio-static', path: 'assets/audio/sfx/radio-static.mp3', volume: 0.4 },
             // loop: true so playMusic/stopMusic (not playSFX) can be reused for
