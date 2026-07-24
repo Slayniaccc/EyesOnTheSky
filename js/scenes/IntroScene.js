@@ -309,19 +309,21 @@ class IntroScene extends Phaser.Scene {
             if (char.coverFit) {
                 const fitSize = 156; // matches the badge circle's diameter (radius 78)
                 img.setScale(Math.max(fitSize / img.width, fitSize / img.height));
-                // GeometryMask doesn't inherit a parent Container's transform,
-                // so masking with `badge` (nested in `card`) crops against its
-                // *local* (0, portraitY) coordinates instead of where it
-                // actually renders on screen — the mask ends up nowhere near
-                // the image and hides it completely. Build the mask shape at
-                // the card's real world position instead, invisible, not
-                // added to the container.
-                const maskShape = this.add.graphics().setVisible(false);
-                maskShape.fillCircle(x, y + portraitY, 78);
-                img.setMask(maskShape.createGeometryMask());
             } else {
                 this.fitToBox(img, 145, 145);
             }
+            // Clip to the circle regardless of scaling mode — fitToBox only
+            // guarantees the image fits inside a bounding *square*, so a
+            // rectangular source image (any of these three) can still poke
+            // past the circle's round edge at the corners without this.
+            // GeometryMask doesn't inherit a parent Container's transform, so
+            // masking with `badge` (nested in `card`) crops against its
+            // *local* (0, portraitY) coordinates instead of where it actually
+            // renders on screen. Build the mask shape at the card's real
+            // world position instead, invisible, not added to the container.
+            const maskShape = this.add.graphics().setVisible(false);
+            maskShape.fillCircle(x, y + portraitY, 78);
+            img.setMask(maskShape.createGeometryMask());
             card.add(img);
         } else {
             const circle = this.add.graphics();
