@@ -21,8 +21,11 @@ const AudioManager = {
             buttonClick: { key: 'sfx-click', path: 'assets/audio/sfx/click.mp3', volume: 0.5 },
             radarPing: { key: 'sfx-radar-ping', path: 'assets/audio/sfx/radar-ping.mp3', volume: 0.5 },
             radioStatic: { key: 'sfx-radio-static', path: 'assets/audio/sfx/radio-static.mp3', volume: 0.4 },
-            spitfireEngine: { key: 'sfx-spitfire-engine', path: 'assets/audio/sfx/spitfire-engine.mp3', volume: 0.4 },
-            messerschmittEngine: { key: 'sfx-messerschmitt-engine', path: 'assets/audio/sfx/messerschmitt-engine.mp3', volume: 0.4 }
+            // loop: true so playMusic/stopMusic (not playSFX) can be reused for
+            // these — they represent continuous engine drone for as long as the
+            // planes are on screen in InterceptScene, not a one-shot effect.
+            spitfireEngine: { key: 'sfx-spitfire-engine', path: 'assets/audio/sfx/spitfire-engine.mp3', volume: 0.35, loop: true },
+            messerschmittEngine: { key: 'sfx-messerschmitt-engine', path: 'assets/audio/sfx/messerschmitt-engine.mp3', volume: 0.35, loop: true }
         },
         // Add entries here as lines get scripted/recorded, e.g.:
         // waaf: { toteIntro: { key: 'waaf-tote-intro', path: 'assets/audio/waaf-lines/tote-intro.mp3', volume: 0.6 } }

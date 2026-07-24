@@ -130,6 +130,7 @@ class InterceptScene extends BaseGameScene {
         
                 // ---------- PHASE STATE ----------
         this.phase = 'form_up';
+        AudioManager.playMusic(this, AudioManager.manifest.sfx.spitfireEngine);
         this.collectedCount = 0;
         this.totalSquadrons = 3;
         this.isAirfieldView = false;
@@ -336,6 +337,7 @@ startInterceptPhase() {
 
     console.log('🔄 Starting Phase 2 - Intercept...');
     this.phase = 'intercept';
+    AudioManager.playMusic(this, AudioManager.manifest.sfx.messerschmittEngine);
      this.interceptDone = false;
     this.dialogueText.setText('"Don\'t chase them, cut them off. Get between them and the city. That\'s our job."');
 
@@ -888,6 +890,12 @@ startInterceptPhase() {
 
         // Store outcome for ResultScene
         this.game.registry.set('interceptOutcome', outcome);
+
+        // Both engine loops started earlier in this scene (form_up / intercept
+        // phases) — Phaser's SoundManager is game-wide, so they'd otherwise
+        // keep droning on through ResultScene and beyond.
+        AudioManager.stopMusic(AudioManager.manifest.sfx.spitfireEngine);
+        AudioManager.stopMusic(AudioManager.manifest.sfx.messerschmittEngine);
 
         // Transition to ResultScene
         this.time.delayedCall(4000, () => {

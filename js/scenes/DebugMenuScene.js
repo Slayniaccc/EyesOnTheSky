@@ -73,6 +73,11 @@ class DebugMenuScene extends Phaser.Scene {
                 this.scene.stop(activeScene.scene.key);
             }
         });
+        // Jumping away from InterceptScene mid-flight (before showResult()
+        // stops them itself) would otherwise leave its looping engine sounds
+        // droning on through whatever scene comes next.
+        AudioManager.stopMusic(AudioManager.manifest.sfx.spitfireEngine);
+        AudioManager.stopMusic(AudioManager.manifest.sfx.messerschmittEngine);
         this.scene.start(targetKey);
         this.expanded = false;
         this.setMenuVisible(false);

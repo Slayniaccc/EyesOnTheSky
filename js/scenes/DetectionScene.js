@@ -61,7 +61,7 @@ create() {
             }
 
             this.dialogueText.setText('"Radar picked up several contacts out at sea. We\'ll plot them now."');
-            AudioManager.playVoice(this, AudioManager.manifest.voice.waaf.radarComplete);
+            this.playWaafLine(AudioManager.manifest.voice.waaf.radarComplete);
             this.detectionStage = 'raid_moving';
             this.spawnRaidMarker();
             });
@@ -91,7 +91,7 @@ create() {
             fontStyle: 'italic',
             wordWrap: { width: width - 120 }
         });
-        AudioManager.playVoice(this, AudioManager.manifest.voice.waaf.detectionWelcome);
+        this.playWaafLine(AudioManager.manifest.voice.waaf.detectionWelcome);
 
         // ---------- STATE MACHINE (NEW) ----------
         this.detectionStage = 'radar_blip';
@@ -138,7 +138,7 @@ create() {
 
                 // Update dialogue to WAAF line 2
                 this.dialogueText.setText('"Now it\'s over land, Observer Corps\' job. Watch the posts light up."');
-                AudioManager.playVoice(this, AudioManager.manifest.voice.waaf.raidOverLand);
+                this.playWaafLine(AudioManager.manifest.voice.waaf.raidOverLand);
 
                 // Move to next stage
                 this.detectionStage = 'roc_sequence';
@@ -223,7 +223,7 @@ create() {
                 // Check if all tapped
                 if (this.rocPostsTapped === this.totalRocPosts) {
                     this.dialogueText.setText('"Radar sees them coming across the Channel, but once they\'re over land, that\'s where we lose them. That\'s why we need the Observer Corps."');
-                    AudioManager.playVoice(this, AudioManager.manifest.voice.waaf.rocComplete);
+                    this.playWaafLine(AudioManager.manifest.voice.waaf.rocComplete);
                     this.detectionStage = 'complete';
                     
                     // Advance after 3 seconds
@@ -279,6 +279,14 @@ create() {
 
         // Start the sequence after a short delay
         this.time.delayedCall(800, lightNextPost);
+    }
+
+    // Quick radio-crackle burst ahead of each WAAF line — she's heard "over
+    // the radio," not just narrating, so every line opens with the same
+    // static hit real radio dialogue has.
+    playWaafLine(entry) {
+        AudioManager.playSFX(this, AudioManager.manifest.sfx.radioStatic);
+        AudioManager.playVoice(this, entry);
     }
         // createMapBackground, createGrid, createDialogueBox, and
         // createPortraitBadge now live in BaseGameScene (this class extends it).
