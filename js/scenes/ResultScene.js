@@ -27,6 +27,7 @@ class ResultScene extends BaseGameScene {
         this.cityY = 250;
 
         this.buildTitle(width, data);
+        this.buildCityScene(data);
     }
 
     get outcomeData() {
@@ -67,6 +68,93 @@ class ResultScene extends BaseGameScene {
             fill: '#f5e56b',
             fontFamily: 'Courier New',
             letterSpacing: 2
+        }).setOrigin(0.5);
+    }
+
+    buildCityScene(data) {
+        this.add.circle(this.cityX, this.cityY, 30, 0x2d2d2d, 0.4);
+        this.add.text(this.cityX, this.cityY + 55, '🏙️ THE CITY', {
+            fontSize: '14px',
+            fill: '#dddddd',
+            fontFamily: 'Courier New'
+        }).setOrigin(0.5);
+
+        if (data === this.outcomeData.success) {
+            this.playSuccessAnimation();
+        }
+    }
+
+    // ---------- FULL SUCCESS: pulsing shield + returning squadron ----------
+    playSuccessAnimation() {
+        const ring = this.add.circle(this.cityX, this.cityY, 35, 0x44ff44, 0).setStrokeStyle(3, 0x44ff44, 0.8);
+        this.tweens.add({
+            targets: ring,
+            radius: 60,
+            alpha: 0,
+            duration: 1400,
+            repeat: -1,
+            onUpdate: () => ring.setStrokeStyle(3, 0x44ff44, 1 - ring.radius / 60)
+        });
+
+        this.add.text(this.cityX, this.cityY - 5, '🛡️', { fontSize: '46px' }).setOrigin(0.5);
+
+        const colors = [0xff4444, 0x44ff44, 0x4444ff, 0xffdd44, 0xff44ff, 0x44ffdd];
+        for (let i = 0; i < 36; i++) {
+            const confetti = this.add.rectangle(
+                this.cityX + Phaser.Math.Between(-220, 220),
+                this.cityY - 40 + Phaser.Math.Between(-40, 20),
+                6, 10,
+                colors[Phaser.Math.Between(0, colors.length - 1)]
+            );
+            this.tweens.add({
+                targets: confetti,
+                y: confetti.y + Phaser.Math.Between(120, 260),
+                x: confetti.x + Phaser.Math.Between(-60, 60),
+                angle: Phaser.Math.Between(0, 720),
+                alpha: 0,
+                duration: 1600 + Phaser.Math.Between(0, 600),
+                delay: Phaser.Math.Between(0, 400),
+                onComplete: () => confetti.destroy()
+            });
+        }
+
+        // Squadron flying home to a rest formation near the top-left of the map.
+        const homeX = 120;
+        const homeY = 190;
+        const usingSprite = this.textures.exists('raf-plane');
+        const startPositions = [
+            { x: -40, y: 100 }, { x: 950, y: 60 }, { x: 950, y: 260 }
+        ];
+        startPositions.forEach((start, i) => {
+            const plane = usingSprite
+                ? this.add.image(start.x, start.y, 'raf-plane').setScale(0.07)
+                : this.add.triangle(start.x, start.y, 0, -14, -10, 8, 10, 8, 0x66ccff);
+            plane.setDepth(5);
+            const targetX = homeX + i * 34;
+            const targetY = homeY + i * 22;
+            this.tweens.add({
+                targets: plane,
+                x: targetX,
+                y: targetY,
+                duration: 1800,
+                delay: i * 200,
+                ease: 'Sine.easeInOut',
+                onComplete: () => {
+                    this.tweens.add({
+                        targets: plane,
+                        y: targetY - 8,
+                        duration: 700,
+                        yoyo: true,
+                        repeat: -1,
+                        ease: 'Sine.easeInOut'
+                    });
+                }
+            });
+        });
+        this.add.text(homeX + 34, homeY - 45, 'HOME SAFE', {
+            fontSize: '12px',
+            fill: '#88ff88',
+            fontFamily: 'Courier New'
         }).setOrigin(0.5);
     }
 }
