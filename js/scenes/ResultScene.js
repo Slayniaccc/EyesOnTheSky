@@ -81,6 +81,8 @@ class ResultScene extends BaseGameScene {
 
         if (data === this.outcomeData.success) {
             this.playSuccessAnimation();
+        } else if (data === this.outcomeData.partial) {
+            this.playPartialAnimation();
         }
     }
 
@@ -156,5 +158,27 @@ class ResultScene extends BaseGameScene {
             fill: '#88ff88',
             fontFamily: 'Courier New'
         }).setOrigin(0.5);
+    }
+
+    // ---------- PARTIAL SUCCESS: small damage marker, mild shake ----------
+    playPartialAnimation() {
+        const ring = this.add.circle(this.cityX, this.cityY, 35, 0xe8a317, 0).setStrokeStyle(3, 0xe8a317, 0.6);
+        this.tweens.add({
+            targets: ring,
+            radius: 50,
+            alpha: 0,
+            duration: 1600,
+            repeat: -1,
+            onUpdate: () => ring.setStrokeStyle(3, 0xe8a317, 0.6 * (1 - ring.radius / 50))
+        });
+
+        const warning = this.add.text(this.cityX, this.cityY - 5, '⚠️', { fontSize: '40px' }).setOrigin(0.5);
+        this.tweens.add({
+            targets: warning,
+            x: warning.x + 4,
+            duration: 90,
+            yoyo: true,
+            repeat: 5
+        });
     }
 }
