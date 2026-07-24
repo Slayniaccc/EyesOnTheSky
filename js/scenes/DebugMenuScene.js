@@ -17,7 +17,8 @@ class DebugMenuScene extends Phaser.Scene {
             { key: 'DetectionScene', label: 'Detection' },
             { key: 'ToteBoardScene', label: 'Tote Board' },
             { key: 'DecisionScene', label: 'Decision' },
-            { key: 'InterceptScene', label: 'Intercept' }
+            { key: 'InterceptScene', label: 'Intercept' },
+            { key: 'ResultScene', label: 'Result' }
         ];
 
         const panel = this.add.container(width - 10, 10).setDepth(1000);
