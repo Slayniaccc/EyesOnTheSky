@@ -28,6 +28,7 @@ class ResultScene extends BaseGameScene {
 
         this.buildTitle(width, data);
         this.buildCityScene(data);
+        this.buildRestartButton(width, height);
 
         this.createDialogueBox(width, height);
         this.createPortraitBadge(width - 110, height - 210, {
@@ -215,6 +216,30 @@ class ResultScene extends BaseGameScene {
             duration: 6000,
             repeat: -1,
             onRepeat: () => { cloud.x = this.cityX - 260; }
+        });
+    }
+
+    buildRestartButton(width, height) {
+        const btn = this.add.text(width / 2, 460, '▶  PLAY AGAIN  ▶', {
+            fontSize: '22px',
+            fill: '#ffffff',
+            fontFamily: 'Courier New',
+            fontStyle: 'bold',
+            backgroundColor: '#1e3a5f',
+            padding: { x: 26, y: 14 }
+        }).setOrigin(0.5).setInteractive({ useHandCursor: true });
+
+        btn.on('pointerdown', () => {
+            AudioManager.playSFX(this, AudioManager.manifest.sfx.buttonClick);
+            this.cameras.main.fadeOut(400, 0, 0, 0);
+            this.cameras.main.once('camerafadeoutcomplete', () => {
+                this.game.registry.set('score', 0);
+                this.game.registry.set('raids', []);
+                this.game.registry.set('interceptSuccess', false);
+                this.game.registry.set('playerChoices', {});
+                this.game.registry.set('interceptOutcome', null);
+                this.scene.start('IntroScene');
+            });
         });
     }
 }
