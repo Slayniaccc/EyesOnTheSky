@@ -130,7 +130,6 @@ class InterceptScene extends BaseGameScene {
         
                 // ---------- PHASE STATE ----------
         this.phase = 'form_up';
-        AudioManager.playMusic(this, AudioManager.manifest.sfx.spitfireEngine);
         this.collectedCount = 0;
         this.totalSquadrons = 3;
         this.isAirfieldView = false;
@@ -521,6 +520,11 @@ startInterceptPhase() {
 
     buildAirfieldView() {
         const { width, height } = this.scale;
+
+        // Starts here, not scene start — this is the zoomed-in airfield view
+        // where the planes are actually the visual focus, not the earlier
+        // plotting-table phase where they're small markers on a busy map.
+        AudioManager.playMusic(this, AudioManager.manifest.sfx.spitfireEngine);
 
         // ---- BACKGROUND ----
         if (this.textures.exists('airfield-bg')) {

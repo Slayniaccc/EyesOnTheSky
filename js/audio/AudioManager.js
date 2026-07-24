@@ -27,13 +27,13 @@ const AudioManager = {
             radarPing: { key: 'sfx-radar-ping', path: 'assets/audio/sfx/radar-blip.flac', volume: 0.5 },
             radioStatic: { key: 'sfx-radio-static', path: 'assets/audio/sfx/radio-static.mp3', volume: 0.4 },
             // loop: true so playMusic/stopMusic (not playSFX) can be reused for
-            // these — they represent continuous engine drone for as long as the
-            // planes are on screen in InterceptScene, not a one-shot effect.
-            // Volume kept low (0.15) rather than the original 0.35 — this loops
-            // continuously through most of the scene for a Y6 audience, not a
-            // one-shot effect, so it needs to sit well under dialogue/SFX.
-            spitfireEngine: { key: 'sfx-spitfire-engine', path: 'assets/audio/sfx/merlin-engine.wav', volume: 0.15, loop: true },
-            messerschmittEngine: { key: 'sfx-messerschmitt-engine', path: 'assets/audio/sfx/messerschmitt-engine.mp3', volume: 0.15, loop: true }
+            // these — they represent continuous engine drone for as long as
+            // the planes are the visual focus (airfield view onward), not a
+            // one-shot effect. Volume dropped twice now (0.35 -> 0.15 -> 0.05)
+            // — still startling a Y6 audience at 0.15 since this loops
+            // continuously rather than playing once.
+            spitfireEngine: { key: 'sfx-spitfire-engine', path: 'assets/audio/sfx/merlin-engine.wav', volume: 0.05, loop: true },
+            messerschmittEngine: { key: 'sfx-messerschmitt-engine', path: 'assets/audio/sfx/messerschmitt-engine.mp3', volume: 0.05, loop: true }
         },
         // Add entries here as lines get scripted/recorded, e.g.:
         // waaf: { toteIntro: { key: 'waaf-tote-intro', path: 'assets/audio/waaf-lines/tote-intro.mp3', volume: 0.6 } }
