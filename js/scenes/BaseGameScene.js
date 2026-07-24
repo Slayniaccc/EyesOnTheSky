@@ -108,13 +108,24 @@ class BaseGameScene extends Phaser.Scene {
         if (textureKey && this.textures.exists(textureKey)) {
             const portrait = this.add.image(x, y, textureKey).setDepth(10);
             if (sizing.fitToCircle) {
+                // "Cover" the circle's bounding box (like CSS object-fit:cover)
+                // rather than fitting inside it — otherwise a source image
+                // whose content doesn't fill its own frame symmetrically (most
+                // of these portraits) leaves visible gaps on one axis. The
+                // geometry mask below then crops the excess to a clean circle
+                // instead of showing the image's square corners past the ring.
                 const fitSize = radius * 2;
-                portrait.setScale(Math.min(fitSize / portrait.width, fitSize / portrait.height));
+                portrait.setScale(Math.max(fitSize / portrait.width, fitSize / portrait.height));
             } else if (sizing.matchWidth) {
                 portrait.setScale(sizing.matchWidth / portrait.width);
             } else {
                 portrait.setScale(sizing.scale != null ? sizing.scale : 0.15);
             }
+            // Clip to the badge circle exactly — without this, any portrait
+            // bigger than the circle (which "cover" sizing guarantees, and
+            // fixed/matchWidth scales often are too) just overlaps the ring
+            // as a visible rectangle instead of sitting inside it.
+            portrait.setMask(circleBg.createGeometryMask());
             elements.push(portrait);
         } else {
             elements.push(this.add.text(x, y - 5, fallbackText, {

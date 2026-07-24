@@ -21,10 +21,11 @@ class InterceptScene extends BaseGameScene {
         this.createGrid(width, height);
         this.createDialogueBox(width, height);
         this.createPortraitBadge(width - 110, height - 200, {
+            radius: 60,
             textureKey: 'ludwik',
             fallbackText: 'L',
             nameLabel: 'Ludwik',
-            sizing: { scale: 0.15 }
+            sizing: { fitToCircle: true }
         });
 
         // ---------- TOP BAR ----------

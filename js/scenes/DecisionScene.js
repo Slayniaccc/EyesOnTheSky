@@ -15,10 +15,11 @@ class DecisionScene extends BaseGameScene {
         this.createGrid(width, height);
           this.createDialogueBox(width, height);
         this.createPortraitBadge(width - 110, height - 200, {
+            radius: 60,
             textureKey: 'keith-park',
             fallbackText: 'KP',
             nameLabel: 'Keith Park',
-            sizing: { scale: 0.15 }
+            sizing: { fitToCircle: true }
         });
          //dialogue logic
           this.parkLines = [
