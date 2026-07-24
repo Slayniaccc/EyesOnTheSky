@@ -119,6 +119,7 @@ class ResultScene extends BaseGameScene {
 
     // ---------- FULL SUCCESS: pulsing shield + returning squadron ----------
     playSuccessAnimation() {
+        AudioManager.playSFX(this, AudioManager.manifest.sfx.victoryCelebration);
         const ring = this.add.circle(this.cityX, this.cityY, 35, 0x44ff44, 0).setStrokeStyle(3, 0x44ff44, 0.8);
         this.tweens.add({
             targets: ring,
