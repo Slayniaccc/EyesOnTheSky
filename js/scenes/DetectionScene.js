@@ -68,7 +68,11 @@ create() {
             }
 
             this.dialogueText.setText('"Radar picked up several contacts out at sea. We\'ll plot them now."');
-            this.playWaafLine(AudioManager.manifest.voice.waaf.radarComplete);
+            // Small delay so the radar ping from this same tap finishes
+            // before the radio static + voice line start — otherwise they overlap.
+            this.time.delayedCall(400, () => {
+                this.playWaafLine(AudioManager.manifest.voice.waaf.radarComplete);
+            });
             this.detectionStage = 'raid_moving';
             this.spawnRaidMarker();
             });
