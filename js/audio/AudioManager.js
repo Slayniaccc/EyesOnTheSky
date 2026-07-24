@@ -33,7 +33,7 @@ const AudioManager = {
             // — still startling a Y6 audience at 0.15 since this loops
             // continuously rather than playing once.
             spitfireEngine: { key: 'sfx-spitfire-engine', path: 'assets/audio/sfx/merlin-engine.wav', volume: 0.05, loop: true },
-            messerschmittEngine: { key: 'sfx-messerschmitt-engine', path: 'assets/audio/sfx/messerschmitt-engine.mp3', volume: 0.05, loop: true }
+            messerschmittEngine: { key: 'sfx-messerschmitt-engine', path: 'assets/audio/sfx/messerschmitt-engine.flac', volume: 0.05, loop: true }
         },
         // Add entries here as lines get scripted/recorded, e.g.:
         // waaf: { toteIntro: { key: 'waaf-tote-intro', path: 'assets/audio/waaf-lines/tote-intro.mp3', volume: 0.6 } }

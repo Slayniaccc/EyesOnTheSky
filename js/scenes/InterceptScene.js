@@ -17,6 +17,11 @@ class InterceptScene extends BaseGameScene {
     create() {
         const { width, height } = this.scale;
 
+        // No-op if already playing (started back in DetectionScene) — this is
+        // just a safety net for jumping straight into InterceptScene via the
+        // debug menu, which would otherwise skip it entirely.
+        AudioManager.playMusic(this, AudioManager.manifest.music.bunkerAmbience);
+
         this.createMapBackground(width, height);
         this.createGrid(width, height);
         this.createDialogueBox(width, height);
@@ -336,6 +341,10 @@ startInterceptPhase() {
 
     console.log('🔄 Starting Phase 2 - Intercept...');
     this.phase = 'intercept';
+    // Hand off from RAF to enemy engine rather than layering both — they're
+    // deliberately the same class of sound, so playing together just reads
+    // as noise, not "two sides in the air at once."
+    AudioManager.stopMusic(AudioManager.manifest.sfx.spitfireEngine);
     AudioManager.playMusic(this, AudioManager.manifest.sfx.messerschmittEngine);
      this.interceptDone = false;
     this.dialogueText.setText('"Don\'t chase them, cut them off. Get between them and the city. That\'s our job."');
