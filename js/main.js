@@ -12,13 +12,7 @@ const config = {
         autoCenter: Phaser.Scale.CENTER_BOTH
     },
     render: {
-        // Scale.FIT stretches the 900x700 canvas to fill much larger tablet
-        // screens; without a matching render resolution, that stretch is done
-        // on an already-rasterised low-res buffer, so every text/image looks
-        // soft. Rendering at the device's actual pixel ratio makes the internal
-        // buffer big enough that the stretch is crisp instead of blurry.
-        antialias: true,
-        resolution: window.devicePixelRatio || 1
+        antialias: true
     }
 };
 
