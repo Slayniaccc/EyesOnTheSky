@@ -25,7 +25,7 @@ const AudioManager = {
         sfx: {
             buttonClick: { key: 'sfx-click', path: 'assets/audio/sfx/click.wav', volume: 0.5 },
             radarPing: { key: 'sfx-radar-ping', path: 'assets/audio/sfx/radar-blip.flac', volume: 0.5 },
-            radioStatic: { key: 'sfx-radio-static', path: 'assets/audio/sfx/radio-static.mp3', volume: 0.4 },
+            radioStatic: { key: 'sfx-radio-static', path: 'assets/audio/sfx/radio-static.wav', volume: 0.12 },
             // loop: true so playMusic/stopMusic (not playSFX) can be reused for
             // these — they represent continuous engine drone for as long as
             // the planes are the visual focus (airfield view onward), not a
