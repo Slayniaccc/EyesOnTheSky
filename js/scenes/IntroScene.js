@@ -246,13 +246,19 @@ class IntroScene extends Phaser.Scene {
                 key: 'keith-park',
                 name: 'Keith Park',
                 role: 'Air Vice-Marshal, 11 Group. Commands the squadrons defending London from this bunker.',
-                accent: 0x2d6a4f
+                accent: 0x2d6a4f,
+                // These portraits have a lot of headroom/whitespace around the
+                // face compared to WAAF's tight bust crop, so fitting the whole
+                // image inside the circle (like WAAF) leaves them looking much
+                // smaller. Cover-scale + crop to the circle instead.
+                coverFit: true
             },
             {
                 key: 'ludwik',
                 name: 'Ludwik',
                 role: 'A Polish fighter pilot flying with the RAF, ready to scramble the moment the board calls.',
-                accent: 0xcc3333
+                accent: 0xcc3333,
+                coverFit: true
             }
         ];
 
@@ -300,7 +306,22 @@ class IntroScene extends Phaser.Scene {
 
         if (this.textures.exists(char.key)) {
             const img = this.add.image(0, portraitY, char.key);
-            this.fitToBox(img, 145, 145);
+            if (char.coverFit) {
+                const fitSize = 156; // matches the badge circle's diameter (radius 78)
+                img.setScale(Math.max(fitSize / img.width, fitSize / img.height));
+                // GeometryMask doesn't inherit a parent Container's transform,
+                // so masking with `badge` (nested in `card`) crops against its
+                // *local* (0, portraitY) coordinates instead of where it
+                // actually renders on screen — the mask ends up nowhere near
+                // the image and hides it completely. Build the mask shape at
+                // the card's real world position instead, invisible, not
+                // added to the container.
+                const maskShape = this.add.graphics().setVisible(false);
+                maskShape.fillCircle(x, y + portraitY, 78);
+                img.setMask(maskShape.createGeometryMask());
+            } else {
+                this.fitToBox(img, 145, 145);
+            }
             card.add(img);
         } else {
             const circle = this.add.graphics();
