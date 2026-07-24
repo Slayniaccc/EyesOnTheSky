@@ -256,9 +256,9 @@ class IntroScene extends Phaser.Scene {
             }
         ];
 
-        const cardWidth = 240;
-        const cardHeight = 340;
-        const gap = 30;
+        const cardWidth = 270;
+        const cardHeight = 385;
+        const gap = 22;
         const totalWidth = characters.length * cardWidth + (characters.length - 1) * gap;
         const startX = width / 2 - totalWidth / 2 + cardWidth / 2;
         const cardY = height / 2 - 30;
@@ -292,23 +292,23 @@ class IntroScene extends Phaser.Scene {
         bg.strokeRoundedRect(-w / 2, -h / 2, w, h, 16);
         card.add(bg);
 
-        const portraitY = -h / 2 + 95;
+        const portraitY = -h / 2 + 105;
         const badge = this.add.graphics();
         badge.fillStyle(char.accent, 0.15);
-        badge.fillCircle(0, portraitY, 62);
+        badge.fillCircle(0, portraitY, 78);
         card.add(badge);
 
         if (this.textures.exists(char.key)) {
             const img = this.add.image(0, portraitY, char.key);
-            this.fitToBox(img, 116, 116);
+            this.fitToBox(img, 145, 145);
             card.add(img);
         } else {
             const circle = this.add.graphics();
             circle.fillStyle(char.accent, 1);
-            circle.fillCircle(0, portraitY, 55);
+            circle.fillCircle(0, portraitY, 70);
             card.add(circle);
             const initial = this.add.text(0, portraitY, char.name[0], {
-                fontSize: '40px',
+                fontSize: '50px',
                 fill: '#ffffff',
                 fontFamily: 'Courier New',
                 fontStyle: 'bold'
@@ -316,16 +316,16 @@ class IntroScene extends Phaser.Scene {
             card.add(initial);
         }
 
-        const nameText = this.add.text(0, -h / 2 + 175, char.name, {
-            fontSize: '18px',
+        const nameText = this.add.text(0, -h / 2 + 200, char.name, {
+            fontSize: '20px',
             fill: '#2d2210',
             fontFamily: 'Courier New',
             fontStyle: 'bold'
         }).setOrigin(0.5);
         card.add(nameText);
 
-        const roleText = this.add.text(0, -h / 2 + 205, char.role, {
-            fontSize: '12px',
+        const roleText = this.add.text(0, -h / 2 + 232, char.role, {
+            fontSize: '13px',
             fill: '#4a3a2a',
             fontFamily: 'Courier New',
             align: 'center',
