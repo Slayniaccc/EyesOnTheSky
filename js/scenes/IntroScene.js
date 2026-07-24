@@ -412,6 +412,7 @@ class IntroScene extends Phaser.Scene {
             if (this.dowdingStepIndex === 0) {
                 this.goToPage(page, this.characterPage);
             } else {
+                AudioManager.playSFX(this, AudioManager.manifest.sfx.buttonClick);
                 this.dowdingStepIndex--;
                 this.updateDowdingStepDisplay();
                 this.announceDowdingStep();
@@ -427,6 +428,7 @@ class IntroScene extends Phaser.Scene {
                     this.scene.start('DetectionScene');
                 });
             } else {
+                AudioManager.playSFX(this, AudioManager.manifest.sfx.buttonClick);
                 this.dowdingStepIndex++;
                 this.updateDowdingStepDisplay();
                 this.announceDowdingStep();
