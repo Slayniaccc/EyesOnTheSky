@@ -83,6 +83,8 @@ class ResultScene extends BaseGameScene {
             this.playSuccessAnimation();
         } else if (data === this.outcomeData.partial) {
             this.playPartialAnimation();
+        } else {
+            this.playFailAnimation();
         }
     }
 
@@ -179,6 +181,23 @@ class ResultScene extends BaseGameScene {
             duration: 90,
             yoyo: true,
             repeat: 5
+        });
+    }
+
+    // ---------- FAIL: shadow marker, drifting cloud ----------
+    playFailAnimation() {
+        const shadow = this.add.circle(this.cityX, this.cityY, 25, 0x333333, 0);
+        this.tweens.add({ targets: shadow, alpha: 0.55, duration: 1200 });
+
+        this.add.text(this.cityX, this.cityY - 5, '☁️', { fontSize: '40px' }).setOrigin(0.5);
+
+        const cloud = this.add.text(this.cityX - 260, this.cityY - 60, '☁️', { fontSize: '32px', alpha: 0.5 });
+        this.tweens.add({
+            targets: cloud,
+            x: this.cityX + 260,
+            duration: 6000,
+            repeat: -1,
+            onRepeat: () => { cloud.x = this.cityX - 260; }
         });
     }
 }
