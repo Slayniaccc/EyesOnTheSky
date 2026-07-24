@@ -14,6 +14,13 @@ preload() {
 create() {
     const { width, height } = this.scale;
 
+    // Starts here rather than IntroScene — the bright, kid-friendly title/
+    // character/Dowding-explainer pages don't call for a bunker drone; this
+    // is the first scene that's actually the plotting room. Phaser's
+    // SoundManager is game-wide, so once started it keeps playing through
+    // every later scene until something calls AudioManager.stopMusic().
+    AudioManager.playMusic(this, AudioManager.manifest.music.bunkerAmbience);
+
   // ---------- MAP BACKGROUND (with fallback) ----------
         this.createMapBackground(width, height);
         this.createGrid(width, height);

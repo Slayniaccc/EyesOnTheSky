@@ -15,8 +15,6 @@ class IntroScene extends Phaser.Scene {
     create() {
         const { width, height } = this.scale;
 
-        AudioManager.playMusic(this, AudioManager.manifest.music.bunkerAmbience);
-
         this.createBackground(width, height);
         this.createFooter(width, height);
 
