@@ -5,7 +5,6 @@ class IntroScene extends Phaser.Scene {
 
     preload() {
         this.load.image('waaf-mascot', 'assets/images/waaf-mascot.png');
-        this.load.image('dowding-diagram', 'assets/images/dowdingsystemexplanation.png');
         this.load.image('keith-park', 'assets/images/keithpark.png');
         this.load.image('ludwik', 'assets/images/ludwik.png');
 
@@ -92,6 +91,71 @@ class IntroScene extends Phaser.Scene {
         const scale = Math.min(maxW / image.width, maxH / image.height);
         image.setScale(scale);
         return image;
+    }
+
+    // Drawn natively instead of loading assets/images/dowdingsystemexplanation.png —
+    // that source PNG has soft/blurry text baked into it at the pixel level (confirmed
+    // by inspecting the raw file), so no amount of in-game scaling could ever make it
+    // crisp. Phaser text/graphics render sharp at any size, so this row list replaces it.
+    buildDowdingDiagram(width) {
+        const rows = [
+            { icon: '📡', title: 'CHAIN HOME RADAR', caption: 'Spots raids out at sea' },
+            { icon: '👀', title: 'OBSERVER CORPS', caption: 'Tracks raids over land' },
+            { icon: '🗂️', title: 'FILTER ROOM & FIGHTER COMMAND HQ', caption: 'Clears reports, sees the big picture at Bentley Priory' },
+            { icon: '🏠', title: 'GROUP HQ (11 GROUP)', caption: 'This bunker — Uxbridge' },
+            { icon: '🎯', title: 'SECTOR STATIONS', caption: 'Local airfield control' },
+            { icon: '✈️', title: 'SQUADRONS', caption: 'Pilots scramble to intercept' }
+        ];
+
+        const boxW = 760;
+        const boxX = width / 2 - boxW / 2;
+        const boxY = 90;
+        const rowH = 42;
+        const rowGap = 4;
+        const boxH = rows.length * (rowH + rowGap) - rowGap + 20;
+
+        const container = this.add.container(0, 0);
+
+        const bg = this.add.graphics();
+        bg.fillStyle(0x0d1b2a, 0.95);
+        bg.fillRoundedRect(boxX, boxY, boxW, boxH, 14);
+        bg.lineStyle(2, 0xf5e56b, 0.5);
+        bg.strokeRoundedRect(boxX, boxY, boxW, boxH, 14);
+        container.add(bg);
+
+        rows.forEach((row, i) => {
+            const rowY = boxY + 10 + i * (rowH + rowGap);
+
+            const rowBg = this.add.graphics();
+            rowBg.fillStyle(0x16283d, 0.9);
+            rowBg.fillRoundedRect(boxX + 14, rowY, boxW - 28, rowH, 8);
+            container.add(rowBg);
+
+            container.add(this.add.text(boxX + 34, rowY + rowH / 2, row.icon, {
+                fontSize: '20px'
+            }).setOrigin(0.5));
+
+            container.add(this.add.text(boxX + 60, rowY + 11, row.title, {
+                fontSize: '13px',
+                fill: '#f5e56b',
+                fontFamily: 'Courier New',
+                fontStyle: 'bold'
+            }));
+
+            container.add(this.add.text(boxX + 60, rowY + 26, row.caption, {
+                fontSize: '11px',
+                fill: '#a8b8c8',
+                fontFamily: 'Courier New'
+            }));
+
+            container.add(this.add.text(boxX + boxW - 40, rowY + rowH / 2, String(i + 1), {
+                fontSize: '13px',
+                fill: '#f5e56b',
+                fontFamily: 'Courier New'
+            }).setOrigin(0.5));
+        });
+
+        return container;
     }
 
     // ---------- PAGE TRANSITION ----------
@@ -310,15 +374,9 @@ class IntroScene extends Phaser.Scene {
         ];
         this.dowdingStepIndex = 0;
 
-        let hasDiagram = false;
-        if (this.textures.exists('dowding-diagram')) {
-            const diagram = this.add.image(width / 2, 245, 'dowding-diagram');
-            this.fitToBox(diagram, 800, 320);
-            page.add(diagram);
-            hasDiagram = true;
-        }
+        page.add(this.buildDowdingDiagram(width));
 
-        const stepTitle = this.add.text(width / 2, hasDiagram ? 445 : 260, '', {
+        const stepTitle = this.add.text(width / 2, 435, '', {
             fontSize: '22px',
             fill: '#2d4a6a',
             fontFamily: 'Courier New',
