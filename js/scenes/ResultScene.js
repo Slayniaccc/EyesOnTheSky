@@ -23,11 +23,15 @@ class ResultScene extends BaseGameScene {
         this.createGrid(width, height);
         this.createTopBar('DEBRIEF');
 
-        this.cityX = width / 2;
-        this.cityY = 250;
+        // Same spot InterceptScene marks as "the city" — keeps the debrief
+        // pointing at the same place the player just defended, and avoids the
+        // decorative cloud art mapbackground.png has baked in near the
+        // (width/2, 250) area this used to sit on top of.
+        this.cityX = 720;
+        this.cityY = 320;
 
         this.buildTitle(width, data);
-        this.buildCityScene(data);
+        this.buildCityScene(outcome);
         this.buildRestartButton(width, height);
 
         this.createDialogueBox(width, height);
@@ -89,17 +93,24 @@ class ResultScene extends BaseGameScene {
         }).setOrigin(0.5);
     }
 
-    buildCityScene(data) {
-        this.add.circle(this.cityX, this.cityY, 30, 0x2d2d2d, 0.4);
+    buildCityScene(outcome) {
+        // Solid backing behind the outcome icon — the map art underneath has
+        // its own dense decoration (buildings, cloud illustrations), so a
+        // faint marker alone gets lost in it regardless of exact position.
+        this.add.circle(this.cityX, this.cityY, 34, 0x0d1b2a, 0.85);
+        this.add.circle(this.cityX, this.cityY, 34, 0, 0).setStrokeStyle(2, 0xf5e56b, 0.8);
         this.add.text(this.cityX, this.cityY + 55, '🏙️ THE CITY', {
             fontSize: '14px',
-            fill: '#dddddd',
-            fontFamily: 'Courier New'
+            fill: '#f5e56b',
+            fontFamily: 'Courier New',
+            fontStyle: 'bold',
+            stroke: '#0d1b2a',
+            strokeThickness: 3
         }).setOrigin(0.5);
 
-        if (data === this.outcomeData.success) {
+        if (outcome === 'success') {
             this.playSuccessAnimation();
-        } else if (data === this.outcomeData.partial) {
+        } else if (outcome === 'partial') {
             this.playPartialAnimation();
         } else {
             this.playFailAnimation();
