@@ -9,7 +9,13 @@ const config = {
     scene: [IntroScene, DetectionScene, ToteBoardScene, DecisionScene, InterceptScene, ResultScene, DebugMenuScene],
     scale: {
         mode: Phaser.Scale.FIT,
-        autoCenter: Phaser.Scale.CENTER_BOTH
+        // #game-container already centers the canvas via CSS flexbox (see
+        // game.css). Phaser's own CENTER_BOTH does the same job with its own
+        // margin math on the canvas element, and the two stacked produced
+        // asymmetric offsets (canvas pinned to one edge with all the slack on
+        // the other side) instead of true centering. One centering mechanism,
+        // not two — CSS owns it here.
+        autoCenter: Phaser.Scale.NO_CENTER
     },
     render: {
         antialias: true

@@ -15,21 +15,26 @@ html, body {
 }
 
 #game-container {
+    /* Stays the full viewport size so it's the correct centering context —
+       capping THIS box (as an earlier version of this rule did) shrinks the
+       container itself down to the cap size, which then sits undocked at
+       one edge of the real (bigger) viewport instead of being centered in
+       it. The cap belongs on the canvas below, not here. */
     width: 100%;
     height: 100%;
     display: flex;
     align-items: center;
     justify-content: center;
-    /* Scale.FIT sizes the canvas off this container's box. The game's fixed
-       900x700 drawing buffer stays crisp up to about 1.2x scale-up; beyond
-       that the CSS stretch needed to fill a large screen starts visibly
-       softening text and images. Capping the container bounds this stretch
-       instead of letting it grow to whatever the screen size is. */
-    max-width: 1080px;
-    max-height: 840px;
-    margin: 0 auto;
 }
 
 #game-container canvas {
     touch-action: none;
+    /* Scale.FIT sizes the canvas off the container's box. The game's fixed
+       900x700 drawing buffer stays crisp up to about 1.2x scale-up; beyond
+       that the CSS stretch needed to fill a large screen starts visibly
+       softening text and images (portraits worst). max-width/height caps the
+       rendered size — and, unlike a competing `width`, is guaranteed by the
+       CSS spec to override Phaser's inline style regardless of source. */
+    max-width: 1080px;
+    max-height: 840px;
 }
