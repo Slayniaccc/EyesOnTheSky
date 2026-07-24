@@ -28,6 +28,23 @@ class ResultScene extends BaseGameScene {
 
         this.buildTitle(width, data);
         this.buildCityScene(data);
+
+        this.createDialogueBox(width, height);
+        this.createPortraitBadge(width - 110, height - 210, {
+            radius: 60,
+            textureKey: 'ludwik',
+            fallbackText: 'L',
+            nameLabel: 'Ludwik',
+            sizing: { fitToCircle: true },
+            labelGap: 15
+        });
+        this.dialogueText = this.add.text(110, height - 100, data.message, {
+            fontSize: '17px',
+            fill: data.hex,
+            fontFamily: 'Courier New',
+            fontStyle: 'italic',
+            wordWrap: { width: width - 260 }
+        });
     }
 
     get outcomeData() {
