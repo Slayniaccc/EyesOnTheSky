@@ -75,9 +75,11 @@ class DebugMenuScene extends Phaser.Scene {
         });
         // Jumping away from InterceptScene mid-flight (before showResult()
         // stops them itself) would otherwise leave its looping engine sounds
-        // droning on through whatever scene comes next.
+        // droning on through whatever scene comes next. Same for IntroScene's
+        // plane-flyby ambience if jumped away from before reaching DetectionScene.
         AudioManager.stopMusic(AudioManager.manifest.sfx.spitfireEngine);
         AudioManager.stopMusic(AudioManager.manifest.sfx.messerschmittEngine);
+        AudioManager.stopMusic(AudioManager.manifest.music.planeFlyby);
         this.scene.start(targetKey);
         this.expanded = false;
         this.setMenuVisible(false);

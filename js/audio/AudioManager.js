@@ -15,7 +15,12 @@
 const AudioManager = {
     manifest: {
         music: {
-            bunkerAmbience: { key: 'bunker-ambience', path: 'assets/audio/bunker-ambience.mp3', volume: 0.3, loop: true }
+            bunkerAmbience: { key: 'bunker-ambience', path: 'assets/audio/bunker-ambience.mp3', volume: 0.3, loop: true },
+            // Faint, distant engine drone under IntroScene — kept deliberately
+            // quiet (this is for kids, and it plays under narration/dialogue
+            // for the whole intro) rather than a foreground effect like the
+            // InterceptScene engine loops.
+            planeFlyby: { key: 'plane-flyby-ambience', path: 'assets/audio/plane-flyby-ambience.wav', volume: 0.08, loop: true }
         },
         sfx: {
             buttonClick: { key: 'sfx-click', path: 'assets/audio/sfx/click.mp3', volume: 0.5 },

@@ -15,6 +15,8 @@ class IntroScene extends Phaser.Scene {
     create() {
         const { width, height } = this.scale;
 
+        AudioManager.playMusic(this, AudioManager.manifest.music.planeFlyby);
+
         this.createBackground(width, height);
         this.createFooter(width, height);
 
@@ -419,6 +421,7 @@ class IntroScene extends Phaser.Scene {
         nextBtn.hitZone.on('pointerdown', () => {
             if (this.dowdingStepIndex >= this.dowdingSteps.length - 1) {
                 AudioManager.playSFX(this, AudioManager.manifest.sfx.buttonClick);
+                AudioManager.stopMusic(AudioManager.manifest.music.planeFlyby);
                 this.cameras.main.fadeOut(500, 0, 0, 0);
                 this.cameras.main.once('camerafadeoutcomplete', () => {
                     this.scene.start('DetectionScene');
