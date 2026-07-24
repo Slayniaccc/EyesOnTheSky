@@ -4,7 +4,7 @@ class IntroScene extends Phaser.Scene {
     }
 
     preload() {
-        this.load.image('waaf-mascot', 'assets/images/waaf-mascot.png');
+        this.load.image('waaf-mascot-bust', 'assets/images/waaf-mascot-bust.png');
         this.load.image('keith-park', 'assets/images/keithpark.png');
         this.load.image('ludwik', 'assets/images/ludwik.png');
 
@@ -237,7 +237,7 @@ class IntroScene extends Phaser.Scene {
 
         const characters = [
             {
-                key: 'waaf-mascot',
+                key: 'waaf-mascot-bust',
                 name: 'WAAF Plotter',
                 role: 'Moves the markers on the table, tracking every raid Fighter Command needs to see.',
                 accent: 0x3a7bd5
