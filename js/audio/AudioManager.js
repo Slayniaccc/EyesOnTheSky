@@ -128,6 +128,27 @@ const AudioManager = {
         return !!entry && scene.cache.audio.exists(entry.key);
     },
 
+    // Actual length of a loaded clip, in ms — 0 if it's not loaded (missing
+    // file). Reads straight from the decoded cache entry rather than an
+    // active Sound instance, so it works before the clip has ever played.
+    getDurationMs(scene, entry) {
+        if (!this.has(scene, entry)) return 0;
+        const source = scene.cache.audio.get(entry.key);
+        const el = Array.isArray(source) ? source[0] : source;
+        return (el && el.duration ? el.duration : 0) * 1000;
+    },
+
+    // How long a scene should wait after firing `entry` before moving on —
+    // at least minMs (the old fixed-delay value, used verbatim when the line
+    // isn't recorded yet), or the clip's real length plus a reading/reaction
+    // buffer when it is. Callers pass their existing hardcoded delay as minMs
+    // so nothing gets faster than before, only slower when a line needs it.
+    voiceAwareDelay(scene, entry, minMs, bufferMs) {
+        const buffer = bufferMs != null ? bufferMs : 500;
+        const duration = this.getDurationMs(scene, entry);
+        return duration ? Math.max(minMs, duration + buffer) : minMs;
+    },
+
     playSFX(scene, entry, config) {
         if (!this.has(scene, entry)) return null;
         return scene.sound.play(entry.key, Object.assign({ volume: entry.volume }, config));

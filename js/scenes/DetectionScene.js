@@ -74,7 +74,11 @@ create() {
                 this.playWaafLine(AudioManager.manifest.voice.waaf.radarComplete);
             });
             this.detectionStage = 'raid_moving';
-            this.spawnRaidMarker();
+            // Marker's "moving inland" animation runs at least as long as this
+            // line takes to say (plus the 400ms head start above), so the next
+            // line (raidOverLand) never fires while this one's still talking.
+            const inlandDuration = AudioManager.voiceAwareDelay(this, AudioManager.manifest.voice.waaf.radarComplete, 2000);
+            this.spawnRaidMarker(inlandDuration);
             });
 
             this.radarBlips.push(blip);
@@ -110,7 +114,7 @@ create() {
         this.totalRocPosts = 3;  
     
 }
-    spawnRaidMarker() {
+    spawnRaidMarker(inlandDuration = 2000) {
          // Starting position (from the last radar blip location)
         const startX = 720;
         const startY = 180;
@@ -140,7 +144,7 @@ create() {
             targets: marker,
             x: endX,
             y: endY,
-            duration: 2000,
+            duration: inlandDuration,
             ease: 'Sine.easeInOut',
             onComplete: () => {
                 // Stop the pulsing glow
@@ -234,11 +238,12 @@ create() {
                 // Check if all tapped
                 if (this.rocPostsTapped === this.totalRocPosts) {
                     this.dialogueText.setText('"Radar sees them coming across the Channel, but once they\'re over land, that\'s where we lose them. That\'s why we need the Observer Corps."');
-                    this.playWaafLine(AudioManager.manifest.voice.waaf.rocComplete);
+                    const rocCompleteVoice = AudioManager.manifest.voice.waaf.rocComplete;
+                    this.playWaafLine(rocCompleteVoice);
                     this.detectionStage = 'complete';
-                    
-                    // Advance after 3 seconds
-                    this.time.delayedCall(3000, () => {
+
+                    // Advance once the line's had time to finish (3s minimum).
+                    this.time.delayedCall(AudioManager.voiceAwareDelay(this, rocCompleteVoice, 3000), () => {
                         this.scene.start('ToteBoardScene');
                     });
                 }

@@ -249,8 +249,9 @@ class InterceptScene extends BaseGameScene {
                     // Check if all collected
                     if (this.collectedCount === this.totalSquadrons) {
                         this.dialogueText.setText('"Now we\'re ready. Poles, British, all of us. One formation, one mission."');
-                        AudioManager.playVoice(this, AudioManager.manifest.voice.ludwik.formationReady);
-                        this.time.delayedCall(1000, () => {
+                        const formationVoice = AudioManager.manifest.voice.ludwik.formationReady;
+                        AudioManager.playVoice(this, formationVoice);
+                        this.time.delayedCall(AudioManager.voiceAwareDelay(this, formationVoice, 1000), () => {
                             this.formationComplete();
                         });
                     }
@@ -425,8 +426,9 @@ startInterceptPhase() {
         onComplete: () => {
             if (!this.interceptDone) {
                 this.dialogueText.setText('"Too slow! The enemy reached the city."');
-                AudioManager.playVoice(this, AudioManager.manifest.voice.ludwik.tooSlow);
-                this.time.delayedCall(1500, () => this.showResult());
+                const tooSlowVoice = AudioManager.manifest.voice.ludwik.tooSlow;
+                AudioManager.playVoice(this, tooSlowVoice);
+                this.time.delayedCall(AudioManager.voiceAwareDelay(this, tooSlowVoice, 1500), () => this.showResult());
             }
         }
     });
@@ -577,8 +579,12 @@ startInterceptPhase() {
               // ---- CONTINUE TO PHASE 2 ----
         this.time.delayedCall(1000, () => {
             this.dialogueText.setText('"Now we\'re in the air. Let\'s find those enemy planes."');
-            AudioManager.playVoice(this, AudioManager.manifest.voice.ludwik.airfieldReady);
-            this.startInterceptPhase();
+            // startInterceptPhase() plays its own line immediately, which would
+            // otherwise be skipped (still busy) while this one's talking — wait
+            // for it to finish first (fires instantly if there's no audio yet).
+            AudioManager.playVoice(this, AudioManager.manifest.voice.ludwik.airfieldReady, {}, () => {
+                this.startInterceptPhase();
+            });
         });
     }
 
@@ -743,11 +749,12 @@ startInterceptPhase() {
         
         // ---- UPDATE DIALOGUE ----
         this.dialogueText.setText('"Hold the line. They know we\'re here, make them think twice about coming through."');
-        AudioManager.playVoice(this, AudioManager.manifest.voice.ludwik.holdLine);
+        const holdLineVoice = AudioManager.manifest.voice.ludwik.holdLine;
+        AudioManager.playVoice(this, holdLineVoice);
 
         // ---- PROCEED TO PHASE 3 ----
         this.phase = 'escort';
-        this.time.delayedCall(2500, () => {
+        this.time.delayedCall(AudioManager.voiceAwareDelay(this, holdLineVoice, 2500), () => {
             this.startEscortPhase();
         });
     }
@@ -771,7 +778,8 @@ startInterceptPhase() {
         if (turnIndex >= this.enemyFormation.length) {
             // All enemies turned back!
             this.dialogueText.setText('"All enemy planes turned back! Mission complete!"');
-            AudioManager.playVoice(this, AudioManager.manifest.voice.ludwik.allTurnedBack);
+            const allTurnedBackVoice = AudioManager.manifest.voice.ludwik.allTurnedBack;
+            AudioManager.playVoice(this, allTurnedBackVoice);
 
             // ---- CONFETTI CELEBRATION (MOVED HERE - OUTSIDE THE LOOP) ----
             const { width, height } = this.scale;
@@ -794,7 +802,7 @@ startInterceptPhase() {
                 });
             }
 
-            this.time.delayedCall(2000, () => {
+            this.time.delayedCall(AudioManager.voiceAwareDelay(this, allTurnedBackVoice, 2000), () => {
                 this.showResult();
             });
             return;

@@ -169,9 +169,10 @@ class DecisionScene extends BaseGameScene {
                         // Disable further dragging
                         this.raidMarkers.forEach(m => m.disableInteractive());
                         this.dialogueText.setText('"Both raids assigned. Evaluating now..."');
-                        this.playWaafLine(AudioManager.manifest.voice.waaf.decisionEvaluating);
-                        // Evaluate after a short delay
-                        this.time.delayedCall(1000, () => {
+                        const evaluatingVoice = AudioManager.manifest.voice.waaf.decisionEvaluating;
+                        this.playWaafLine(evaluatingVoice);
+                        // Evaluate once the line's had time to finish (1s minimum).
+                        this.time.delayedCall(AudioManager.voiceAwareDelay(this, evaluatingVoice, 1000), () => {
                             this.evaluateDecision();
                         });
                     }
