@@ -40,7 +40,7 @@ const AudioManager = {
             // "too loud") state, not just at the same effective level reached
             // a different way. _duckMusic() cuts this further (to 15%) while
             // a voice line plays.
-            spitfireEngine: { key: 'sfx-spitfire-engine', path: 'assets/audio/sfx/merlin-engine.wav', volume: 0.15, loop: true },
+            spitfireEngine: { key: 'sfx-spitfire-engine', path: 'assets/audio/sfx/merlin-engine.mp3', volume: 0.15, loop: true },
             messerschmittEngine: { key: 'sfx-messerschmitt-engine', path: 'assets/audio/sfx/messerschmitt-engine.flac', volume: 0.15, loop: true },
             victoryCelebration: { key: 'sfx-victory-celebration', path: 'assets/audio/sfx/victory-celebration.wav', volume: 0.15 }
         },
