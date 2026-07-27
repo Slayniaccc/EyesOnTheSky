@@ -435,6 +435,7 @@ class IntroScene extends Phaser.Scene {
             if (this.dowdingStepIndex === 0) {
                 this.goToPage(page, this.characterPage);
             } else {
+                if (this.dowdingLineLocked) return;
                 AudioManager.playSFX(this, AudioManager.manifest.sfx.buttonClick);
                 this.dowdingStepIndex--;
                 this.updateDowdingStepDisplay();
@@ -451,6 +452,7 @@ class IntroScene extends Phaser.Scene {
                     this.scene.start('DetectionScene');
                 });
             } else {
+                if (this.dowdingLineLocked) return;
                 AudioManager.playSFX(this, AudioManager.manifest.sfx.buttonClick);
                 this.dowdingStepIndex++;
                 this.updateDowdingStepDisplay();
@@ -489,6 +491,13 @@ class IntroScene extends Phaser.Scene {
 
     announceDowdingStep() {
         const step = this.dowdingSteps[this.dowdingStepIndex];
-        AudioManager.playVoice(this, AudioManager.manifest.voice.dowdingNarrator[step.voice]);
+        // Locked while the narrator is still speaking so mashing Back/Next
+        // can't cut a step's line off partway through — unlocked by
+        // playVoice's onComplete, which fires immediately if that step has
+        // no audio file yet, so playback without narration isn't slowed.
+        this.dowdingLineLocked = true;
+        AudioManager.playVoice(this, AudioManager.manifest.voice.dowdingNarrator[step.voice], {}, () => {
+            this.dowdingLineLocked = false;
+        });
     }
 }

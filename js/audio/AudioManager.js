@@ -46,13 +46,27 @@ const AudioManager = {
                 radarComplete: { key: 'waaf-radar-complete', path: 'assets/audio/waaf-lines/radar-complete.mp3', volume: 0.6 },
                 raidOverLand: { key: 'waaf-raid-over-land', path: 'assets/audio/waaf-lines/raid-over-land.mp3', volume: 0.6 },
                 rocComplete: { key: 'waaf-roc-complete', path: 'assets/audio/waaf-lines/roc-complete.mp3', volume: 0.6 },
-                // DecisionScene's Keith Park -> WAAF handoff line.
-                decisionHandoff: { key: 'waaf-decision-handoff', path: 'assets/audio/waaf-lines/decision-handoff.mp3', volume: 0.6 },
-                // ToteBoardScene's randomised call-out (one of four, picked per round).
-                toteCall1: { key: 'waaf-tote-call-1', path: 'assets/audio/waaf-lines/tote-call-1.mp3', volume: 0.6 },
-                toteCall2: { key: 'waaf-tote-call-2', path: 'assets/audio/waaf-lines/tote-call-2.mp3', volume: 0.6 },
-                toteCall3: { key: 'waaf-tote-call-3', path: 'assets/audio/waaf-lines/tote-call-3.mp3', volume: 0.6 },
-                toteCall4: { key: 'waaf-tote-call-4', path: 'assets/audio/waaf-lines/tote-call-4.mp3', volume: 0.6 },
+                // DecisionScene's Keith Park -> WAAF handoff, and the "evaluating" line
+                // while the player's raid placements are being scored.
+                decisionInstruction: { key: 'waaf-decision-instruction', path: 'assets/audio/waaf-lines/decision-instruction.mp3', volume: 0.6 },
+                decisionEvaluating: { key: 'waaf-decision-evaluating', path: 'assets/audio/waaf-lines/decision-evaluating.mp3', volume: 0.6 },
+                // ToteBoardScene's opening line, plus one recording per
+                // (phrasing x state) combo so the state name is never spliced in —
+                // 4 phrasings (Tap/There/Sharp/Thats) x 3 states (Available/
+                // Readiness/LeftGround) = 12 lines, picked by ToteBoardScene.startRound().
+                toteIntro: { key: 'waaf-tote-intro', path: 'assets/audio/waaf-lines/tote-intro.mp3', volume: 0.6 },
+                toteTapAvailable: { key: 'waaf-tote-tap-available', path: 'assets/audio/waaf-lines/tote-tap-available.mp3', volume: 0.6 },
+                toteTapReadiness: { key: 'waaf-tote-tap-readiness', path: 'assets/audio/waaf-lines/tote-tap-readiness.mp3', volume: 0.6 },
+                toteTapLeftGround: { key: 'waaf-tote-tap-left-ground', path: 'assets/audio/waaf-lines/tote-tap-left-ground.mp3', volume: 0.6 },
+                toteThereAvailable: { key: 'waaf-tote-there-available', path: 'assets/audio/waaf-lines/tote-there-available.mp3', volume: 0.6 },
+                toteThereReadiness: { key: 'waaf-tote-there-readiness', path: 'assets/audio/waaf-lines/tote-there-readiness.mp3', volume: 0.6 },
+                toteThereLeftGround: { key: 'waaf-tote-there-left-ground', path: 'assets/audio/waaf-lines/tote-there-left-ground.mp3', volume: 0.6 },
+                toteSharpAvailable: { key: 'waaf-tote-sharp-available', path: 'assets/audio/waaf-lines/tote-sharp-available.mp3', volume: 0.6 },
+                toteSharpReadiness: { key: 'waaf-tote-sharp-readiness', path: 'assets/audio/waaf-lines/tote-sharp-readiness.mp3', volume: 0.6 },
+                toteSharpLeftGround: { key: 'waaf-tote-sharp-left-ground', path: 'assets/audio/waaf-lines/tote-sharp-left-ground.mp3', volume: 0.6 },
+                toteThatsAvailable: { key: 'waaf-tote-thats-available', path: 'assets/audio/waaf-lines/tote-thats-available.mp3', volume: 0.6 },
+                toteThatsReadiness: { key: 'waaf-tote-thats-readiness', path: 'assets/audio/waaf-lines/tote-thats-readiness.mp3', volume: 0.6 },
+                toteThatsLeftGround: { key: 'waaf-tote-thats-left-ground', path: 'assets/audio/waaf-lines/tote-thats-left-ground.mp3', volume: 0.6 },
                 toteCorrect: { key: 'waaf-tote-correct', path: 'assets/audio/waaf-lines/tote-correct.mp3', volume: 0.6 },
                 toteWrong: { key: 'waaf-tote-wrong', path: 'assets/audio/waaf-lines/tote-wrong.mp3', volume: 0.6 },
                 toteMissed: { key: 'waaf-tote-missed', path: 'assets/audio/waaf-lines/tote-missed.mp3', volume: 0.6 },
@@ -90,6 +104,7 @@ const AudioManager = {
     },
 
     _music: {},
+    _currentVoice: null,
 
     // Call once, from the first scene's preload() — Phaser's audio cache is
     // shared game-wide, so every later scene can just play by key.
@@ -116,13 +131,22 @@ const AudioManager = {
         return scene.sound.play(entry.key, Object.assign({ volume: entry.volume }, config));
     },
 
+    // Only one spoken line — WAAF, Keith Park, Ludwik, or the narrator — should
+    // ever be audible at once. Dialogue in most scenes advances faster than a
+    // full line takes to read out (ToteBoardScene's rounds especially, down to
+    // 500ms between calls), so without this every new line piled onto whatever
+    // was still playing instead of replacing it.
     playVoice(scene, entry, config, onComplete) {
+        if (this._currentVoice && this._currentVoice.isPlaying) {
+            this._currentVoice.stop();
+        }
         if (!this.has(scene, entry)) {
             if (onComplete) onComplete();
             return null;
         }
         const sound = scene.sound.add(entry.key, Object.assign({ volume: entry.volume != null ? entry.volume : 0.6 }, config));
         if (onComplete) sound.once('complete', onComplete);
+        this._currentVoice = sound;
         sound.play();
         return sound;
     },

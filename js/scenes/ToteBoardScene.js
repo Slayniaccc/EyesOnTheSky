@@ -31,6 +31,13 @@ class ToteBoardScene extends BaseGameScene {
 
         // ---------- STATE MACHINE VARIABLES ----------
         this.states = ['Available', 'Ordered to Readiness', 'Left Ground'];
+        // Maps each state to the suffix used in the recorded call-out voice
+        // keys (e.g. 'Ordered to Readiness' -> toteTapReadiness).
+        this.stateVoiceSuffix = {
+            'Available': 'Available',
+            'Ordered to Readiness': 'Readiness',
+            'Left Ground': 'LeftGround'
+        };
         this.currentStateIndex = 0;          // Which state is currently highlighted
         this.targetState = '';               // The state the player must tap
         this.round = 0;
@@ -67,6 +74,7 @@ class ToteBoardScene extends BaseGameScene {
             fontStyle: 'italic',
             wordWrap: { width: width - 120 }
         });
+        this.playWaafLine(AudioManager.manifest.voice.waaf.toteIntro);
 
        
 
@@ -174,22 +182,19 @@ class ToteBoardScene extends BaseGameScene {
         this.clearHighlights();
         this.highlightPanel(randomIndex);
 
-        // WAAF call-out
-        const waafLines = [
-            `"Tap the board when it says: ${this.targetState}!"`,
-            `"There, ${this.targetState}. Tap it!"`,
-            `"Look sharp — ${this.targetState} now!"`,
-            `"That's the one — ${this.targetState}. Go!"`
+        // WAAF call-out — each phrasing has its own recording per state (no
+        // state name spliced into audio), so the text and voice key both key
+        // off the same phrasing/state pair.
+        const callPhrasings = [
+            { voiceKey: 'Tap', text: `"Tap the board when it says: ${this.targetState}!"` },
+            { voiceKey: 'There', text: `"There, ${this.targetState}. Tap it!"` },
+            { voiceKey: 'Sharp', text: `"Look sharp — ${this.targetState} now!"` },
+            { voiceKey: 'Thats', text: `"That's the one — ${this.targetState}. Go!"` }
         ];
-        const lineIndex = Phaser.Math.Between(0, waafLines.length - 1);
-        this.dialogueText.setText(waafLines[lineIndex]);
-        const waafVoices = [
-            AudioManager.manifest.voice.waaf.toteCall1,
-            AudioManager.manifest.voice.waaf.toteCall2,
-            AudioManager.manifest.voice.waaf.toteCall3,
-            AudioManager.manifest.voice.waaf.toteCall4
-        ];
-        this.playWaafLine(waafVoices[lineIndex]);
+        const phrasing = callPhrasings[Phaser.Math.Between(0, callPhrasings.length - 1)];
+        this.dialogueText.setText(phrasing.text);
+        const voiceKey = 'tote' + phrasing.voiceKey + this.stateVoiceSuffix[this.targetState];
+        this.playWaafLine(AudioManager.manifest.voice.waaf[voiceKey]);
 
         // Start timer
         this.isWaitingForTap = true;

@@ -45,7 +45,12 @@ class DecisionScene extends BaseGameScene {
             fontStyle: 'italic',
             wordWrap: { width: width - 140 }
         });
-        AudioManager.playVoice(this, this.parkVoices[0]);
+        // Locked while a line's voice is still playing so mashing Continue
+        // can't cut a character's line off partway through — unlocked by
+        // playVoice's onComplete, which fires immediately if that line has
+        // no audio file yet, so playback without voice acting isn't slowed.
+        this.lineLocked = true;
+        AudioManager.playVoice(this, this.parkVoices[0], {}, () => { this.lineLocked = false; });
 
         // 3. Create the "Continue" button
         const continueBtn = this.add.text(width / 2, height - 160, '▶  CONTINUE  ◀', {
@@ -150,6 +155,7 @@ class DecisionScene extends BaseGameScene {
                         // Disable further dragging
                         this.raidMarkers.forEach(m => m.disableInteractive());
                         this.dialogueText.setText('"Both raids assigned. Evaluating now..."');
+                        this.playWaafLine(AudioManager.manifest.voice.waaf.decisionEvaluating);
                         // Evaluate after a short delay
                         this.time.delayedCall(1000, () => {
                             this.evaluateDecision();
@@ -170,12 +176,14 @@ class DecisionScene extends BaseGameScene {
 
         // 4. Button click handler
         continueBtn.on('pointerdown', () => {
+            if (this.lineLocked) return;
             AudioManager.playSFX(this, AudioManager.manifest.sfx.buttonClick);
             this.currentLineIndex++;
+            this.lineLocked = true;
 
             if (this.currentLineIndex < this.parkLines.length) {
                 this.dialogueText.setText(this.parkLines[this.currentLineIndex]);
-                AudioManager.playVoice(this, this.parkVoices[this.currentLineIndex]);
+                AudioManager.playVoice(this, this.parkVoices[this.currentLineIndex], {}, () => { this.lineLocked = false; });
                       } else {
                 // All Park lines finished – WAAF handoff (dialogue only; his
                 // portrait stays up for the rest of the scene)
@@ -190,7 +198,7 @@ class DecisionScene extends BaseGameScene {
 
                 // Remind the player they can drag
                 this.dialogueText.setText('"Drag each red raid marker to the correct sector station."');
-                this.playWaafLine(AudioManager.manifest.voice.waaf.decisionHandoff);
+                this.playWaafLine(AudioManager.manifest.voice.waaf.decisionInstruction, () => { this.lineLocked = false; });
             }
         });
     }
