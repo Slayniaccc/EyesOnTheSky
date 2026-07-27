@@ -19,6 +19,16 @@ const config = {
     },
     render: {
         antialias: true
+    },
+    // capture: true registers Phaser's touch listeners in the capture phase
+    // instead of bubble — the standard fix for older Android WebViews (the
+    // target Galaxy A6 tablet) occasionally swallowing the very first touch
+    // on a fresh page/canvas for their own gesture recognition before it
+    // reaches Phaser. No effect on desktop/mouse input.
+    input: {
+        touch: {
+            capture: true
+        }
     }
 };
 
