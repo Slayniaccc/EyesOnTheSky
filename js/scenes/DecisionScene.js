@@ -5,6 +5,7 @@ class DecisionScene extends BaseGameScene {
     preload() {
         this.load.image('map', 'assets/images/mapbackground.png');
         this.load.image('keith-park', 'assets/images/keithpark.png');
+        this.load.image('waaf-mascot-bust', 'assets/images/waaf-mascot-bust.png');
         console.log('🔵 DecisionScene: preloading assets');
     }
     create() {
@@ -14,12 +15,25 @@ class DecisionScene extends BaseGameScene {
           this.createMapBackground(width, height);
         this.createGrid(width, height);
           this.createDialogueBox(width, height);
-        this.createPortraitBadge(width - 110, height - 200, {
+        const badgeX = width - 110;
+        const badgeY = height - 200;
+        this.parkBadge = this.createPortraitBadge(badgeX, badgeY, {
             radius: 60,
             textureKey: 'keith-park',
             fallbackText: 'KP',
             nameLabel: 'Keith Park',
             sizing: { fitToCircle: true }
+        });
+        // Same spot as Keith Park's badge — hidden until his handoff line, so
+        // the swap reads as one badge changing rather than a new one appearing.
+        this.waafBadge = this.createPortraitBadge(badgeX, badgeY, {
+            radius: 60,
+            textureKey: 'waaf-mascot-bust',
+            fallbackText: 'WAAF',
+            fallbackFontSize: '18px',
+            nameLabel: 'WAAF',
+            sizing: { fitToCircle: true },
+            startHidden: true
         });
          //dialogue logic
           this.parkLines = [
@@ -185,8 +199,10 @@ class DecisionScene extends BaseGameScene {
                 this.dialogueText.setText(this.parkLines[this.currentLineIndex]);
                 AudioManager.playVoice(this, this.parkVoices[this.currentLineIndex], {}, () => { this.lineLocked = false; });
                       } else {
-                // All Park lines finished – WAAF handoff (dialogue only; his
-                // portrait stays up for the rest of the scene)
+                // All Park lines finished – WAAF handoff, portrait badge swaps
+                // to match who's actually speaking for the rest of the scene.
+                this.parkBadge.forEach((el) => el.setVisible(false));
+                this.waafBadge.forEach((el) => el.setVisible(true));
                 this.dialogueText.setText('"Two raids inbound. Drag each marker to the correct sector station."');
                 this.dialogueText.setFill('#c8e6c9'); // WAAF green
                 continueBtn.setVisible(false);
