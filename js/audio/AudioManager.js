@@ -29,11 +29,12 @@ const AudioManager = {
             // loop: true so playMusic/stopMusic (not playSFX) can be reused for
             // these — they represent continuous engine drone for as long as
             // the planes are the visual focus (airfield view onward), not a
-            // one-shot effect. Volume dropped twice now (0.35 -> 0.15 -> 0.05)
-            // — still startling a Y6 audience at 0.15 since this loops
-            // continuously rather than playing once.
-            spitfireEngine: { key: 'sfx-spitfire-engine', path: 'assets/audio/sfx/merlin-engine.wav', volume: 0.05, loop: true },
-            messerschmittEngine: { key: 'sfx-messerschmitt-engine', path: 'assets/audio/sfx/messerschmitt-engine.flac', volume: 0.05, loop: true },
+            // one-shot effect. Volume dropped repeatedly now (0.35 -> 0.15 ->
+            // 0.05 -> 0.035) — a continuous drone masks Ludwik's lines badly
+            // even at low nominal volume, on top of the more aggressive duck
+            // in _duckMusic() while he's actually talking.
+            spitfireEngine: { key: 'sfx-spitfire-engine', path: 'assets/audio/sfx/merlin-engine.wav', volume: 0.035, loop: true },
+            messerschmittEngine: { key: 'sfx-messerschmitt-engine', path: 'assets/audio/sfx/messerschmitt-engine.flac', volume: 0.035, loop: true },
             victoryCelebration: { key: 'sfx-victory-celebration', path: 'assets/audio/sfx/victory-celebration.wav', volume: 0.3 }
         },
         // Add entries here as lines get scripted/recorded, e.g.:
@@ -170,12 +171,15 @@ const AudioManager = {
 
     // Ducks whatever's in _music (bunker ambience, engine loops, ...) so a
     // spoken line stays audible over it instead of getting buried, and
-    // restores it once the line ends.
+    // restores it once the line ends. 0.35 wasn't aggressive enough for the
+    // InterceptScene engine loops specifically — a continuous broadband drone
+    // masks speech much harder than a quiet ambience bed at the same nominal
+    // volume, so Ludwik's lines were still getting buried under it.
     _duckMusic() {
         Object.values(this._music).forEach((sound) => {
             if (sound && sound.isPlaying) {
                 this._duckedMusic.push({ sound, original: sound.volume });
-                sound.setVolume(sound.volume * 0.35);
+                sound.setVolume(sound.volume * 0.15);
             }
         });
     },
