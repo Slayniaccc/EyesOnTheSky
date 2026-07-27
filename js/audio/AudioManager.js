@@ -42,7 +42,7 @@ const AudioManager = {
             // a voice line plays.
             spitfireEngine: { key: 'sfx-spitfire-engine', path: 'assets/audio/sfx/merlin-engine.wav', volume: 0.15, loop: true },
             messerschmittEngine: { key: 'sfx-messerschmitt-engine', path: 'assets/audio/sfx/messerschmitt-engine.flac', volume: 0.15, loop: true },
-            victoryCelebration: { key: 'sfx-victory-celebration', path: 'assets/audio/sfx/victory-celebration.wav', volume: 0.3 }
+            victoryCelebration: { key: 'sfx-victory-celebration', path: 'assets/audio/sfx/victory-celebration.wav', volume: 0.15 }
         },
         // Add entries here as lines get scripted/recorded, e.g.:
         // waaf: { toteIntro: { key: 'waaf-tote-intro', path: 'assets/audio/waaf-lines/tote-intro.mp3', volume: 0.6 } }
