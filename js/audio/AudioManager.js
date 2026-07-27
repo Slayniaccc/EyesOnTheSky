@@ -29,12 +29,19 @@ const AudioManager = {
             // loop: true so playMusic/stopMusic (not playSFX) can be reused for
             // these — they represent continuous engine drone for as long as
             // the planes are the visual focus (airfield view onward), not a
-            // one-shot effect. Volume dropped repeatedly now (0.35 -> 0.15 ->
-            // 0.05 -> 0.035) — a continuous drone masks Ludwik's lines badly
-            // even at low nominal volume, on top of the more aggressive duck
-            // in _duckMusic() while he's actually talking.
-            spitfireEngine: { key: 'sfx-spitfire-engine', path: 'assets/audio/sfx/merlin-engine.wav', volume: 0.035, loop: true },
-            messerschmittEngine: { key: 'sfx-messerschmitt-engine', path: 'assets/audio/sfx/messerschmitt-engine.flac', volume: 0.035, loop: true },
+            // one-shot effect. Repeatedly dropping this volume (0.35 -> 0.15
+            // -> 0.05 -> 0.035) barely helped — the source recordings are
+            // mastered hot (peaks near 0dBFS, like a produced track, not a
+            // quiet ambience bed), so small linear-gain tweaks changed the
+            // perceived loudness only ~1-3dB each time even though the number
+            // kept shrinking. Normalized the actual files down ~20dB instead
+            // (originals kept in assets/audio/sfx/_originals_backup/) and set
+            // this volume to land ~10dB quieter still than the last (still
+            // "too loud") state, not just at the same effective level reached
+            // a different way. _duckMusic() cuts this further (to 15%) while
+            // a voice line plays.
+            spitfireEngine: { key: 'sfx-spitfire-engine', path: 'assets/audio/sfx/merlin-engine.wav', volume: 0.15, loop: true },
+            messerschmittEngine: { key: 'sfx-messerschmitt-engine', path: 'assets/audio/sfx/messerschmitt-engine.flac', volume: 0.15, loop: true },
             victoryCelebration: { key: 'sfx-victory-celebration', path: 'assets/audio/sfx/victory-celebration.wav', volume: 0.3 }
         },
         // Add entries here as lines get scripted/recorded, e.g.:
