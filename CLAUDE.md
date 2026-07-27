@@ -13,7 +13,7 @@ A tablet-first educational game for Y6 kids (ages 10-11), simulating the RAF plo
 ## 🔧 Remaining Issues (found in playtesting — 2026-07-27)
 
 - [ ] **Dowding System narrator** — the 4 narrator lines for the Dowding System diagram steps aren't recorded yet (code's already wired up for them, just needs `assets/audio/dowding-narrator-lines/step1.mp3` through `step4.mp3` dropped in)
-- [x] **ToteBoardScene: lock panel taps until WAAF finishes her call-out line** — fixed, panels now stay locked until she's done speaking
+- [x] **ToteBoardScene: lock panel taps until WAAF finishes her opening line** — fixed, but scoped to just the "Tote board live..." intro before round 1 starts; each round's own call-out still allows tapping while it plays (locking every round's call-out made the reaction timer too generous — a miss became basically impossible)
 - [x] **DecisionScene: Keith Park's first line slightly overflows the screen** — fixed, wrap width now measured against the actual dialogue box edge
 - [x] **Bug: Ludwik's "Now we're ready..." line doesn't play** — fixed, it was getting silently skipped when tapped fast (the intro line was still playing); now waits and plays right after
 - [ ] **Give Ludwik a presence earlier in InterceptScene** — right now he only really shows up once it switches to the airfield view; add him to the plotting-table part too (a speech bubble off one of the planes, or a portrait near the bottom of the screen)
