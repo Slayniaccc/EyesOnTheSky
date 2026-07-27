@@ -42,69 +42,71 @@ const AudioManager = {
             // Static (non-interpolated) WAAF lines from DetectionScene, ToteBoardScene
             // and DecisionScene's dialogue boxes.
             waaf: {
-                detectionWelcome: { key: 'waaf-detection-welcome', path: 'assets/audio/waaf-lines/detection-welcome.mp3', volume: 0.6 },
-                radarComplete: { key: 'waaf-radar-complete', path: 'assets/audio/waaf-lines/radar-complete.mp3', volume: 0.6 },
-                raidOverLand: { key: 'waaf-raid-over-land', path: 'assets/audio/waaf-lines/raid-over-land.mp3', volume: 0.6 },
-                rocComplete: { key: 'waaf-roc-complete', path: 'assets/audio/waaf-lines/roc-complete.mp3', volume: 0.6 },
+                detectionWelcome: { key: 'waaf-detection-welcome', path: 'assets/audio/waaf-lines/detection-welcome.mp3', volume: 0.85 },
+                radarComplete: { key: 'waaf-radar-complete', path: 'assets/audio/waaf-lines/radar-complete.mp3', volume: 0.85 },
+                raidOverLand: { key: 'waaf-raid-over-land', path: 'assets/audio/waaf-lines/raid-over-land.mp3', volume: 0.85 },
+                rocComplete: { key: 'waaf-roc-complete', path: 'assets/audio/waaf-lines/roc-complete.mp3', volume: 0.85 },
                 // DecisionScene's Keith Park -> WAAF handoff, and the "evaluating" line
                 // while the player's raid placements are being scored.
-                decisionInstruction: { key: 'waaf-decision-instruction', path: 'assets/audio/waaf-lines/decision-instruction.mp3', volume: 0.6 },
-                decisionEvaluating: { key: 'waaf-decision-evaluating', path: 'assets/audio/waaf-lines/decision-evaluating.mp3', volume: 0.6 },
+                decisionInstruction: { key: 'waaf-decision-instruction', path: 'assets/audio/waaf-lines/decision-instruction.mp3', volume: 0.85 },
+                decisionEvaluating: { key: 'waaf-decision-evaluating', path: 'assets/audio/waaf-lines/decision-evaluating.mp3', volume: 0.85 },
                 // ToteBoardScene's opening line, plus one recording per
                 // (phrasing x state) combo so the state name is never spliced in —
                 // 4 phrasings (Tap/There/Sharp/Thats) x 3 states (Available/
                 // Readiness/LeftGround) = 12 lines, picked by ToteBoardScene.startRound().
-                toteIntro: { key: 'waaf-tote-intro', path: 'assets/audio/waaf-lines/tote-intro.mp3', volume: 0.6 },
-                toteTapAvailable: { key: 'waaf-tote-tap-available', path: 'assets/audio/waaf-lines/tote-tap-available.mp3', volume: 0.6 },
-                toteTapReadiness: { key: 'waaf-tote-tap-readiness', path: 'assets/audio/waaf-lines/tote-tap-readiness.mp3', volume: 0.6 },
-                toteTapLeftGround: { key: 'waaf-tote-tap-left-ground', path: 'assets/audio/waaf-lines/tote-tap-left-ground.mp3', volume: 0.6 },
-                toteThereAvailable: { key: 'waaf-tote-there-available', path: 'assets/audio/waaf-lines/tote-there-available.mp3', volume: 0.6 },
-                toteThereReadiness: { key: 'waaf-tote-there-readiness', path: 'assets/audio/waaf-lines/tote-there-readiness.mp3', volume: 0.6 },
-                toteThereLeftGround: { key: 'waaf-tote-there-left-ground', path: 'assets/audio/waaf-lines/tote-there-left-ground.mp3', volume: 0.6 },
-                toteSharpAvailable: { key: 'waaf-tote-sharp-available', path: 'assets/audio/waaf-lines/tote-sharp-available.mp3', volume: 0.6 },
-                toteSharpReadiness: { key: 'waaf-tote-sharp-readiness', path: 'assets/audio/waaf-lines/tote-sharp-readiness.mp3', volume: 0.6 },
-                toteSharpLeftGround: { key: 'waaf-tote-sharp-left-ground', path: 'assets/audio/waaf-lines/tote-sharp-left-ground.mp3', volume: 0.6 },
-                toteThatsAvailable: { key: 'waaf-tote-thats-available', path: 'assets/audio/waaf-lines/tote-thats-available.mp3', volume: 0.6 },
-                toteThatsReadiness: { key: 'waaf-tote-thats-readiness', path: 'assets/audio/waaf-lines/tote-thats-readiness.mp3', volume: 0.6 },
-                toteThatsLeftGround: { key: 'waaf-tote-thats-left-ground', path: 'assets/audio/waaf-lines/tote-thats-left-ground.mp3', volume: 0.6 },
-                toteCorrect: { key: 'waaf-tote-correct', path: 'assets/audio/waaf-lines/tote-correct.mp3', volume: 0.6 },
-                toteWrong: { key: 'waaf-tote-wrong', path: 'assets/audio/waaf-lines/tote-wrong.mp3', volume: 0.6 },
-                toteMissed: { key: 'waaf-tote-missed', path: 'assets/audio/waaf-lines/tote-missed.mp3', volume: 0.6 },
-                toteComplete: { key: 'waaf-tote-complete', path: 'assets/audio/waaf-lines/tote-complete.mp3', volume: 0.6 }
+                toteIntro: { key: 'waaf-tote-intro', path: 'assets/audio/waaf-lines/tote-intro.mp3', volume: 0.85 },
+                toteTapAvailable: { key: 'waaf-tote-tap-available', path: 'assets/audio/waaf-lines/tote-tap-available.mp3', volume: 0.85 },
+                toteTapReadiness: { key: 'waaf-tote-tap-readiness', path: 'assets/audio/waaf-lines/tote-tap-readiness.mp3', volume: 0.85 },
+                toteTapLeftGround: { key: 'waaf-tote-tap-left-ground', path: 'assets/audio/waaf-lines/tote-tap-left-ground.mp3', volume: 0.85 },
+                toteThereAvailable: { key: 'waaf-tote-there-available', path: 'assets/audio/waaf-lines/tote-there-available.mp3', volume: 0.85 },
+                toteThereReadiness: { key: 'waaf-tote-there-readiness', path: 'assets/audio/waaf-lines/tote-there-readiness.mp3', volume: 0.85 },
+                toteThereLeftGround: { key: 'waaf-tote-there-left-ground', path: 'assets/audio/waaf-lines/tote-there-left-ground.mp3', volume: 0.85 },
+                toteSharpAvailable: { key: 'waaf-tote-sharp-available', path: 'assets/audio/waaf-lines/tote-sharp-available.mp3', volume: 0.85 },
+                toteSharpReadiness: { key: 'waaf-tote-sharp-readiness', path: 'assets/audio/waaf-lines/tote-sharp-readiness.mp3', volume: 0.85 },
+                toteSharpLeftGround: { key: 'waaf-tote-sharp-left-ground', path: 'assets/audio/waaf-lines/tote-sharp-left-ground.mp3', volume: 0.85 },
+                toteThatsAvailable: { key: 'waaf-tote-thats-available', path: 'assets/audio/waaf-lines/tote-thats-available.mp3', volume: 0.85 },
+                toteThatsReadiness: { key: 'waaf-tote-thats-readiness', path: 'assets/audio/waaf-lines/tote-thats-readiness.mp3', volume: 0.85 },
+                toteThatsLeftGround: { key: 'waaf-tote-thats-left-ground', path: 'assets/audio/waaf-lines/tote-thats-left-ground.mp3', volume: 0.85 },
+                toteCorrect: { key: 'waaf-tote-correct', path: 'assets/audio/waaf-lines/tote-correct.mp3', volume: 0.85 },
+                toteWrong: { key: 'waaf-tote-wrong', path: 'assets/audio/waaf-lines/tote-wrong.mp3', volume: 0.85 },
+                toteMissed: { key: 'waaf-tote-missed', path: 'assets/audio/waaf-lines/tote-missed.mp3', volume: 0.85 },
+                toteComplete: { key: 'waaf-tote-complete', path: 'assets/audio/waaf-lines/tote-complete.mp3', volume: 0.85 }
             },
             // DecisionScene's briefing, in the order parkLines[0..3] plays them.
             keithPark: {
-                introGroups: { key: 'keith-park-intro-groups', path: 'assets/audio/keith-park-lines/intro-groups.mp3', volume: 0.6 },
-                introElevenGroup: { key: 'keith-park-intro-eleven-group', path: 'assets/audio/keith-park-lines/intro-eleven-group.mp3', volume: 0.6 },
-                raidsInbound: { key: 'keith-park-raids-inbound', path: 'assets/audio/keith-park-lines/raids-inbound.mp3', volume: 0.6 },
-                neverEnough: { key: 'keith-park-never-enough', path: 'assets/audio/keith-park-lines/never-enough.mp3', volume: 0.6 }
+                introGroups: { key: 'keith-park-intro-groups', path: 'assets/audio/keith-park-lines/intro-groups.mp3', volume: 0.85 },
+                introElevenGroup: { key: 'keith-park-intro-eleven-group', path: 'assets/audio/keith-park-lines/intro-eleven-group.mp3', volume: 0.85 },
+                raidsInbound: { key: 'keith-park-raids-inbound', path: 'assets/audio/keith-park-lines/raids-inbound.mp3', volume: 0.85 },
+                neverEnough: { key: 'keith-park-never-enough', path: 'assets/audio/keith-park-lines/never-enough.mp3', volume: 0.85 }
             },
             // InterceptScene (form-up/intercept/escort phases) and ResultScene
             // (final debrief, one of the three outcome lines).
             ludwik: {
-                intro: { key: 'ludwik-intro', path: 'assets/audio/ludwik-lines/intro.mp3', volume: 0.6 },
-                formationReady: { key: 'ludwik-formation-ready', path: 'assets/audio/ludwik-lines/formation-ready.mp3', volume: 0.6 },
-                airfieldReady: { key: 'ludwik-airfield-ready', path: 'assets/audio/ludwik-lines/airfield-ready.mp3', volume: 0.6 },
-                interceptStart: { key: 'ludwik-intercept-start', path: 'assets/audio/ludwik-lines/intercept-start.mp3', volume: 0.6 },
-                tooSlow: { key: 'ludwik-too-slow', path: 'assets/audio/ludwik-lines/too-slow.mp3', volume: 0.6 },
-                holdLine: { key: 'ludwik-hold-line', path: 'assets/audio/ludwik-lines/hold-line.mp3', volume: 0.6 },
-                allTurnedBack: { key: 'ludwik-all-turned-back', path: 'assets/audio/ludwik-lines/all-turned-back.mp3', volume: 0.6 },
-                resultSuccess: { key: 'ludwik-result-success', path: 'assets/audio/ludwik-lines/result-success.mp3', volume: 0.6 },
-                resultPartial: { key: 'ludwik-result-partial', path: 'assets/audio/ludwik-lines/result-partial.mp3', volume: 0.6 },
-                resultFail: { key: 'ludwik-result-fail', path: 'assets/audio/ludwik-lines/result-fail.mp3', volume: 0.6 }
+                intro: { key: 'ludwik-intro', path: 'assets/audio/ludwik-lines/intro.mp3', volume: 0.85 },
+                formationReady: { key: 'ludwik-formation-ready', path: 'assets/audio/ludwik-lines/formation-ready.mp3', volume: 0.85 },
+                airfieldReady: { key: 'ludwik-airfield-ready', path: 'assets/audio/ludwik-lines/airfield-ready.mp3', volume: 0.85 },
+                interceptStart: { key: 'ludwik-intercept-start', path: 'assets/audio/ludwik-lines/intercept-start.mp3', volume: 0.85 },
+                tooSlow: { key: 'ludwik-too-slow', path: 'assets/audio/ludwik-lines/too-slow.mp3', volume: 0.85 },
+                holdLine: { key: 'ludwik-hold-line', path: 'assets/audio/ludwik-lines/hold-line.mp3', volume: 0.85 },
+                allTurnedBack: { key: 'ludwik-all-turned-back', path: 'assets/audio/ludwik-lines/all-turned-back.mp3', volume: 0.85 },
+                resultSuccess: { key: 'ludwik-result-success', path: 'assets/audio/ludwik-lines/result-success.mp3', volume: 0.85 },
+                resultPartial: { key: 'ludwik-result-partial', path: 'assets/audio/ludwik-lines/result-partial.mp3', volume: 0.85 },
+                resultFail: { key: 'ludwik-result-fail', path: 'assets/audio/ludwik-lines/result-fail.mp3', volume: 0.85 }
             },
             // Narrates the four Dowding System steps on IntroScene's diagram page.
             dowdingNarrator: {
-                step1: { key: 'dowding-step1', path: 'assets/audio/dowding-narrator-lines/step1.mp3', volume: 0.7 },
-                step2: { key: 'dowding-step2', path: 'assets/audio/dowding-narrator-lines/step2.mp3', volume: 0.7 },
-                step3: { key: 'dowding-step3', path: 'assets/audio/dowding-narrator-lines/step3.mp3', volume: 0.7 },
-                step4: { key: 'dowding-step4', path: 'assets/audio/dowding-narrator-lines/step4.mp3', volume: 0.7 }
+                step1: { key: 'dowding-step1', path: 'assets/audio/dowding-narrator-lines/step1.mp3', volume: 0.85 },
+                step2: { key: 'dowding-step2', path: 'assets/audio/dowding-narrator-lines/step2.mp3', volume: 0.85 },
+                step3: { key: 'dowding-step3', path: 'assets/audio/dowding-narrator-lines/step3.mp3', volume: 0.85 },
+                step4: { key: 'dowding-step4', path: 'assets/audio/dowding-narrator-lines/step4.mp3', volume: 0.85 }
             }
         }
     },
 
     _music: {},
     _currentVoice: null,
+    _currentStatic: null,
+    _duckedMusic: [],
 
     // Call once, from the first scene's preload() — Phaser's audio cache is
     // shared game-wide, so every later scene can just play by key.
@@ -131,21 +133,63 @@ const AudioManager = {
         return scene.sound.play(entry.key, Object.assign({ volume: entry.volume }, config));
     },
 
+    // The radio-crackle bed (see BaseGameScene.playWaafLine) is a multi-second
+    // clip fired at the start of every WAAF line — if two lines start close
+    // together, a second crackle used to layer on top of the still-playing
+    // first one. Track the single active instance so a new one waits instead.
+    playRadioStatic(scene) {
+        if (this._currentStatic && this._currentStatic.isPlaying) return null;
+        const entry = this.manifest.sfx.radioStatic;
+        if (!this.has(scene, entry)) return null;
+        const sound = scene.sound.add(entry.key, { volume: entry.volume });
+        this._currentStatic = sound;
+        sound.play();
+        return sound;
+    },
+
+    // Ducks whatever's in _music (bunker ambience, engine loops, ...) so a
+    // spoken line stays audible over it instead of getting buried, and
+    // restores it once the line ends.
+    _duckMusic() {
+        Object.values(this._music).forEach((sound) => {
+            if (sound && sound.isPlaying) {
+                this._duckedMusic.push({ sound, original: sound.volume });
+                sound.setVolume(sound.volume * 0.35);
+            }
+        });
+    },
+
+    _restoreMusic() {
+        this._duckedMusic.forEach(({ sound, original }) => {
+            if (sound) sound.setVolume(original);
+        });
+        this._duckedMusic = [];
+    },
+
     // Only one spoken line — WAAF, Keith Park, Ludwik, or the narrator — should
     // ever be audible at once. Dialogue in most scenes advances faster than a
     // full line takes to read out (ToteBoardScene's rounds especially, down to
-    // 500ms between calls), so without this every new line piled onto whatever
-    // was still playing instead of replacing it.
+    // 500ms between calls), so a new line while one's still playing is simply
+    // skipped rather than cutting the current one off mid-sentence or layering
+    // on top of it — the caller's onComplete still fires immediately so
+    // anything gating on it (e.g. DecisionScene's Continue-button lock) isn't
+    // stuck waiting on a line that was never going to play.
     playVoice(scene, entry, config, onComplete) {
-        if (this._currentVoice && this._currentVoice.isPlaying) {
-            this._currentVoice.stop();
-        }
         if (!this.has(scene, entry)) {
             if (onComplete) onComplete();
             return null;
         }
-        const sound = scene.sound.add(entry.key, Object.assign({ volume: entry.volume != null ? entry.volume : 0.6 }, config));
-        if (onComplete) sound.once('complete', onComplete);
+        if (this._currentVoice && this._currentVoice.isPlaying) {
+            if (onComplete) onComplete();
+            return null;
+        }
+        this._duckMusic();
+        const sound = scene.sound.add(entry.key, Object.assign({ volume: entry.volume != null ? entry.volume : 0.85 }, config));
+        const finish = () => {
+            this._restoreMusic();
+            if (onComplete) onComplete();
+        };
+        sound.once('complete', finish);
         this._currentVoice = sound;
         sound.play();
         return sound;

@@ -156,7 +156,7 @@ class BaseGameScene extends Phaser.Scene {
     // static hit real radio dialogue has. Shared by every scene with a WAAF
     // dialogue box (DetectionScene, ToteBoardScene, DecisionScene's handoff).
     playWaafLine(entry, onComplete) {
-        AudioManager.playSFX(this, AudioManager.manifest.sfx.radioStatic);
+        AudioManager.playRadioStatic(this);
         AudioManager.playVoice(this, entry, {}, onComplete);
     }
 }
