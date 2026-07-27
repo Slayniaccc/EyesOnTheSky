@@ -20,7 +20,7 @@ const AudioManager = {
             // quiet (this is for kids, and it plays under narration/dialogue
             // for the whole intro) rather than a foreground effect like the
             // InterceptScene engine loops.
-            planeFlyby: { key: 'plane-flyby-ambience', path: 'assets/audio/plane-flyby-ambience.wav', volume: 0.08, loop: true }
+            planeFlyby: { key: 'plane-flyby-ambience', path: 'assets/audio/plane-flyby-ambience.mp3', volume: 0.08, loop: true }
         },
         sfx: {
             buttonClick: { key: 'sfx-click', path: 'assets/audio/sfx/click.wav', volume: 0.5 },
@@ -41,7 +41,7 @@ const AudioManager = {
             // a different way. _duckMusic() cuts this further (to 15%) while
             // a voice line plays.
             spitfireEngine: { key: 'sfx-spitfire-engine', path: 'assets/audio/sfx/merlin-engine.mp3', volume: 0.15, loop: true },
-            messerschmittEngine: { key: 'sfx-messerschmitt-engine', path: 'assets/audio/sfx/messerschmitt-engine.flac', volume: 0.15, loop: true },
+            messerschmittEngine: { key: 'sfx-messerschmitt-engine', path: 'assets/audio/sfx/messerschmitt-engine.mp3', volume: 0.15, loop: true },
             victoryCelebration: { key: 'sfx-victory-celebration', path: 'assets/audio/sfx/victory-celebration.wav', volume: 0.15 }
         },
         // Add entries here as lines get scripted/recorded, e.g.:
