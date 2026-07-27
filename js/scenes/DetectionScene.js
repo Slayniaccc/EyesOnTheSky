@@ -292,13 +292,6 @@ create() {
         this.time.delayedCall(800, lightNextPost);
     }
 
-    // Quick radio-crackle burst ahead of each WAAF line — she's heard "over
-    // the radio," not just narrating, so every line opens with the same
-    // static hit real radio dialogue has.
-    playWaafLine(entry) {
-        AudioManager.playSFX(this, AudioManager.manifest.sfx.radioStatic);
-        AudioManager.playVoice(this, entry);
-    }
-        // createMapBackground, createGrid, createDialogueBox, and
-        // createPortraitBadge now live in BaseGameScene (this class extends it).
+        // createMapBackground, createGrid, createDialogueBox, createPortraitBadge,
+        // and playWaafLine now live in BaseGameScene (this class extends it).
 }

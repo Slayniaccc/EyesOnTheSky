@@ -44,6 +44,7 @@ class InterceptScene extends BaseGameScene {
             fontStyle: 'italic',
             wordWrap: { width: width - 140 }
         });
+        AudioManager.playVoice(this, AudioManager.manifest.voice.ludwik.intro);
 
         console.log('✅ InterceptScene: initialised');
                     // ---------- AIRFIELD MARKER ----------
@@ -248,6 +249,7 @@ class InterceptScene extends BaseGameScene {
                     // Check if all collected
                     if (this.collectedCount === this.totalSquadrons) {
                         this.dialogueText.setText('"Now we\'re ready. Poles, British, all of us. One formation, one mission."');
+                        AudioManager.playVoice(this, AudioManager.manifest.voice.ludwik.formationReady);
                         this.time.delayedCall(1000, () => {
                             this.formationComplete();
                         });
@@ -348,6 +350,7 @@ startInterceptPhase() {
     AudioManager.playMusic(this, AudioManager.manifest.sfx.messerschmittEngine);
      this.interceptDone = false;
     this.dialogueText.setText('"Don\'t chase them, cut them off. Get between them and the city. That\'s our job."');
+    AudioManager.playVoice(this, AudioManager.manifest.voice.ludwik.interceptStart);
 
     const { width, height } = this.scale;
 
@@ -422,6 +425,7 @@ startInterceptPhase() {
         onComplete: () => {
             if (!this.interceptDone) {
                 this.dialogueText.setText('"Too slow! The enemy reached the city."');
+                AudioManager.playVoice(this, AudioManager.manifest.voice.ludwik.tooSlow);
                 this.time.delayedCall(1500, () => this.showResult());
             }
         }
@@ -573,6 +577,7 @@ startInterceptPhase() {
               // ---- CONTINUE TO PHASE 2 ----
         this.time.delayedCall(1000, () => {
             this.dialogueText.setText('"Now we\'re in the air. Let\'s find those enemy planes."');
+            AudioManager.playVoice(this, AudioManager.manifest.voice.ludwik.airfieldReady);
             this.startInterceptPhase();
         });
     }
@@ -738,7 +743,8 @@ startInterceptPhase() {
         
         // ---- UPDATE DIALOGUE ----
         this.dialogueText.setText('"Hold the line. They know we\'re here, make them think twice about coming through."');
-        
+        AudioManager.playVoice(this, AudioManager.manifest.voice.ludwik.holdLine);
+
         // ---- PROCEED TO PHASE 3 ----
         this.phase = 'escort';
         this.time.delayedCall(2500, () => {
@@ -765,6 +771,7 @@ startInterceptPhase() {
         if (turnIndex >= this.enemyFormation.length) {
             // All enemies turned back!
             this.dialogueText.setText('"All enemy planes turned back! Mission complete!"');
+            AudioManager.playVoice(this, AudioManager.manifest.voice.ludwik.allTurnedBack);
 
             // ---- CONFETTI CELEBRATION (MOVED HERE - OUTSIDE THE LOOP) ----
             const { width, height } = this.scale;

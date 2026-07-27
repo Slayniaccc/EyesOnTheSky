@@ -150,4 +150,13 @@ class BaseGameScene extends Phaser.Scene {
 
         return elements;
     }
+
+    // Quick radio-crackle burst ahead of every WAAF line — she's heard "over
+    // the radio," not just narrating, so each line opens with the same
+    // static hit real radio dialogue has. Shared by every scene with a WAAF
+    // dialogue box (DetectionScene, ToteBoardScene, DecisionScene's handoff).
+    playWaafLine(entry) {
+        AudioManager.playSFX(this, AudioManager.manifest.sfx.radioStatic);
+        AudioManager.playVoice(this, entry);
+    }
 }

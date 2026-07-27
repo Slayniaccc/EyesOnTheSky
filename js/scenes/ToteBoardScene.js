@@ -183,6 +183,13 @@ class ToteBoardScene extends BaseGameScene {
         ];
         const lineIndex = Phaser.Math.Between(0, waafLines.length - 1);
         this.dialogueText.setText(waafLines[lineIndex]);
+        const waafVoices = [
+            AudioManager.manifest.voice.waaf.toteCall1,
+            AudioManager.manifest.voice.waaf.toteCall2,
+            AudioManager.manifest.voice.waaf.toteCall3,
+            AudioManager.manifest.voice.waaf.toteCall4
+        ];
+        this.playWaafLine(waafVoices[lineIndex]);
 
         // Start timer
         this.isWaitingForTap = true;
@@ -230,6 +237,7 @@ handlePanelTap(index) {
             }
         });
         this.dialogueText.setText('"Got it! Right on the money."');
+        this.playWaafLine(AudioManager.manifest.voice.waaf.toteCorrect);
     } else {
         // ---- WRONG PANEL TAPPED ----
         const panel = this.panelObjects[index];
@@ -247,6 +255,7 @@ handlePanelTap(index) {
             }
         });
         this.dialogueText.setText('"Wrong board — that wasn\'t the right state."');
+        this.playWaafLine(AudioManager.manifest.voice.waaf.toteWrong);
     }
 
     // Move to next round after a short delay
@@ -255,6 +264,7 @@ handlePanelTap(index) {
         if (this.currentRound >= this.maxRounds) {
             this.gameOver = true;
             this.dialogueText.setText('"Tote board complete. Well done. Now to the decision room."');
+            this.playWaafLine(AudioManager.manifest.voice.waaf.toteComplete);
             this.time.delayedCall(2000, () => {
                 this.scene.start('DecisionScene');
             });
@@ -294,6 +304,7 @@ handlePanelTap(index) {
         }
 
         this.dialogueText.setText('"Missed it. That state just changed. We\'ll catch the next one."');
+        this.playWaafLine(AudioManager.manifest.voice.waaf.toteMissed);
 
         // Move to next round after delay
         this.time.delayedCall(1500, () => {
@@ -301,6 +312,7 @@ handlePanelTap(index) {
             if (this.currentRound >= this.maxRounds) {
                 this.gameOver = true;
                 this.dialogueText.setText('"Tote board complete. Well done. Now to the decision room."');
+                this.playWaafLine(AudioManager.manifest.voice.waaf.toteComplete);
                 this.time.delayedCall(2000, () => {
                     this.scene.start('DecisionScene');
                 });

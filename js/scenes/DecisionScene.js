@@ -28,6 +28,13 @@ class DecisionScene extends BaseGameScene {
             '"Two raids inbound. We can\'t cover both fully. Where do we commit?"',
             '"That\'s the job. Never enough squadrons, never enough certainty."'
         ];
+        // Parallel to parkLines — same index plays the matching voice line.
+        this.parkVoices = [
+            AudioManager.manifest.voice.keithPark.introGroups,
+            AudioManager.manifest.voice.keithPark.introElevenGroup,
+            AudioManager.manifest.voice.keithPark.raidsInbound,
+            AudioManager.manifest.voice.keithPark.neverEnough
+        ];
         this.currentLineIndex = 0;
 
         // 2. Create the dialogue text (on top of the dialogue box background)
@@ -38,6 +45,7 @@ class DecisionScene extends BaseGameScene {
             fontStyle: 'italic',
             wordWrap: { width: width - 140 }
         });
+        AudioManager.playVoice(this, this.parkVoices[0]);
 
         // 3. Create the "Continue" button
         const continueBtn = this.add.text(width / 2, height - 160, '▶  CONTINUE  ◀', {
@@ -167,6 +175,7 @@ class DecisionScene extends BaseGameScene {
 
             if (this.currentLineIndex < this.parkLines.length) {
                 this.dialogueText.setText(this.parkLines[this.currentLineIndex]);
+                AudioManager.playVoice(this, this.parkVoices[this.currentLineIndex]);
                       } else {
                 // All Park lines finished – WAAF handoff (dialogue only; his
                 // portrait stays up for the rest of the scene)
@@ -181,6 +190,7 @@ class DecisionScene extends BaseGameScene {
 
                 // Remind the player they can drag
                 this.dialogueText.setText('"Drag each red raid marker to the correct sector station."');
+                this.playWaafLine(AudioManager.manifest.voice.waaf.decisionHandoff);
             }
         });
     }

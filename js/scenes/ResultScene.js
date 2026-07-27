@@ -50,6 +50,7 @@ class ResultScene extends BaseGameScene {
             fontStyle: 'italic',
             wordWrap: { width: width - 260 }
         });
+        AudioManager.playVoice(this, data.voice);
     }
 
     get outcomeData() {
@@ -58,19 +59,22 @@ class ResultScene extends BaseGameScene {
                 title: 'MISSION SUCCESS!',
                 subtitle: 'City Saved',
                 message: '"Radar saw them. The Corps tracked them. Park sent us. We held the line. That\'s how Britain stayed free."',
-                hex: '#44ff44'
+                hex: '#44ff44',
+                voice: AudioManager.manifest.voice.ludwik.resultSuccess
             },
             partial: {
                 title: 'PARTIAL SUCCESS',
                 subtitle: 'Some Damage Taken',
                 message: '"We held most of them. The system worked — next time we\'ll be faster."',
-                hex: '#e8a317'
+                hex: '#e8a317',
+                voice: AudioManager.manifest.voice.ludwik.resultPartial
             },
             fail: {
                 title: 'MISSION FAILED',
                 subtitle: 'The Raid Got Through',
                 message: '"We were too slow today. But the system still tracked them. Tomorrow we\'ll be ready."',
-                hex: '#c8d0d8'
+                hex: '#c8d0d8',
+                voice: AudioManager.manifest.voice.ludwik.resultFail
             }
         };
     }
