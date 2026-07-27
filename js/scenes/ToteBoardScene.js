@@ -74,9 +74,6 @@ class ToteBoardScene extends BaseGameScene {
             fontStyle: 'italic',
             wordWrap: { width: width - 120 }
         });
-        this.playWaafLine(AudioManager.manifest.voice.waaf.toteIntro);
-
-       
 
               // ---------- STATE PANELS ----------
         const panelWidth = 180;
@@ -129,8 +126,12 @@ class ToteBoardScene extends BaseGameScene {
         });
 
                // ---------- START THE FIRST ROUND ----------
+        // Wait for the intro line to finish before round 1's own call-out
+        // starts — only one voice line plays at a time, so starting the
+        // round immediately could silently skip its call-out (still busy
+        // with the intro) and open up tapping before any state's announced.
         this.currentRound = 0;
-        this.startRound();
+        this.playWaafLine(AudioManager.manifest.voice.waaf.toteIntro, () => this.startRound());
 
         // ---------- FALLBACK TIMEOUT ----------
         this.time.delayedCall(30000, () => {
@@ -194,28 +195,29 @@ class ToteBoardScene extends BaseGameScene {
         const phrasing = callPhrasings[Phaser.Math.Between(0, callPhrasings.length - 1)];
         this.dialogueText.setText(phrasing.text);
         const voiceEntry = AudioManager.manifest.voice.waaf['tote' + phrasing.voiceKey + this.stateVoiceSuffix[this.targetState]];
-        this.playWaafLine(voiceEntry);
 
-        // Start timer
-        this.isWaitingForTap = true;
         this.roundComplete = false;
+        // Not tappable yet — panels open up once she's actually finished
+        // saying the state (or immediately if that line has no audio yet).
+        this.isWaitingForTap = false;
 
         if (this.timerEvent) {
             this.timerEvent.remove();
+            this.timerEvent = null;
         }
 
-        // The difficulty ramp (this.timerDelay shrinking each round, see
-        // startRound()'s caller) still applies, but a round never runs
-        // shorter than the call-out actually takes to say — otherwise the
-        // timer could expire (or the next round start) mid-line.
-        const roundDelay = AudioManager.voiceAwareDelay(this, voiceEntry, this.timerDelay);
-        this.timerEvent = this.time.delayedCall(roundDelay, () => {
-            if (this.isWaitingForTap && !this.roundComplete) {
-                this.handleMissedTap(); // we'll add in 4c
-            }
-        });
+        this.playWaafLine(voiceEntry, () => {
+            // Round could have already ended (or the scene moved on) while
+            // she was still talking — don't open tapping for a dead round.
+            if (this.gameOver || this.roundComplete) return;
 
-      
+            this.isWaitingForTap = true;
+            this.timerEvent = this.time.delayedCall(this.timerDelay, () => {
+                if (this.isWaitingForTap && !this.roundComplete) {
+                    this.handleMissedTap();
+                }
+            });
+        });
     }
     // ---------- HANDLE PLAYER TAP ----------
 handlePanelTap(index) {

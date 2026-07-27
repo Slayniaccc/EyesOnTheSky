@@ -52,12 +52,17 @@ class DecisionScene extends BaseGameScene {
         this.currentLineIndex = 0;
 
         // 2. Create the dialogue text (on top of the dialogue box background)
-        this.dialogueText = this.add.text(110, height - 100, this.parkLines[0], {
+        // Wrap width is measured against the actual dialogue box's right edge
+        // (with a 20px margin) rather than a flat width-140 — that flat value
+        // let long lines like Keith Park's first one run a few px past the
+        // box border.
+        const dialogueTextX = 110;
+        this.dialogueText = this.add.text(dialogueTextX, height - 100, this.parkLines[0], {
             fontSize: '17px',
             fill: '#f5e56b',
             fontFamily: 'Courier New',
             fontStyle: 'italic',
-            wordWrap: { width: width - 140 }
+            wordWrap: { width: (this.dialogueBoxX + this.dialogueBoxWidth) - dialogueTextX - 20 }
         });
         // Locked while a line's voice is still playing so mashing Continue
         // can't cut a character's line off partway through — unlocked by

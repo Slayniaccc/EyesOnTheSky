@@ -44,7 +44,21 @@ class InterceptScene extends BaseGameScene {
             fontStyle: 'italic',
             wordWrap: { width: width - 140 }
         });
-        AudioManager.playVoice(this, AudioManager.manifest.voice.ludwik.intro);
+        // formationComplete() (triggered whenever the player finishes tapping
+        // all 3 squadrons — user-paced, so it can land before this line is
+        // done) needs to know when this line actually finishes rather than
+        // just firing formationReady and having it silently skipped by the
+        // single-voice-at-a-time rule.
+        this.introVoiceDone = false;
+        this._introFinishedCallback = null;
+        AudioManager.playVoice(this, AudioManager.manifest.voice.ludwik.intro, {}, () => {
+            this.introVoiceDone = true;
+            if (this._introFinishedCallback) {
+                const callback = this._introFinishedCallback;
+                this._introFinishedCallback = null;
+                callback();
+            }
+        });
 
         console.log('✅ InterceptScene: initialised');
                     // ---------- AIRFIELD MARKER ----------
@@ -250,10 +264,20 @@ class InterceptScene extends BaseGameScene {
                     if (this.collectedCount === this.totalSquadrons) {
                         this.dialogueText.setText('"Now we\'re ready. Poles, British, all of us. One formation, one mission."');
                         const formationVoice = AudioManager.manifest.voice.ludwik.formationReady;
-                        AudioManager.playVoice(this, formationVoice);
-                        this.time.delayedCall(AudioManager.voiceAwareDelay(this, formationVoice, 1000), () => {
-                            this.formationComplete();
-                        });
+                        const playFormationLine = () => {
+                            AudioManager.playVoice(this, formationVoice);
+                            this.time.delayedCall(AudioManager.voiceAwareDelay(this, formationVoice, 1000), () => {
+                                this.formationComplete();
+                            });
+                        };
+                        // A fast player can tap all 3 squadrons before the
+                        // scene-opening intro line finishes — wait for it
+                        // instead of losing this line to the busy voice channel.
+                        if (this.introVoiceDone) {
+                            playFormationLine();
+                        } else {
+                            this._introFinishedCallback = playFormationLine;
+                        }
                     }
                 }); // Closes the click handler
 
