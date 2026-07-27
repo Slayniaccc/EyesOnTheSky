@@ -195,28 +195,29 @@ class ToteBoardScene extends BaseGameScene {
         const phrasing = callPhrasings[Phaser.Math.Between(0, callPhrasings.length - 1)];
         this.dialogueText.setText(phrasing.text);
         const voiceEntry = AudioManager.manifest.voice.waaf['tote' + phrasing.voiceKey + this.stateVoiceSuffix[this.targetState]];
+        this.playWaafLine(voiceEntry);
 
+        // Tappable immediately, same as her line playing — only the opening
+        // "Tote board live..." line gates anything (see create()'s call into
+        // this for round 1). Waiting for every round's own call-out to finish
+        // before opening tapping made the reaction timer start fresh right
+        // after she stopped talking every time, which made a miss/wrong tap
+        // basically impossible.
+        this.isWaitingForTap = true;
         this.roundComplete = false;
-        // Not tappable yet — panels open up once she's actually finished
-        // saying the state (or immediately if that line has no audio yet).
-        this.isWaitingForTap = false;
 
         if (this.timerEvent) {
             this.timerEvent.remove();
-            this.timerEvent = null;
         }
 
-        this.playWaafLine(voiceEntry, () => {
-            // Round could have already ended (or the scene moved on) while
-            // she was still talking — don't open tapping for a dead round.
-            if (this.gameOver || this.roundComplete) return;
-
-            this.isWaitingForTap = true;
-            this.timerEvent = this.time.delayedCall(this.timerDelay, () => {
-                if (this.isWaitingForTap && !this.roundComplete) {
-                    this.handleMissedTap();
-                }
-            });
+        // The difficulty ramp (this.timerDelay shrinking each round) still
+        // applies, but a round never runs shorter than the call-out actually
+        // takes to say — otherwise the timer could expire mid-line.
+        const roundDelay = AudioManager.voiceAwareDelay(this, voiceEntry, this.timerDelay);
+        this.timerEvent = this.time.delayedCall(roundDelay, () => {
+            if (this.isWaitingForTap && !this.roundComplete) {
+                this.handleMissedTap();
+            }
         });
     }
     // ---------- HANDLE PLAYER TAP ----------
