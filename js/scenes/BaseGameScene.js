@@ -6,12 +6,19 @@
 // intentionally don't extend this — their layouts aren't part of this
 // duplicated pattern.
 class BaseGameScene extends Phaser.Scene {
-    createMapBackground(width, height, imageKey = 'map') {
+    // `fallbackRenderer(width, height)` lets a caller supply its own fallback
+    // art (e.g. ToteBoardScene's plain dark panel) instead of the default
+    // coastline sketch below, while still sharing the texture-exists check.
+    createMapBackground(width, height, imageKey = 'map', fallbackRenderer) {
         if (this.textures.exists(imageKey)) {
             this.add.image(width / 2, height / 2, imageKey).setDisplaySize(width, height);
             console.log('✅ Using mapbackground.png');
         } else {
             console.log('❌ map not found – using drawn fallback');
+            if (fallbackRenderer) {
+                fallbackRenderer(width, height);
+                return;
+            }
             const bg = this.add.graphics();
             bg.fillStyle(0x0d1b2a);
             bg.fillRect(0, 0, width, height);

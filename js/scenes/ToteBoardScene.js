@@ -6,25 +6,20 @@ class ToteBoardScene extends BaseGameScene {
     preload() {
         // Load the tote board background image
         this.load.image('tote-board', 'assets/images/toteboard.png');
-          this.load.image('waaf-mascot-bust', 'assets/images/waaf-mascot-bust.png');
-        console.log('ToteBoardScene: preloading tote-board.png');
+        this.load.image('waaf-mascot-bust', 'assets/images/waaf-mascot-bust.png');
     }
 
     create() {
         const { width, height } = this.scale;
 
         // ---------- BACKGROUND ----------
-        if (this.textures.exists('tote-board')) {
-            this.add.image(width / 2, height / 2, 'tote-board').setDisplaySize(width, height); 
-            console.log('Using tote-board.png');
-        } else {
-            // Fallback: dark background with a simple border
+        this.createMapBackground(width, height, 'tote-board', (w, h) => {
             const bg = this.add.graphics();
             bg.fillStyle(0x0d1b2a);
-            bg.fillRect(0, 0, width, height);
+            bg.fillRect(0, 0, w, h);
             bg.lineStyle(2, 0xf5e56b, 0.3);
-            bg.strokeRoundedRect(40, 40, width - 80, height - 80, 16);
-        }
+            bg.strokeRoundedRect(40, 40, w - 80, h - 80, 16);
+        });
 
         // ---------- TOP BAR UI ----------
         this.createTopBar('TOTE BOARD');
@@ -40,14 +35,14 @@ class ToteBoardScene extends BaseGameScene {
         };
         this.currentStateIndex = 0;          // Which state is currently highlighted
         this.targetState = '';               // The state the player must tap
-        this.round = 0;
         this.maxRounds = 5;
         this.baseTimerDelay = 2000;          // Starts at 2 seconds
         this.timerDelay = this.baseTimerDelay;
         this.timerEvent = null;
         this.isWaitingForTap = false;
         this.gameOver = false;
-                // ---------- WAAF DIALOGUE BOX ----------
+
+        // ---------- WAAF DIALOGUE BOX ----------
         this.createDialogueBox(width, height);
 
         // WAAF Portrait — same standard corner badge as Keith Park/Ludwik/
@@ -75,7 +70,7 @@ class ToteBoardScene extends BaseGameScene {
             wordWrap: { width: width - 120 }
         });
 
-              // ---------- STATE PANELS ----------
+        // ---------- STATE PANELS ----------
         const panelWidth = 180;
         const panelHeight = 120;
         const panelY = height / 2 - 80;
@@ -88,21 +83,22 @@ class ToteBoardScene extends BaseGameScene {
         this.states.forEach((state, index) => {
             const x = startX + index * (panelWidth + spacing);
             const panel = this.add.graphics();
-            
+
             // Default dark panel
             panel.fillStyle(0x1a2a3a, 0.9);
             panel.fillRoundedRect(x, panelY, panelWidth, panelHeight, 12);
             panel.lineStyle(2, 0x4a6a8a, 0.6);
             panel.strokeRoundedRect(x, panelY, panelWidth, panelHeight, 12);
-             // ---- MAKE PANEL TAPPABLE ----
-    panel.setInteractive(
-        new Phaser.Geom.Rectangle(x, panelY, panelWidth, panelHeight),
-        Phaser.Geom.Rectangle.Contains
-    );
-    panel.on('pointerdown', () => this.handlePanelTap(index));
-            
+
+            // ---- MAKE PANEL TAPPABLE ----
+            panel.setInteractive(
+                new Phaser.Geom.Rectangle(x, panelY, panelWidth, panelHeight),
+                Phaser.Geom.Rectangle.Contains
+            );
+            panel.on('pointerdown', () => this.handlePanelTap(index));
+
             // State label
-            const label = this.add.text(x + panelWidth/2, panelY + 50, state, {
+            const label = this.add.text(x + panelWidth / 2, panelY + 50, state, {
                 fontSize: '20px',
                 fill: '#b0c4de',
                 fontFamily: 'Courier New',
@@ -125,7 +121,7 @@ class ToteBoardScene extends BaseGameScene {
             });
         });
 
-               // ---------- START THE FIRST ROUND ----------
+        // ---------- START THE FIRST ROUND ----------
         // Wait for the intro line to finish before round 1's own call-out
         // starts — only one voice line plays at a time, so starting the
         // round immediately could silently skip its call-out (still busy
@@ -141,19 +137,26 @@ class ToteBoardScene extends BaseGameScene {
             }
         });
     }
-        // ---------- HIGHLIGHT PANEL ----------
+
+    // Shared panel-redraw for every state (default/highlighted/correct/wrong/
+    // missed) — only the fill/stroke color and alpha actually differ between
+    // call sites, this used to be a 5-statement copy-paste block at each one.
+    redrawPanel(panel, { fillColor, fillAlpha = 0.9, strokeColor, strokeWidth = 2, strokeAlpha = 1.0 }) {
+        panel.graphics.clear();
+        panel.graphics.fillStyle(fillColor, fillAlpha);
+        panel.graphics.fillRoundedRect(panel.x, panel.y, panel.width, panel.height, 12);
+        panel.graphics.lineStyle(strokeWidth, strokeColor, strokeAlpha);
+        panel.graphics.strokeRoundedRect(panel.x, panel.y, panel.width, panel.height, 12);
+    }
+
+    // ---------- HIGHLIGHT PANEL ----------
     highlightPanel(index) {
         const panel = this.panelObjects[index];
         if (!panel) return;
 
         this.clearHighlights();
 
-        // Gold highlight
-        panel.graphics.clear();
-        panel.graphics.fillStyle(0x2a4a3a, 0.9);
-        panel.graphics.fillRoundedRect(panel.x, panel.y, panel.width, panel.height, 12);
-        panel.graphics.lineStyle(4, 0xf5e56b, 1.0);
-        panel.graphics.strokeRoundedRect(panel.x, panel.y, panel.width, panel.height, 12);
+        this.redrawPanel(panel, { fillColor: 0x2a4a3a, strokeColor: 0xf5e56b, strokeWidth: 4 });
         panel.label.setFill('#f5e56b');
         panel.isHighlighted = true;
     }
@@ -161,15 +164,12 @@ class ToteBoardScene extends BaseGameScene {
     // ---------- CLEAR HIGHLIGHTS ----------
     clearHighlights() {
         this.panelObjects.forEach((panel) => {
-            panel.graphics.clear();
-            panel.graphics.fillStyle(0x1a2a3a, 0.9);
-            panel.graphics.fillRoundedRect(panel.x, panel.y, panel.width, panel.height, 12);
-            panel.graphics.lineStyle(2, 0x4a6a8a, 0.6);
-            panel.graphics.strokeRoundedRect(panel.x, panel.y, panel.width, panel.height, 12);
+            this.redrawPanel(panel, { fillColor: 0x1a2a3a, strokeColor: 0x4a6a8a, strokeWidth: 2, strokeAlpha: 0.6 });
             panel.label.setFill('#b0c4de');
             panel.isHighlighted = false;
         });
     }
+
     // ---------- START A NEW ROUND ----------
     startRound() {
         if (this.gameOver) return;
@@ -220,62 +220,11 @@ class ToteBoardScene extends BaseGameScene {
             }
         });
     }
-    // ---------- HANDLE PLAYER TAP ----------
-handlePanelTap(index) {
-    if (!this.isWaitingForTap || this.roundComplete || this.gameOver) return;
 
-    AudioManager.playSFX(this, AudioManager.manifest.sfx.buttonClick);
-
-    this.roundComplete = true;
-    this.isWaitingForTap = false;
-
-    if (this.timerEvent) {
-        this.timerEvent.remove();
-    }
-
-    let reactionVoice;
-    if (index === this.targetIndex) {
-        // ---- CORRECT TAP ----
-        const panel = this.panelObjects[index];
-        this.tweens.add({
-            targets: panel.graphics,
-            alpha: 0.3,
-            duration: 120,
-            yoyo: true,
-            onStart: () => {
-                panel.graphics.clear();
-                panel.graphics.fillStyle(0x44ff44, 0.9);
-                panel.graphics.fillRoundedRect(panel.x, panel.y, panel.width, panel.height, 12);
-                panel.graphics.lineStyle(4, 0x44ff44, 1.0);
-                panel.graphics.strokeRoundedRect(panel.x, panel.y, panel.width, panel.height, 12);
-            }
-        });
-        this.dialogueText.setText('"Got it! Right on the money."');
-        reactionVoice = AudioManager.manifest.voice.waaf.toteCorrect;
-        this.playWaafLine(reactionVoice);
-    } else {
-        // ---- WRONG PANEL TAPPED ----
-        const panel = this.panelObjects[index];
-        this.tweens.add({
-            targets: panel.graphics,
-            alpha: 0.3,
-            duration: 120,
-            yoyo: true,
-            onStart: () => {
-                panel.graphics.clear();
-                panel.graphics.fillStyle(0xff4444, 0.9);
-                panel.graphics.fillRoundedRect(panel.x, panel.y, panel.width, panel.height, 12);
-                panel.graphics.lineStyle(4, 0xff4444, 1.0);
-                panel.graphics.strokeRoundedRect(panel.x, panel.y, panel.width, panel.height, 12);
-            }
-        });
-        this.dialogueText.setText('"Wrong board — that wasn\'t the right state."');
-        reactionVoice = AudioManager.manifest.voice.waaf.toteWrong;
-        this.playWaafLine(reactionVoice);
-    }
-
-    // Move to next round once the reaction line has had time to finish.
-    this.time.delayedCall(AudioManager.voiceAwareDelay(this, reactionVoice, 1200), () => {
+    // Shared "what happens after a round resolves" — called once the
+    // correct/wrong-tap reaction line (handlePanelTap) or the missed-tap
+    // line (handleMissedTap) has had time to finish.
+    advanceRound() {
         this.currentRound++;
         if (this.currentRound >= this.maxRounds) {
             this.gameOver = true;
@@ -289,9 +238,56 @@ handlePanelTap(index) {
         }
         this.timerDelay = Math.max(500, this.timerDelay - 200);
         this.startRound();
-    });
-}
-        // ---------- HANDLE MISSED TAP ----------
+    }
+
+    // ---------- HANDLE PLAYER TAP ----------
+    handlePanelTap(index) {
+        if (!this.isWaitingForTap || this.roundComplete || this.gameOver) return;
+
+        AudioManager.playSFX(this, AudioManager.manifest.sfx.buttonClick);
+
+        this.roundComplete = true;
+        this.isWaitingForTap = false;
+
+        if (this.timerEvent) {
+            this.timerEvent.remove();
+        }
+
+        let reactionVoice;
+        const panel = this.panelObjects[index];
+        if (index === this.targetIndex) {
+            // ---- CORRECT TAP ----
+            this.tweens.add({
+                targets: panel.graphics,
+                alpha: 0.3,
+                duration: 120,
+                yoyo: true,
+                onStart: () => this.redrawPanel(panel, { fillColor: 0x44ff44, strokeColor: 0x44ff44, strokeWidth: 4 })
+            });
+            this.dialogueText.setText('"Got it! Right on the money."');
+            reactionVoice = AudioManager.manifest.voice.waaf.toteCorrect;
+            this.playWaafLine(reactionVoice);
+        } else {
+            // ---- WRONG PANEL TAPPED ----
+            this.tweens.add({
+                targets: panel.graphics,
+                alpha: 0.3,
+                duration: 120,
+                yoyo: true,
+                onStart: () => this.redrawPanel(panel, { fillColor: 0xff4444, strokeColor: 0xff4444, strokeWidth: 4 })
+            });
+            this.dialogueText.setText('"Wrong board — that wasn\'t the right state."');
+            reactionVoice = AudioManager.manifest.voice.waaf.toteWrong;
+            this.playWaafLine(reactionVoice);
+        }
+
+        // Move to next round once the reaction line has had time to finish.
+        this.time.delayedCall(AudioManager.voiceAwareDelay(this, reactionVoice, 1200), () => {
+            this.advanceRound();
+        });
+    }
+
+    // ---------- HANDLE MISSED TAP ----------
     handleMissedTap() {
         if (this.roundComplete) return;
         if (this.gameOver) return;
@@ -307,13 +303,7 @@ handlePanelTap(index) {
                 duration: 150,
                 yoyo: true,
                 repeat: 1,
-                onStart: () => {
-                    panel.graphics.clear();
-                    panel.graphics.fillStyle(0xff4444, 0.9);
-                    panel.graphics.fillRoundedRect(panel.x, panel.y, panel.width, panel.height, 12);
-                    panel.graphics.lineStyle(4, 0xff4444, 1.0);
-                    panel.graphics.strokeRoundedRect(panel.x, panel.y, panel.width, panel.height, 12);
-                },
+                onStart: () => this.redrawPanel(panel, { fillColor: 0xff4444, strokeColor: 0xff4444, strokeWidth: 4 }),
                 onComplete: () => {
                     this.highlightPanel(this.targetIndex);
                 }
@@ -326,22 +316,7 @@ handlePanelTap(index) {
 
         // Move to next round once the "missed it" line has had time to finish.
         this.time.delayedCall(AudioManager.voiceAwareDelay(this, missedVoice, 1500), () => {
-            this.currentRound++;
-            if (this.currentRound >= this.maxRounds) {
-                this.gameOver = true;
-                this.dialogueText.setText('"Tote board complete. Well done. Now to the decision room."');
-                const completeVoice = AudioManager.manifest.voice.waaf.toteComplete;
-                this.playWaafLine(completeVoice);
-                this.time.delayedCall(AudioManager.voiceAwareDelay(this, completeVoice, 2000), () => {
-                    this.scene.start('DecisionScene');
-                });
-                return;
-            }
-            this.timerDelay = Math.max(500, this.timerDelay - 200);
-            this.startRound();
+            this.advanceRound();
         });
     }
 }
-
-//intro scene is 200 lines,tote board 250 lines,detection scene is 350 lines
-//need to refractor the code to make it more modular and reusable, especially the panel highlighting and dialogue management.

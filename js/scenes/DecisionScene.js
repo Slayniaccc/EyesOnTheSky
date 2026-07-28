@@ -6,15 +6,14 @@ class DecisionScene extends BaseGameScene {
         this.load.image('map', 'assets/images/mapbackground.png');
         this.load.image('keith-park', 'assets/images/keithpark.png');
         this.load.image('waaf-mascot-bust', 'assets/images/waaf-mascot-bust.png');
-        console.log('🔵 DecisionScene: preloading assets');
     }
     create() {
+        const { width, height } = this.scale;
 
         this.createTopBar('DECISION ROOM');
-        const { width, height } = this.scale;
-          this.createMapBackground(width, height);
+        this.createMapBackground(width, height);
         this.createGrid(width, height);
-          this.createDialogueBox(width, height);
+        this.createDialogueBox(width, height);
         const badgeX = width - 110;
         const badgeY = height - 200;
         this.parkBadge = this.createPortraitBadge(badgeX, badgeY, {
@@ -35,8 +34,8 @@ class DecisionScene extends BaseGameScene {
             sizing: { fitToCircle: true },
             startHidden: true
         });
-         //dialogue logic
-          this.parkLines = [
+
+        this.parkLines = [
             '"Air Vice-Marshal Keith Park here. Fighter Command split Britain into four groups, 10, 11, 12, 13. Mine is 11 Group: London and the south-east."',
             '"Closest to the coast, first in the fight. Squadrons controlled from this bunker accounted for most of the enemy aircraft shot down in the whole battle."',
             '"Two raids inbound. We can\'t cover both fully. Where do we commit?"',
@@ -78,7 +77,9 @@ class DecisionScene extends BaseGameScene {
             backgroundColor: '#1e3a5f',
             padding: { x: 20, y: 10 }
         }).setOrigin(0.5).setInteractive({ useHandCursor: true });
-         const raids = [
+
+        // 1. Define raid data
+        const raids = [
             { id: 'W1', x: 680, y: 190, correctSector: 0 },
             { id: 'W2', x: 780, y: 300, correctSector: 1 }
         ];
@@ -165,12 +166,11 @@ class DecisionScene extends BaseGameScene {
                     droppedOn.occupied = true;
                     droppedOn.occupiedBy = marker;
                     marker.isPlaced = true;
-                    console.log(` ${marker.raidId} placed on ${droppedOn.id}`);
+
                     // Check if correct
                     const allPlaced = this.raidMarkers.every(m => m.isPlaced);
-                 
-                    // (We'll add outcome logic in Commit 7)
-                if (allPlaced) {
+
+                    if (allPlaced) {
                         // Disable further dragging
                         this.raidMarkers.forEach(m => m.disableInteractive());
                         this.dialogueText.setText('"Both raids assigned. Evaluating now..."');
@@ -193,7 +193,6 @@ class DecisionScene extends BaseGameScene {
             this.raidMarkers.push(marker);
         });
 
-
         // 4. Button click handler
         continueBtn.on('pointerdown', () => {
             if (this.lineLocked) return;
@@ -204,7 +203,7 @@ class DecisionScene extends BaseGameScene {
             if (this.currentLineIndex < this.parkLines.length) {
                 this.dialogueText.setText(this.parkLines[this.currentLineIndex]);
                 AudioManager.playVoice(this, this.parkVoices[this.currentLineIndex], {}, () => { this.lineLocked = false; });
-                      } else {
+            } else {
                 // All Park lines finished – WAAF handoff, portrait badge swaps
                 // to match who's actually speaking for the rest of the scene.
                 this.parkBadge.forEach((el) => el.setVisible(false));
@@ -224,14 +223,52 @@ class DecisionScene extends BaseGameScene {
             }
         });
     }
-        
+
     // createMapBackground, createGrid, createDialogueBox, and
     // createPortraitBadge now live in BaseGameScene (this class extends it).
 
-  // 1. Define raid data
-       
+    // Red X + "CITY HIT" label over a raid marker's position — used for any
+    // raid that got through undefended.
+    showCityHit(x, y) {
+        const hit = this.add.graphics();
+        hit.fillStyle(0xff4444, 0.8);
+        hit.fillCircle(x, y, 15);
+        hit.lineStyle(3, 0xff0000);
+        hit.moveTo(x - 12, y - 12);
+        hit.lineTo(x + 12, y + 12);
+        hit.moveTo(x + 12, y - 12);
+        hit.lineTo(x - 12, y + 12);
+        hit.strokePath();
+        this.add.text(x, y - 30, '💥 CITY HIT', {
+            fontSize: '16px',
+            fill: '#ff4444',
+            fontFamily: 'Courier New',
+            fontStyle: 'bold'
+        }).setOrigin(0.5);
+    }
 
-  
+    // Green flash + "SCRAMBLED!" text over a sector station — used for any
+    // raid correctly intercepted. Visual only — the formationChime SFX stays
+    // called once per outcome in evaluateDecision() below, not in here,
+    // since the full-success branch calls this twice (once per sector) and
+    // the chime should only play once.
+    showScrambled(x, y) {
+        const flash = this.add.graphics();
+        flash.fillStyle(0x44ff44, 0.6);
+        flash.fillCircle(x, y, 40);
+        this.tweens.add({
+            targets: flash,
+            alpha: 0,
+            duration: 600,
+            onComplete: () => flash.destroy()
+        });
+        this.add.text(x, y - 50, '🚀 SCRAMBLED!', {
+            fontSize: '18px',
+            fill: '#44ff44',
+            fontFamily: 'Courier New',
+            fontStyle: 'bold'
+        }).setOrigin(0.5);
+    }
 
     evaluateDecision() {
         // Count correct placements
@@ -256,24 +293,7 @@ class DecisionScene extends BaseGameScene {
             // beats — once here, not once per sector below, since both flashes
             // land together and the chime would just double up on itself.
             AudioManager.playSFX(this, AudioManager.manifest.sfx.formationChime);
-            // Show scramble animation (green flash over sector stations)
-            this.sectorObjects.forEach(s => {
-                const flash = this.add.graphics();
-                flash.fillStyle(0x44ff44, 0.6);
-                flash.fillCircle(s.x, s.y, 40);
-                this.tweens.add({
-                    targets: flash,
-                    alpha: 0,
-                    duration: 600,
-                    onComplete: () => flash.destroy()
-                });
-                this.add.text(s.x, s.y - 50, '🚀 SCRAMBLED!', {
-                    fontSize: '18px',
-                    fill: '#44ff44',
-                    fontFamily: 'Courier New',
-                    fontStyle: 'bold'
-                }).setOrigin(0.5);
-            });
+            this.sectorObjects.forEach(s => this.showScrambled(s.x, s.y));
         } else if (correctCount === 1) {
             // Partial success – one raid intercepted, one got through
             resultMessage = '⚠️ One raid got through. Partial success.';
@@ -283,23 +303,7 @@ class DecisionScene extends BaseGameScene {
             this.raidMarkers.forEach(marker => {
                 const sector = this.sectorObjects.find(s => s.occupiedBy === marker);
                 if (!sector || marker.correctSector !== sector.index) {
-                    const x = marker.x || marker.originalX;
-                    const y = marker.y || marker.originalY;
-                    const hit = this.add.graphics();
-                    hit.fillStyle(0xff4444, 0.8);
-                    hit.fillCircle(x, y, 15);
-                    hit.lineStyle(3, 0xff0000);
-                    hit.moveTo(x - 12, y - 12);
-                    hit.lineTo(x + 12, y + 12);
-                    hit.moveTo(x + 12, y - 12);
-                    hit.lineTo(x - 12, y + 12);
-                    hit.strokePath();
-                    this.add.text(x, y - 30, '💥 CITY HIT', {
-                        fontSize: '16px',
-                        fill: '#ff4444',
-                        fontFamily: 'Courier New',
-                        fontStyle: 'bold'
-                    }).setOrigin(0.5);
+                    this.showCityHit(marker.x || marker.originalX, marker.y || marker.originalY);
                 }
             });
             // Also show scramble for the correct one
@@ -307,21 +311,7 @@ class DecisionScene extends BaseGameScene {
             this.sectorObjects.forEach(s => {
                 const marker = s.occupiedBy;
                 if (marker && marker.correctSector === s.index) {
-                    const flash = this.add.graphics();
-                    flash.fillStyle(0x44ff44, 0.6);
-                    flash.fillCircle(s.x, s.y, 40);
-                    this.tweens.add({
-                        targets: flash,
-                        alpha: 0,
-                        duration: 600,
-                        onComplete: () => flash.destroy()
-                    });
-                    this.add.text(s.x, s.y - 50, '🚀 SCRAMBLED!', {
-                        fontSize: '18px',
-                        fill: '#44ff44',
-                        fontFamily: 'Courier New',
-                        fontStyle: 'bold'
-                    }).setOrigin(0.5);
+                    this.showScrambled(s.x, s.y);
                 }
             });
         } else {
@@ -331,23 +321,7 @@ class DecisionScene extends BaseGameScene {
             outcome = 'fail';
             // Show city hit markers for both
             this.raidMarkers.forEach(marker => {
-                const x = marker.x || marker.originalX;
-                const y = marker.y || marker.originalY;
-                const hit = this.add.graphics();
-                hit.fillStyle(0xff4444, 0.8);
-                hit.fillCircle(x, y, 15);
-                hit.lineStyle(3, 0xff0000);
-                hit.moveTo(x - 12, y - 12);
-                hit.lineTo(x + 12, y + 12);
-                hit.moveTo(x + 12, y - 12);
-                hit.lineTo(x - 12, y + 12);
-                hit.strokePath();
-                this.add.text(x, y - 30, '💥 CITY HIT', {
-                    fontSize: '16px',
-                    fill: '#ff4444',
-                    fontFamily: 'Courier New',
-                    fontStyle: 'bold'
-                }).setOrigin(0.5);
+                this.showCityHit(marker.x || marker.originalX, marker.y || marker.originalY);
             });
         }
 
@@ -363,6 +337,4 @@ class DecisionScene extends BaseGameScene {
             this.scene.start('InterceptScene');
         });
     }
-
-
 }

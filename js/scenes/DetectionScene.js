@@ -4,42 +4,42 @@ class DetectionScene extends BaseGameScene {
         this.raidMarkers = [];
         this.radarBlips = [];
     }
-preload() {
-    // Try to load the detailed map image
-    this.load.image('map', 'assets/images/mapbackground.png');
-      this.load.image('waaf-mascot-bust', 'assets/images/waaf-mascot-bust.png');
-    console.log('🔵 DetectionScene: preloading mapbackground.png');
-}
-    
-create() {
-    const { width, height } = this.scale;
 
-    // Starts here rather than IntroScene — the bright, kid-friendly title/
-    // character/Dowding-explainer pages don't call for a bunker drone; this
-    // is the first scene that's actually the plotting room. Phaser's
-    // SoundManager is game-wide, so once started it keeps playing through
-    // every later scene until something calls AudioManager.stopMusic().
-    AudioManager.playMusic(this, AudioManager.manifest.music.bunkerAmbience);
+    preload() {
+        // Try to load the detailed map image
+        this.load.image('map', 'assets/images/mapbackground.png');
+        this.load.image('waaf-mascot-bust', 'assets/images/waaf-mascot-bust.png');
+    }
 
-  // ---------- MAP BACKGROUND (with fallback) ----------
+    create() {
+        const { width, height } = this.scale;
+
+        // Starts here rather than IntroScene — the bright, kid-friendly title/
+        // character/Dowding-explainer pages don't call for a bunker drone; this
+        // is the first scene that's actually the plotting room. Phaser's
+        // SoundManager is game-wide, so once started it keeps playing through
+        // every later scene until something calls AudioManager.stopMusic().
+        AudioManager.playMusic(this, AudioManager.manifest.music.bunkerAmbience);
+
+        // ---------- MAP BACKGROUND (with fallback) ----------
         this.createMapBackground(width, height);
         this.createGrid(width, height);
 
-            // ---------- RADAR BLIPS ----------
+        // ---------- RADAR BLIPS ----------
         const blipPositions = [
-            [200, 200], [550, 150], [700, 400], [300, 500], [150, 350] //xy
+            [200, 200], [550, 150], [700, 400], [300, 500], [150, 350] // x,y
         ];
         this.totalRadarBlips = blipPositions.length;
         this.radarBlipsTapped = 0;
         blipPositions.forEach(([x, y]) => {
-            const blip = this.add.circle(x, y, 8, 0x00ff00, 0.8); //loops through each pair of coordinates in that lsit and draws a shape
+            const blip = this.add.circle(x, y, 8, 0x00ff00, 0.8); // draws one blip per coordinate pair
             this.tweens.add({
-            targets: blip,
-            scale: 2.5,
-            alpha: 0.1,
-            duration: 800,
-            yoyo: true,
-            repeat: -1
+                targets: blip,
+                scale: 2.5,
+                alpha: 0.1,
+                duration: 800,
+                yoyo: true,
+                repeat: -1
             });
 
             // Visual blip stays small (radius 8) but the tappable area is a generous
@@ -51,42 +51,43 @@ create() {
                 hitAreaCallback: Phaser.Geom.Circle.Contains
             });
             blip.on('pointerdown', () => {
-            if (this.detectionStage !== 'radar_blip' || blip.getData('resolved')) return;
+                if (this.detectionStage !== 'radar_blip' || blip.getData('resolved')) return;
 
-            AudioManager.playSFX(this, AudioManager.manifest.sfx.radarPing);
+                AudioManager.playSFX(this, AudioManager.manifest.sfx.radarPing);
 
-            blip.setData('resolved', true);
-            blip.disableInteractive();
-            this.tweens.killTweensOf(blip);
-            blip.setVisible(false);
+                blip.setData('resolved', true);
+                blip.disableInteractive();
+                this.tweens.killTweensOf(blip);
+                blip.setVisible(false);
 
-            this.radarBlipsTapped += 1;
-            const remaining = this.totalRadarBlips - this.radarBlipsTapped;
-            if (remaining > 0) {
-                this.dialogueText.setText(`"Good catch. Keep tracking the scope — ${remaining} contact${remaining === 1 ? '' : 's'} left."`);
-                return;
-            }
+                this.radarBlipsTapped += 1;
+                const remaining = this.totalRadarBlips - this.radarBlipsTapped;
+                if (remaining > 0) {
+                    this.dialogueText.setText(`"Good catch. Keep tracking the scope — ${remaining} contact${remaining === 1 ? '' : 's'} left."`);
+                    return;
+                }
 
-            this.dialogueText.setText('"Radar picked up several contacts out at sea. We\'ll plot them now."');
-            // Small delay so the radar ping from this same tap finishes
-            // before the radio static + voice line start — otherwise they overlap.
-            this.time.delayedCall(400, () => {
-                this.playWaafLine(AudioManager.manifest.voice.waaf.radarComplete);
-            });
-            this.detectionStage = 'raid_moving';
-            // Marker's "moving inland" animation runs at least as long as this
-            // line takes to say (plus the 400ms head start above), so the next
-            // line (raidOverLand) never fires while this one's still talking.
-            const inlandDuration = AudioManager.voiceAwareDelay(this, AudioManager.manifest.voice.waaf.radarComplete, 2000);
-            this.spawnRaidMarker(inlandDuration);
+                this.dialogueText.setText('"Radar picked up several contacts out at sea. We\'ll plot them now."');
+                // Small delay so the radar ping from this same tap finishes
+                // before the radio static + voice line start — otherwise they overlap.
+                this.time.delayedCall(400, () => {
+                    this.playWaafLine(AudioManager.manifest.voice.waaf.radarComplete);
+                });
+                this.detectionStage = 'raid_moving';
+                // Marker's "moving inland" animation runs at least as long as this
+                // line takes to say (plus the 400ms head start above), so the next
+                // line (raidOverLand) never fires while this one's still talking.
+                const inlandDuration = AudioManager.voiceAwareDelay(this, AudioManager.manifest.voice.waaf.radarComplete, 2000);
+                this.spawnRaidMarker(inlandDuration);
             });
 
             this.radarBlips.push(blip);
         });
-             
-                   //top bar ui
+
+        // ---------- TOP BAR UI ----------
         this.createTopBar('DETECTION PHASE');
-                    // ---------- WAAF DIALOGUE BOX (NEW - BOTTOM OF SCREEN) ----------
+
+        // ---------- WAAF DIALOGUE BOX ----------
         this.createDialogueBox(width, height);
         // ---------- WAAF PORTRAIT (bottom-right corner badge, same treatment as Keith Park/Ludwik) ----------
         this.createPortraitBadge(width - 110, height - 210, {
@@ -108,14 +109,14 @@ create() {
         });
         this.playWaafLine(AudioManager.manifest.voice.waaf.detectionWelcome);
 
-        // ---------- STATE MACHINE (NEW) ----------
+        // ---------- STATE MACHINE ----------
         this.detectionStage = 'radar_blip';
         this.rocPostsTapped = 0;
-        this.totalRocPosts = 3;  
-    
-}
+        this.totalRocPosts = 3;
+    }
+
     spawnRaidMarker(inlandDuration = 2000) {
-         // Starting position (from the last radar blip location)
+        // Starting position (from the last radar blip location)
         const startX = 720;
         const startY = 180;
         const endX = 540;
@@ -158,16 +159,16 @@ create() {
                 // Move to next stage
                 this.detectionStage = 'roc_sequence';
 
-                // Spawn ROC posts (Commit 4)
+                // Spawn ROC posts
                 this.spawnROCPosts(endX, endY);
             }
         });
 
         // Store reference
         this.raidMarker = marker;
-          
     }
-         spawnROCPosts(startX, startY) {
+
+    spawnROCPosts(startX, startY) {
         // Define 3 ROC post positions along the raid path
         const rocPositions = [
             { x: startX - 60, y: startY + 40, label: 'ROC 1' },
@@ -297,6 +298,6 @@ create() {
         this.time.delayedCall(800, lightNextPost);
     }
 
-        // createMapBackground, createGrid, createDialogueBox, createPortraitBadge,
-        // and playWaafLine now live in BaseGameScene (this class extends it).
+    // createMapBackground, createGrid, createDialogueBox, createPortraitBadge,
+    // and playWaafLine now live in BaseGameScene (this class extends it).
 }
