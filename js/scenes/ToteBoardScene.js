@@ -255,6 +255,10 @@ class ToteBoardScene extends BaseGameScene {
 
         let reactionVoice;
         const panel = this.panelObjects[index];
+        // Extra bit of juice on top of the panel color flash below — a quick
+        // scale-pop on the label reads as more of a "hit" than a flat color
+        // change alone.
+        this.tweens.add({ targets: panel.label, scale: 1.15, duration: 120, yoyo: true });
         if (index === this.targetIndex) {
             // ---- CORRECT TAP ----
             this.tweens.add({

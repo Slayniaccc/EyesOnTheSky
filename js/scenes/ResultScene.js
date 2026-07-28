@@ -245,6 +245,18 @@ class ResultScene extends BaseGameScene {
             backgroundColor: '#1e3a5f',
             padding: { x: 26, y: 14 }
         }).setOrigin(0.5).setInteractive({ useHandCursor: true });
+        // Gold accent border — same navy fill, just a visible ring so it
+        // reads clearly as tappable (matches the gold-ring language already
+        // used on every portrait badge).
+        const btnBorder = this.add.graphics();
+        btnBorder.lineStyle(3, 0xf5e56b, 0.9);
+        btnBorder.strokeRoundedRect(
+            btn.x - btn.width / 2,
+            btn.y - btn.height / 2,
+            btn.width,
+            btn.height,
+            8
+        );
 
         btn.on('pointerdown', () => {
             AudioManager.playSFX(this, AudioManager.manifest.sfx.buttonClick);

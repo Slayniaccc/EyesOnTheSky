@@ -235,6 +235,9 @@ class DetectionScene extends BaseGameScene {
                         sprite.setTint(0x88ff88);
                     }
                 });
+                // Extra scale-pop alongside the alpha flash above, same
+                // "hit" feel added to ToteBoardScene's panel taps.
+                this.tweens.add({ targets: sprite, scale: sprite.scale * 1.15, duration: 100, yoyo: true });
 
                 // Check if all tapped
                 if (this.rocPostsTapped === this.totalRocPosts) {

@@ -77,6 +77,18 @@ class DecisionScene extends BaseGameScene {
             backgroundColor: '#1e3a5f',
             padding: { x: 20, y: 10 }
         }).setOrigin(0.5).setInteractive({ useHandCursor: true });
+        // Gold accent border — same navy fill as before, just a visible ring
+        // so it reads clearly as tappable against the dark UI (matches the
+        // gold-ring language already used on every portrait badge).
+        const continueBtnBorder = this.add.graphics();
+        continueBtnBorder.lineStyle(3, 0xf5e56b, 0.9);
+        continueBtnBorder.strokeRoundedRect(
+            continueBtn.x - continueBtn.width / 2,
+            continueBtn.y - continueBtn.height / 2,
+            continueBtn.width,
+            continueBtn.height,
+            8
+        );
 
         // 1. Define raid data
         const raids = [
@@ -219,6 +231,7 @@ class DecisionScene extends BaseGameScene {
                 this.dialogueText.setText('"Two raids inbound. Drag each marker to the correct sector station."');
                 this.dialogueText.setFill('#c8e6c9'); // WAAF green
                 continueBtn.setVisible(false);
+                continueBtnBorder.setVisible(false);
 
                 // Show the raid markers
                 this.raidMarkers.forEach(marker => {
@@ -247,12 +260,13 @@ class DecisionScene extends BaseGameScene {
         hit.moveTo(x + 12, y - 12);
         hit.lineTo(x - 12, y + 12);
         hit.strokePath();
-        this.add.text(x, y - 30, '💥 CITY HIT', {
+        const label = this.add.text(x, y - 30, '💥 CITY HIT', {
             fontSize: '16px',
             fill: '#ff4444',
             fontFamily: 'Courier New',
             fontStyle: 'bold'
-        }).setOrigin(0.5);
+        }).setOrigin(0.5).setScale(0);
+        this.tweens.add({ targets: label, scale: 1, duration: 300, ease: 'Back.easeOut' });
     }
 
     // Green flash + "SCRAMBLED!" text over a sector station — used for any
@@ -270,12 +284,13 @@ class DecisionScene extends BaseGameScene {
             duration: 600,
             onComplete: () => flash.destroy()
         });
-        this.add.text(x, y - 50, '🚀 SCRAMBLED!', {
+        const label = this.add.text(x, y - 50, '🚀 SCRAMBLED!', {
             fontSize: '18px',
             fill: '#44ff44',
             fontFamily: 'Courier New',
             fontStyle: 'bold'
-        }).setOrigin(0.5);
+        }).setOrigin(0.5).setScale(0);
+        this.tweens.add({ targets: label, scale: 1, duration: 300, ease: 'Back.easeOut' });
     }
 
     evaluateDecision() {
