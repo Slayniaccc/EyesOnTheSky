@@ -80,6 +80,7 @@ class DebugMenuScene extends Phaser.Scene {
         AudioManager.stopMusic(AudioManager.manifest.sfx.spitfireEngine);
         AudioManager.stopMusic(AudioManager.manifest.sfx.messerschmittEngine);
         AudioManager.stopMusic(AudioManager.manifest.music.planeFlyby);
+        AudioManager.stopMusic(AudioManager.manifest.music.introTheme);
         this.scene.start(targetKey);
         this.expanded = false;
         this.setMenuVisible(false);
