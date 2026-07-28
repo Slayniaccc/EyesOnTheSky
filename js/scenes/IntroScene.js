@@ -8,6 +8,7 @@ class IntroScene extends Phaser.Scene {
         this.load.image('keith-park', 'assets/images/keithpark.png');
         this.load.image('ludwik', 'assets/images/ludwik.png');
         this.load.image('raf-plane', 'assets/images/raf-plane.png');
+        this.load.image('german-plane', 'assets/images/german_plane.png');
 
         // Preload all game audio here once — the cache is shared across every scene.
         AudioManager.preloadAll(this);
@@ -49,30 +50,43 @@ class IntroScene extends Phaser.Scene {
         grid.strokePath();
     }
 
-    // Faint RAF silhouettes drifting across the title/character/Dowding pages —
-    // added behind every other element in create() (drawn first = rendered
-    // furthest back), low-alpha so they read as ambient motion, not a focal point.
+    // Faint plane silhouettes drifting across the title/character/Dowding
+    // pages — added behind every other element in create() (drawn first =
+    // rendered furthest back), low-alpha so they read as ambient motion, not
+    // a focal point. Mostly RAF planes left-to-right; a couple of German
+    // silhouettes drift the opposite way, tinted grey and dimmer, for a
+    // hazy "distant dogfight" feel that doesn't compete with the RAF planes
+    // as the dominant motion.
     createBackgroundPlanes(width, height) {
-        if (!this.textures.exists('raf-plane')) return;
-
         const paths = [
-            { y: height * 0.12, scale: 0.05, alpha: 0.28, duration: 14000, delay: 0 },
-            { y: height * 0.22, scale: 0.04, alpha: 0.22, duration: 18000, delay: 4000 },
-            { y: height * 0.08, scale: 0.045, alpha: 0.25, duration: 16000, delay: 9000 }
+            { y: height * 0.12, scale: 0.05, alpha: 0.28, duration: 14000, delay: 0, texture: 'raf-plane', tint: 0x3a6ea5 },
+            { y: height * 0.22, scale: 0.04, alpha: 0.22, duration: 18000, delay: 4000, texture: 'raf-plane', tint: 0x3a6ea5 },
+            { y: height * 0.08, scale: 0.045, alpha: 0.25, duration: 16000, delay: 9000, texture: 'raf-plane', tint: 0x3a6ea5 },
+            { y: height * 0.17, scale: 0.038, alpha: 0.20, duration: 20000, delay: 2000, texture: 'raf-plane', tint: 0x3a6ea5 },
+            { y: height * 0.28, scale: 0.055, alpha: 0.24, duration: 13000, delay: 12000, texture: 'raf-plane', tint: 0x3a6ea5 },
+            { y: height * 0.15, scale: 0.04, alpha: 0.15, duration: 17000, delay: 6000, texture: 'german-plane', tint: 0x999999, reverse: true },
+            { y: height * 0.25, scale: 0.035, alpha: 0.13, duration: 19000, delay: 15000, texture: 'german-plane', tint: 0x999999, reverse: true }
         ];
 
         paths.forEach((p) => {
-            const plane = this.add.image(-60, p.y, 'raf-plane')
+            const textureKey = p.texture || 'raf-plane';
+            if (!this.textures.exists(textureKey)) return;
+
+            const startX = p.reverse ? width + 60 : -60;
+            const endX = p.reverse ? -60 : width + 60;
+
+            const plane = this.add.image(startX, p.y, textureKey)
                 .setScale(p.scale)
                 .setAlpha(p.alpha)
-                .setTint(0x3a6ea5);
+                .setTint(p.tint || 0x3a6ea5)
+                .setFlipX(!!p.reverse);
 
             const flyAcross = () => {
-                plane.x = -60;
+                plane.x = startX;
                 plane.y = p.y + Phaser.Math.Between(-15, 15);
                 this.tweens.add({
                     targets: plane,
-                    x: width + 60,
+                    x: endX,
                     duration: p.duration,
                     ease: 'Linear',
                     onComplete: flyAcross
