@@ -172,7 +172,15 @@ class BaseGameScene extends Phaser.Scene {
             const tapZone = this.add.zone(x, y, radius * 2, radius * 2)
                 .setInteractive({
                     useHandCursor: true,
-                    hitArea: new Phaser.Geom.Circle(0, 0, radius),
+                    // Zone's hit-area coordinate space is top-left-relative
+                    // (0,0)-(width,height), unlike Image/Arc which are
+                    // origin-relative — Circle(0,0,radius) here would center
+                    // the hit circle on the zone's top-left CORNER instead of
+                    // its middle, creating a huge, wrongly-placed dead zone
+                    // that silently swallows clicks elsewhere on screen.
+                    // Circle(radius,radius,radius) centers it correctly since
+                    // the zone is exactly radius*2 wide/tall.
+                    hitArea: new Phaser.Geom.Circle(radius, radius, radius),
                     hitAreaCallback: Phaser.Geom.Circle.Contains
                 });
             tapZone.on('pointerdown', () => AudioManager.replayLast(this));

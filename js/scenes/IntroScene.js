@@ -497,6 +497,11 @@ class IntroScene extends Phaser.Scene {
             if (this.dowdingStepIndex >= this.dowdingSteps.length - 1) {
                 AudioManager.playSFX(this, AudioManager.manifest.sfx.buttonClick);
                 AudioManager.stopMusic(AudioManager.manifest.music.planeFlyby);
+                // The narrator's last line can still be talking when BEGIN is
+                // tapped (unlike Back/Next, this button isn't gated by
+                // dowdingLineLocked) — cut it here so it doesn't keep playing
+                // over DetectionScene's own bunker ambience and WAAF welcome line.
+                AudioManager.stopVoice();
                 this.cameras.main.fadeOut(500, 0, 0, 0);
                 this.cameras.main.once('camerafadeoutcomplete', () => {
                     this.scene.start('DetectionScene');

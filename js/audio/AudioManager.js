@@ -238,6 +238,18 @@ const AudioManager = {
         return sound;
     },
 
+    // Cuts off whatever voice line is currently playing, if any — for scene
+    // transitions where a line shouldn't be allowed to bleed into the next
+    // scene (e.g. IntroScene's Dowding narrator into DetectionScene). Sound.stop()
+    // doesn't fire 'complete', so playVoice's own finish() handler never runs —
+    // restore any ducked music here too, or it'd stay quiet forever.
+    stopVoice() {
+        if (this._currentVoice && this._currentVoice.isPlaying) {
+            this._currentVoice.stop();
+        }
+        this._restoreMusic();
+    },
+
     // Re-plays whatever voice line most recently played (or attempted to
     // play), for portrait badges' tap-to-replay affordance. No-ops if
     // something's already playing (same "one voice at a time" rule as
