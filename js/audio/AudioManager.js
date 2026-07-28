@@ -46,7 +46,12 @@ const AudioManager = {
             // Cartoon descending "womp" — plays per-plane in InterceptScene's escort
             // phase when an enemy turns back. Kept comedic/non-violent (a slide-whistle
             // swoop, not an explosion) since the planes are "turned back", not destroyed.
-            shotDown: { key: 'sfx-shot-down', path: 'assets/audio/sfx/shot-down.mp3', volume: 0.6 }
+            shotDown: { key: 'sfx-shot-down', path: 'assets/audio/sfx/shot-down.mp3', volume: 0.6 },
+            // Small ascending 3-note "ta-da" — mid-game positive beats in
+            // InterceptScene (formation locked in, all enemies turned back).
+            // Deliberately smaller/shorter than victoryCelebration above so the
+            // actual ending in ResultScene still feels like the bigger payoff.
+            formationChime: { key: 'sfx-formation-chime', path: 'assets/audio/sfx/formation-chime.mp3', volume: 0.35 }
         },
         // Add entries here as lines get scripted/recorded, e.g.:
         // waaf: { toteIntro: { key: 'waaf-tote-intro', path: 'assets/audio/waaf-lines/tote-intro.mp3', volume: 0.6 } }

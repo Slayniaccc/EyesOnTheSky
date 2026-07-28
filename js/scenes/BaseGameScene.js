@@ -125,7 +125,16 @@ class BaseGameScene extends Phaser.Scene {
             // bigger than the circle (which "cover" sizing guarantees, and
             // fixed/matchWidth scales often are too) just overlaps the ring
             // as a visible rectangle instead of sitting inside it.
-            portrait.setMask(circleBg.createGeometryMask());
+            //
+            // Masking against circleBg itself (rather than a dedicated shape)
+            // used to let the portrait peek ~1.5px past the true radius —
+            // circleBg's stroke is centred ON the radius, so its outer edge
+            // (and therefore the masked-in region) actually sits at
+            // radius + half the line width, not at radius. A separate,
+            // fill-only, exactly-radius shape closes that gap.
+            const maskShape = this.add.graphics().setVisible(false);
+            maskShape.fillCircle(x, y, radius);
+            portrait.setMask(maskShape.createGeometryMask());
             elements.push(portrait);
         } else {
             elements.push(this.add.text(x, y - 5, fallbackText, {

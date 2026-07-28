@@ -252,6 +252,10 @@ class DecisionScene extends BaseGameScene {
             resultMessage = '✅ Both raids intercepted! Squadrons scrambled!';
             resultColor = '#44ff44';
             outcome = 'success';
+            // Same chime as InterceptScene's formation-complete/all-turned-back
+            // beats — once here, not once per sector below, since both flashes
+            // land together and the chime would just double up on itself.
+            AudioManager.playSFX(this, AudioManager.manifest.sfx.formationChime);
             // Show scramble animation (green flash over sector stations)
             this.sectorObjects.forEach(s => {
                 const flash = this.add.graphics();
@@ -299,6 +303,7 @@ class DecisionScene extends BaseGameScene {
                 }
             });
             // Also show scramble for the correct one
+            AudioManager.playSFX(this, AudioManager.manifest.sfx.formationChime);
             this.sectorObjects.forEach(s => {
                 const marker = s.occupiedBy;
                 if (marker && marker.correctSector === s.index) {

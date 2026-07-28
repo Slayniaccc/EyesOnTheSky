@@ -480,6 +480,7 @@ class InterceptScene extends BaseGameScene {
         });
         });
             // Sparkle burst
+    AudioManager.playSFX(this, AudioManager.manifest.sfx.formationChime);
     for (let i = 0; i < 25; i++) {
         const spark = this.add.circle(
             this.airfieldX + Phaser.Math.Between(-60, 60),
@@ -726,6 +727,9 @@ startInterceptPhase() {
         // Starts here, not scene start — this is the zoomed-in airfield view
         // where the planes are actually the visual focus, not the earlier
         // plotting-table phase where they're small markers on a busy map.
+        // The bunker drone doesn't belong once we're up in the air with it —
+        // cut it here rather than letting it run under the engine loops.
+        AudioManager.stopMusic(AudioManager.manifest.music.bunkerAmbience);
         AudioManager.playMusic(this, AudioManager.manifest.sfx.spitfireEngine);
         this.isAirfieldView = true;
 
@@ -980,6 +984,7 @@ startInterceptPhase() {
     const turnNext = () => {
         if (turnIndex >= this.enemyFormation.length) {
             // All enemies turned back!
+            AudioManager.playSFX(this, AudioManager.manifest.sfx.formationChime);
             this.setLudwikLine('"All enemy planes turned back! Mission complete!"');
             const allTurnedBackVoice = AudioManager.manifest.voice.ludwik.allTurnedBack;
             AudioManager.playVoice(this, allTurnedBackVoice);
