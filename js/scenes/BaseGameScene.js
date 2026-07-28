@@ -100,7 +100,8 @@ class BaseGameScene extends Phaser.Scene {
             nameLabel,
             sizing = { scale: 0.15 },
             labelGap = 10,
-            startHidden = false
+            startHidden = false,
+            replayable = false
         } = config;
 
         const elements = [];
@@ -164,7 +165,49 @@ class BaseGameScene extends Phaser.Scene {
             elements.forEach((el) => el.setVisible(false));
         }
 
+        // Tap the badge to hear that character's last line again — a plain
+        // invisible zone rather than making the circle/portrait/label each
+        // interactive individually.
+        if (replayable) {
+            const tapZone = this.add.zone(x, y, radius * 2, radius * 2)
+                .setInteractive({
+                    useHandCursor: true,
+                    hitArea: new Phaser.Geom.Circle(0, 0, radius),
+                    hitAreaCallback: Phaser.Geom.Circle.Contains
+                });
+            tapZone.on('pointerdown', () => AudioManager.replayLast(this));
+            elements.push(tapZone);
+        }
+
         return elements;
+    }
+
+    // Subtle "waiting for your tap" breathing pulse — a scale tween on any
+    // center-origin display object. Returns the Tween so callers can stop it
+    // once the element's been interacted with.
+    addIdlePulse(target, { scaleAmount = 1.08, duration = 650 } = {}) {
+        return this.tweens.add({
+            targets: target,
+            scale: scaleAmount,
+            duration,
+            yoyo: true,
+            repeat: -1,
+            ease: 'Sine.easeInOut'
+        });
+    }
+
+    // Expanding, fading ring at (x, y) — generic "you tapped here"
+    // acknowledgment. Self-destroys via the tween's onComplete.
+    spawnTapRipple(x, y, { color = 0xf5e56b, startRadius = 8, endRadius = 32, duration = 400 } = {}) {
+        const ring = this.add.circle(x, y, startRadius, color, 0).setStrokeStyle(3, color, 0.8);
+        this.tweens.add({
+            targets: ring,
+            radius: endRadius,
+            alpha: 0,
+            duration,
+            onUpdate: () => ring.setStrokeStyle(3, color, 0.8 * (1 - (ring.radius - startRadius) / (endRadius - startRadius))),
+            onComplete: () => ring.destroy()
+        });
     }
 
     // Quick radio-crackle burst ahead of every WAAF line — she's heard "over

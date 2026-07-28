@@ -35,7 +35,8 @@ class InterceptScene extends BaseGameScene {
             textureKey: 'ludwik',
             fallbackText: 'L',
             nameLabel: 'Ludwik',
-            sizing: { fitToCircle: true }
+            sizing: { fitToCircle: true },
+            replayable: true
         });
 
         // ---------- TOP BAR ----------

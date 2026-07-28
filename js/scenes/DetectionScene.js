@@ -54,6 +54,7 @@ class DetectionScene extends BaseGameScene {
                 if (this.detectionStage !== 'radar_blip' || blip.getData('resolved')) return;
 
                 AudioManager.playSFX(this, AudioManager.manifest.sfx.radarPing);
+                this.spawnTapRipple(blip.x, blip.y, { color: 0x00ff00 });
 
                 blip.setData('resolved', true);
                 blip.disableInteractive();
@@ -97,7 +98,8 @@ class DetectionScene extends BaseGameScene {
             fallbackFontSize: '18px',
             nameLabel: 'WAAF',
             sizing: { fitToCircle: true },
-            labelGap: 15
+            labelGap: 15,
+            replayable: true
         });
 
         this.dialogueText = this.add.text(110, height - 100, 'Welcome to Fighter Command. Tap each radar blip when it flashes.', {
@@ -221,9 +223,18 @@ class DetectionScene extends BaseGameScene {
                 if (sprite.tapped) return;
 
                 AudioManager.playSFX(this, AudioManager.manifest.sfx.buttonClick);
+                this.spawnTapRipple(sprite.x, sprite.y);
 
                 sprite.tapped = true;
                 this.rocPostsTapped++;
+
+                // Stop the idle pulse before the scale-pop below — both
+                // animate the same property and would otherwise fight.
+                if (sprite.pulseTween) {
+                    sprite.pulseTween.stop();
+                    sprite.setScale(1);
+                    sprite.pulseTween = null;
+                }
 
                 // Visual feedback: flash white then green
                 this.tweens.add({
@@ -272,6 +283,9 @@ class DetectionScene extends BaseGameScene {
                 yoyo: true,
                 repeat: 2
             });
+
+            // "Waiting for your tap" breathing pulse — stopped once tapped.
+            post.pulseTween = this.addIdlePulse(post, { scaleAmount: 1.1 });
 
             // "TAP ME!" prompt so kids know it just became interactive
             const tapHint = this.add.text(post.x, post.y - 60, '👆 TAP!', {

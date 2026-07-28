@@ -58,7 +58,8 @@ class ToteBoardScene extends BaseGameScene {
             fallbackFill: '#fff',
             nameLabel: 'WAAF',
             sizing: { fitToCircle: true },
-            labelGap: 15
+            labelGap: 15,
+            replayable: true
         });
 
         // Dialogue text
@@ -159,6 +160,9 @@ class ToteBoardScene extends BaseGameScene {
         this.redrawPanel(panel, { fillColor: 0x2a4a3a, strokeColor: 0xf5e56b, strokeWidth: 4 });
         panel.label.setFill('#f5e56b');
         panel.isHighlighted = true;
+        // "Waiting for your tap" breathing pulse — stopped in clearHighlights()
+        // (next round) or handlePanelTap() (this round's own tap).
+        panel.pulseTween = this.addIdlePulse(panel.label);
     }
 
     // ---------- CLEAR HIGHLIGHTS ----------
@@ -167,6 +171,11 @@ class ToteBoardScene extends BaseGameScene {
             this.redrawPanel(panel, { fillColor: 0x1a2a3a, strokeColor: 0x4a6a8a, strokeWidth: 2, strokeAlpha: 0.6 });
             panel.label.setFill('#b0c4de');
             panel.isHighlighted = false;
+            if (panel.pulseTween) {
+                panel.pulseTween.stop();
+                panel.label.setScale(1);
+                panel.pulseTween = null;
+            }
         });
     }
 
@@ -255,6 +264,15 @@ class ToteBoardScene extends BaseGameScene {
 
         let reactionVoice;
         const panel = this.panelObjects[index];
+        this.spawnTapRipple(panel.x + panel.width / 2, panel.y + panel.height / 2);
+        // Stop this panel's idle pulse (if it's the highlighted one) before
+        // the pop tween below — both animate the same label's scale, and
+        // the pulse would otherwise keep fighting the pop every frame.
+        if (panel.pulseTween) {
+            panel.pulseTween.stop();
+            panel.label.setScale(1);
+            panel.pulseTween = null;
+        }
         // Extra bit of juice on top of the panel color flash below — a quick
         // scale-pop on the label reads as more of a "hit" than a flat color
         // change alone.

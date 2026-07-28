@@ -41,7 +41,8 @@ class ResultScene extends BaseGameScene {
             fallbackText: 'L',
             nameLabel: 'Ludwik',
             sizing: { fitToCircle: true },
-            labelGap: 15
+            labelGap: 15,
+            replayable: true
         });
         this.dialogueText = this.add.text(110, height - 100, data.message, {
             fontSize: '17px',

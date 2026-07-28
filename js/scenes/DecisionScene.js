@@ -21,7 +21,8 @@ class DecisionScene extends BaseGameScene {
             textureKey: 'keith-park',
             fallbackText: 'KP',
             nameLabel: 'Keith Park',
-            sizing: { fitToCircle: true }
+            sizing: { fitToCircle: true },
+            replayable: true
         });
         // Same spot as Keith Park's badge — hidden until his handoff line, so
         // the swap reads as one badge changing rather than a new one appearing.
@@ -32,7 +33,8 @@ class DecisionScene extends BaseGameScene {
             fallbackFontSize: '18px',
             nameLabel: 'WAAF',
             sizing: { fitToCircle: true },
-            startHidden: true
+            startHidden: true,
+            replayable: true
         });
 
         this.parkLines = [
@@ -161,6 +163,9 @@ class DecisionScene extends BaseGameScene {
             marker.originalY = r.y;
             marker.setVisible(false); // Hidden initially
 
+            // "Waiting for your drag" breathing pulse — stopped once placed.
+            marker.pulseTween = this.addIdlePulse(marker, { scaleAmount: 1.12 });
+
             // Drag events
             marker.on('drag', (pointer, dragX, dragY) => {
                 marker.x = dragX;
@@ -180,12 +185,18 @@ class DecisionScene extends BaseGameScene {
 
                 if (droppedOn) {
                     AudioManager.playSFX(this, AudioManager.manifest.sfx.buttonClick);
+                    this.spawnTapRipple(droppedOn.x, droppedOn.y);
                     // Snap to sector
                     marker.x = droppedOn.x;
                     marker.y = droppedOn.y;
                     droppedOn.occupied = true;
                     droppedOn.occupiedBy = marker;
                     marker.isPlaced = true;
+                    if (marker.pulseTween) {
+                        marker.pulseTween.stop();
+                        marker.setScale(1);
+                        marker.pulseTween = null;
+                    }
 
                     // Check if correct
                     const allPlaced = this.raidMarkers.every(m => m.isPlaced);

@@ -124,6 +124,7 @@ const AudioManager = {
     _currentVoice: null,
     _currentStatic: null,
     _duckedMusic: [],
+    _lastEntry: null,
 
     // Call once, from the first scene's preload() — Phaser's audio cache is
     // shared game-wide, so every later scene can just play by key.
@@ -216,6 +217,7 @@ const AudioManager = {
     // anything gating on it (e.g. DecisionScene's Continue-button lock) isn't
     // stuck waiting on a line that was never going to play.
     playVoice(scene, entry, config, onComplete) {
+        this._lastEntry = entry; // remembered for tap-to-replay on portrait badges
         if (!this.has(scene, entry)) {
             if (onComplete) onComplete();
             return null;
@@ -234,6 +236,16 @@ const AudioManager = {
         this._currentVoice = sound;
         sound.play();
         return sound;
+    },
+
+    // Re-plays whatever voice line most recently played (or attempted to
+    // play), for portrait badges' tap-to-replay affordance. No-ops if
+    // something's already playing (same "one voice at a time" rule as
+    // playVoice) or nothing's played yet.
+    replayLast(scene) {
+        if (!this._lastEntry) return null;
+        if (this._currentVoice && this._currentVoice.isPlaying) return null;
+        return this.playVoice(scene, this._lastEntry);
     },
 
     // Phaser's SoundManager is global to the game, not per-scene, so music
