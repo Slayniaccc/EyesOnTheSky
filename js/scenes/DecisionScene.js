@@ -15,13 +15,17 @@ class DecisionScene extends BaseGameScene {
         this.createGrid(width, height);
         this.createDialogueBox(width, height);
         const badgeX = width - 110;
-        const badgeY = height - 200;
+        // height-210 + labelGap:15, same as every other scene's badge — the
+        // old height-200 + default labelGap:10 put the name label right on
+        // top of the dialogue box's border, cutting through the text.
+        const badgeY = height - 210;
         this.parkBadge = this.createPortraitBadge(badgeX, badgeY, {
             radius: 60,
             textureKey: 'keith-park',
             fallbackText: 'KP',
             nameLabel: 'Keith Park',
             sizing: { fitToCircle: true },
+            labelGap: 15,
             replayable: true
         });
         // Same spot as Keith Park's badge — hidden until his handoff line, so
@@ -33,6 +37,7 @@ class DecisionScene extends BaseGameScene {
             fallbackFontSize: '18px',
             nameLabel: 'WAAF',
             sizing: { fitToCircle: true },
+            labelGap: 15,
             startHidden: true,
             replayable: true
         });

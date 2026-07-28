@@ -30,12 +30,16 @@ class InterceptScene extends BaseGameScene {
         // separate treatment for later phases, not a replacement for this one.
         // Naturally cleared by switchToAirfieldView()'s existing sweep of
         // Graphics/Image children, same as the grid and coastlines.
-        this.createPortraitBadge(width - 110, height - 200, {
+        // height-210 + labelGap:15, same as every other scene's badge — the
+        // old height-200 + default labelGap:10 put the name label right on
+        // top of the dialogue box's border, cutting through the text.
+        this.createPortraitBadge(width - 110, height - 210, {
             radius: 60,
             textureKey: 'ludwik',
             fallbackText: 'L',
             nameLabel: 'Ludwik',
             sizing: { fitToCircle: true },
+            labelGap: 15,
             replayable: true
         });
 
