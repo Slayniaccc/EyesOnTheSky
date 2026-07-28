@@ -18,6 +18,10 @@ const config = {
         autoCenter: Phaser.Scale.NO_CENTER
     },
     render: {
+        // TODO(real-device-test): if the Tab A6 shows GPU-bound frame drops,
+        // this is the cheapest thing to try disabling first — one-line
+        // revert, not changed here since it can't be judged without the
+        // actual hardware.
         antialias: true
     },
     // capture: true registers Phaser's touch listeners in the capture phase

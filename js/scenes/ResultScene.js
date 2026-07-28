@@ -137,7 +137,8 @@ class ResultScene extends BaseGameScene {
         this.add.text(this.cityX, this.cityY - 5, '🛡️', { fontSize: '46px' }).setOrigin(0.5);
 
         const colors = [0xff4444, 0x44ff44, 0x4444ff, 0xffdd44, 0xff44ff, 0x44ffdd];
-        for (let i = 0; i < 36; i++) {
+        // Trimmed from 36 for weaker-tablet headroom — still a full burst.
+        for (let i = 0; i < 22; i++) {
             const confetti = this.add.rectangle(
                 this.cityX + Phaser.Math.Between(-220, 220),
                 this.cityY - 40 + Phaser.Math.Between(-40, 20),

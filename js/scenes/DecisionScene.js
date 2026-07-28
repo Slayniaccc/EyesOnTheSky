@@ -130,8 +130,16 @@ class DecisionScene extends BaseGameScene {
                 fontStyle: 'bold'
             }).setOrigin(0.5).setDepth(5);
 
-            // Make it draggable
-            marker.setInteractive({ draggable: true, useHandCursor: true });
+            // Make it draggable — explicit 52px-diameter hit circle rather
+            // than the default text-bounding-box hit area (the "W1"/"W2"
+            // label alone is well under the 44px min touch target), same fix
+            // already applied to DetectionScene's radar blips/ROC posts.
+            marker.setInteractive({
+                draggable: true,
+                useHandCursor: true,
+                hitArea: new Phaser.Geom.Circle(0, 0, 26),
+                hitAreaCallback: Phaser.Geom.Circle.Contains
+            });
 
             // Store data
             marker.raidId = r.id;

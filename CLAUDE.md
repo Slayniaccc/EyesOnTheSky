@@ -12,13 +12,13 @@ A tablet-first educational game for Y6 kids (ages 10-11), simulating the RAF plo
 
 ## 🔧 Remaining Issues (found in playtesting — 2026-07-27)
 
-- [ ] **Dowding System narrator** — the 4 narrator lines for the Dowding System diagram steps aren't recorded yet (code's already wired up for them, just needs `assets/audio/dowding-narrator-lines/step1.mp3` through `step4.mp3` dropped in)
+- [x] **Dowding System narrator** — the 4 narrator lines are recorded and dropped into `assets/audio/dowding-narrator-lines/step1.mp3` through `step4.mp3`
 - [x] **ToteBoardScene: lock panel taps until WAAF finishes her opening line** — fixed, but scoped to just the "Tote board live..." intro before round 1 starts; each round's own call-out still allows tapping while it plays (locking every round's call-out made the reaction timer too generous — a miss became basically impossible)
 - [x] **DecisionScene: Keith Park's first line slightly overflows the screen** — fixed, wrap width now measured against the actual dialogue box edge
 - [x] **Bug: Ludwik's "Now we're ready..." line doesn't play** — fixed, it was getting silently skipped when tapped fast (the intro line was still playing); now waits and plays right after
-- [ ] **Give Ludwik a presence earlier in InterceptScene** — right now he only really shows up once it switches to the airfield view; add him to the plotting-table part too (a speech bubble off one of the planes, or a portrait near the bottom of the screen)
-- [ ] **Add a kid-friendly "shot down" sound** — plays when an enemy plane gets turned back during the escort phase
-- [ ] **(Idea, not committed yet) IntroScene: RAF planes flying around in the background**
+- [x] **Give Ludwik a presence earlier in InterceptScene** — added a plotting-table corner portrait badge for the form-up phase, plus a speech bubble (with his portrait) that follows his plane once the scene switches to the airfield view, fading out once the escort phase starts
+- [x] **Add a kid-friendly "shot down" sound** — a cartoon descending "womp" (`sfx.shotDown`), plays per-plane during the escort phase
+- [x] **IntroScene: RAF planes flying around in the background** — implemented, drifting across the title/character/Dowding pages
 
 ---
 
@@ -58,23 +58,21 @@ this.sound.play('waaf1', { volume: 0.5 });
 **Goal:** Full-screen display on Samsung Galaxy A6 tablet.
 
 **Actions Required:**
-- [ ] Adjust `main.js` scaling settings for tablet
+- [x] Adjust `main.js` scaling settings for tablet
 - [ ] Test on actual Galaxy A6 device
-- [ ] Ensure touch events work correctly (tap, drag, swipe)
+- [x] Ensure touch events work correctly (tap, drag, swipe) — `input.touch.capture: true` handles the older-WebView first-touch-swallowed issue; every draggable/tappable element now has an explicit touch-friendly hit area
 - [ ] Check UI elements are properly sized for tablet
-- [ ] Make buttons and interactive elements larger (min 44px for touch targets)
+- [x] Make buttons and interactive elements larger (min 44px for touch targets) — done across the board (ROC posts, radar blips, tote panels, DecisionScene raid markers)
 
 **Current main.js scaling:**
 ```javascript
 scale: {
     mode: Phaser.Scale.FIT,
-    autoCenter: Phaser.Scale.CENTER_BOTH
+    autoCenter: Phaser.Scale.NO_CENTER // #game-container's CSS flexbox owns centering instead — see main.js's comment for why
 }
 ```
 
-**Suggested changes:**
-- Add `expand: true` to fill the screen
-- Consider `mode: Phaser.Scale.NONE` for full control
+**Remaining real blocker:** none known — Phaser now loads from a local file (`js/phaser.min.js`) instead of a CDN, so the game doesn't depend on network access at all. What's left is genuinely just hands-on testing on the actual device.
 
 ---
 
@@ -97,19 +95,7 @@ scale: {
 ---
 
 ### 4. Tote Board Scene Fix
-**Issue:** Cannot click the 3 buttons – always returns false.
-
-**Actions Required:**
-- [ ] Debug the panel click handler in `ToteBoardScene.js`
-- [ ] Check `handlePanelTap()` logic
-- [ ] Ensure hit areas are correctly sized
-- [ ] Add audio for state calls and feedback
-
-**Potential Issues:**
-- Hit areas too small (need min 44x44px for touch)
-- Click handler not properly bound to `this`
-- State machine not updating correctly
-- Incorrect panel indexing
+**Status:** Fixed in an earlier session — the panel tap handler works correctly, hit areas are the full 180×120 panel (well past the touch-target minimum), and the state machine correctly advances rounds. Audio for state calls/feedback is implemented (`AudioManager.manifest.voice.waaf.tote*`).
 
 ---
 
@@ -137,14 +123,13 @@ scale: {
 
 | Change | Status |
 | :--- | :--- |
-| Make ROC posts bigger (easier for kids to tap) | ⏳ To Do |
-| Add WAAF voice lines with audio | ⏳ To Do |
+| Make ROC posts bigger (easier for kids to tap) | ✅ Done |
+| Add WAAF voice lines with audio | ✅ Done |
 | Correctly position WAAF mascot (not too small) | ⏳ To Do |
 
 **ROC Post Sizing:**
-- Current: 24x44px (too small for touch)
-- Target: Minimum 44x44px touch area
-- Visual: Larger icons with clearer labels
+- Visual icon is ~1.8x the original 24x44 (`spawnROCPosts` in `DetectionScene.js`)
+- Tappable hit area is a 100px-diameter circle — well past the 44px minimum
 
 ---
 
@@ -229,31 +214,33 @@ scale: {
 EyesOnTheSky/
 ├── index.html
 ├── css/
-│   └── style.css
+│   └── game.css
 ├── js/
 │   ├── main.js
-│   ├── phaser.min.js
+│   ├── phaser.min.js         (local Phaser 3.60.0 build, not a CDN)
+│   ├── audio/
+│   │   └── AudioManager.js
 │   └── scenes/
+│       ├── BaseGameScene.js  (shared helpers: map bg, dialogue box, portrait badges, etc.)
 │       ├── IntroScene.js
 │       ├── DetectionScene.js
 │       ├── ToteBoardScene.js
 │       ├── DecisionScene.js
 │       ├── InterceptScene.js
-│       └── ResultScene.js
+│       ├── ResultScene.js
+│       └── DebugMenuScene.js (dev-only scene-jump overlay)
 ├── assets/
 │   ├── images/
-│   │   ├── waaf-mascot.png
-│   │   ├── keithpark.png
-│   │   ├── ludwik.png
-│   │   ├── mapbackground.png
-│   │   ├── toteboard.png
-│   │   └── dowdingsystemexplanation.png
+│   │   ├── keithpark.png, ludwik.png       (portraits, resized to 500px tall)
+│   │   ├── waaf-mascot-bust.png
+│   │   ├── mapbackground.png, toteboard.png
+│   │   ├── raf-plane.png, german_plane.png
+│   │   └── _originals_backup/              (pre-resize originals)
 │   └── audio/
-│       ├── bunker-ambience.mp3
-│       ├── waaf-lines/
-│       ├── keith-park-lines/
-│       ├── ludwik-lines/
-│       └── sfx/
+│       ├── bunker-ambience.mp3, plane-flyby-ambience.mp3
+│       ├── waaf-lines/, keith-park-lines/, ludwik-lines/, dowding-narrator-lines/
+│       ├── sfx/            (click, engines, formation-chime, shot-down, etc. — mostly mp3)
+│       └── _originals_backup/, sfx/_originals_backup/  (pre-compression originals)
 └── CLAUDE.md
 ```
 

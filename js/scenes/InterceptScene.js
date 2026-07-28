@@ -479,9 +479,10 @@ class InterceptScene extends BaseGameScene {
             ease: 'Back.easeOut'
         });
         });
-            // Sparkle burst
+            // Sparkle burst — trimmed from 25 (cheap GPU headroom on weaker
+    // tablets; still reads as a full burst).
     AudioManager.playSFX(this, AudioManager.manifest.sfx.formationChime);
-    for (let i = 0; i < 25; i++) {
+    for (let i = 0; i < 18; i++) {
         const spark = this.add.circle(
             this.airfieldX + Phaser.Math.Between(-60, 60),
             this.airfieldY + Phaser.Math.Between(-60, 60),
@@ -935,8 +936,8 @@ startInterceptPhase() {
             fontSize: '50px'
         }).setOrigin(0.5);
         
-        // ---- CHEERING PARTICLES ----
-        for (let i = 0; i < 30; i++) {
+        // ---- CHEERING PARTICLES ---- (trimmed from 30 for weaker-tablet headroom)
+        for (let i = 0; i < 20; i++) {
             const particle = this.add.circle(
                 this.cityX + Phaser.Math.Between(-60, 60),
                 this.cityY + Phaser.Math.Between(-60, 60),
@@ -989,10 +990,11 @@ startInterceptPhase() {
             const allTurnedBackVoice = AudioManager.manifest.voice.ludwik.allTurnedBack;
             AudioManager.playVoice(this, allTurnedBackVoice);
 
-            // ---- CONFETTI CELEBRATION (MOVED HERE - OUTSIDE THE LOOP) ----
+            // ---- CONFETTI CELEBRATION ----
             const { width, height } = this.scale;
             const colors = [0xff4444, 0x44ff44, 0x4444ff, 0xffdd44, 0xff44ff, 0x44ffdd];
-            for (let i = 0; i < 40; i++) {
+            // Trimmed from 40 for weaker-tablet headroom — still a full burst.
+            for (let i = 0; i < 25; i++) {
                 const confetti = this.add.rectangle(
                     width / 2 + Phaser.Math.Between(-200, 200),
                     height / 2 + Phaser.Math.Between(-100, 100),
