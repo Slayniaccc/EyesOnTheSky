@@ -16,13 +16,11 @@ const AudioManager = {
     manifest: {
         music: {
             bunkerAmbience: { key: 'bunker-ambience', path: 'assets/audio/bunker-ambience.mp3', volume: 0.3, loop: true },
-            // Faint, distant engine drone — kept deliberately quiet, used only
-            // under the Dowding System page (documentary/briefing tone).
-            planeFlyby: { key: 'plane-flyby-ambience', path: 'assets/audio/plane-flyby-ambience.mp3', volume: 0.04, loop: true },
-            // Warm welcoming theme for the title and character-intro pages —
-            // no narration plays on either page, so this can sit as the actual
-            // foreground music rather than a background bed.
-            introTheme: { key: 'intro-theme', path: 'assets/audio/intro-theme.mp3', volume: 0.3, loop: true }
+            // Faint, distant engine drone under IntroScene — kept deliberately
+            // quiet (this is for kids, and it plays under narration/dialogue
+            // for the whole intro) rather than a foreground effect like the
+            // InterceptScene engine loops.
+            planeFlyby: { key: 'plane-flyby-ambience', path: 'assets/audio/plane-flyby-ambience.mp3', volume: 0.04, loop: true }
         },
         sfx: {
             buttonClick: { key: 'sfx-click', path: 'assets/audio/sfx/click.wav', volume: 0.5 },

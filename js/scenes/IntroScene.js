@@ -17,9 +17,7 @@ class IntroScene extends Phaser.Scene {
     create() {
         const { width, height } = this.scale;
 
-        // Title and character pages get the warm welcome theme; the Dowding
-        // page switches to the engine drone (see its own page transitions).
-        AudioManager.playMusic(this, AudioManager.manifest.music.introTheme);
+        AudioManager.playMusic(this, AudioManager.manifest.music.planeFlyby);
 
         this.createBackground(width, height);
         this.createBackgroundPlanes(width, height);
@@ -331,10 +329,6 @@ class IntroScene extends Phaser.Scene {
 
         const nextBtn = this.createButton(width / 2 + 130, height - 55, 'NEXT ▶', 0x2ecc71, { width: 180 });
         nextBtn.hitZone.on('pointerdown', () => {
-            // Swap the welcome theme for the engine drone — the Dowding page
-            // has its own documentary/briefing tone, not a kept-up fanfare.
-            AudioManager.stopMusic(AudioManager.manifest.music.introTheme);
-            AudioManager.playMusic(this, AudioManager.manifest.music.planeFlyby);
             this.dowdingStepIndex = 0;
             this.updateDowdingStepDisplay();
             this.goToPage(page, this.dowdingPage, () => this.announceDowdingStep());
@@ -489,9 +483,6 @@ class IntroScene extends Phaser.Scene {
 
         backBtn.hitZone.on('pointerdown', () => {
             if (this.dowdingStepIndex === 0) {
-                // Back to the engine-drone-free pages — swap the music back.
-                AudioManager.stopMusic(AudioManager.manifest.music.planeFlyby);
-                AudioManager.playMusic(this, AudioManager.manifest.music.introTheme);
                 this.goToPage(page, this.characterPage);
             } else {
                 if (this.dowdingLineLocked) return;
