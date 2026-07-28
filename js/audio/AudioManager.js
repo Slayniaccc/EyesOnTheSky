@@ -20,7 +20,7 @@ const AudioManager = {
             // quiet (this is for kids, and it plays under narration/dialogue
             // for the whole intro) rather than a foreground effect like the
             // InterceptScene engine loops.
-            planeFlyby: { key: 'plane-flyby-ambience', path: 'assets/audio/plane-flyby-ambience.mp3', volume: 0.08, loop: true }
+            planeFlyby: { key: 'plane-flyby-ambience', path: 'assets/audio/plane-flyby-ambience.mp3', volume: 0.04, loop: true }
         },
         sfx: {
             buttonClick: { key: 'sfx-click', path: 'assets/audio/sfx/click.wav', volume: 0.5 },
@@ -42,7 +42,11 @@ const AudioManager = {
             // a voice line plays.
             spitfireEngine: { key: 'sfx-spitfire-engine', path: 'assets/audio/sfx/merlin-engine.mp3', volume: 0.15, loop: true },
             messerschmittEngine: { key: 'sfx-messerschmitt-engine', path: 'assets/audio/sfx/messerschmitt-engine.mp3', volume: 0.15, loop: true },
-            victoryCelebration: { key: 'sfx-victory-celebration', path: 'assets/audio/sfx/victory-celebration.wav', volume: 0.15 }
+            victoryCelebration: { key: 'sfx-victory-celebration', path: 'assets/audio/sfx/victory-celebration.wav', volume: 0.15 },
+            // Cartoon descending "womp" — plays per-plane in InterceptScene's escort
+            // phase when an enemy turns back. Kept comedic/non-violent (a slide-whistle
+            // swoop, not an explosion) since the planes are "turned back", not destroyed.
+            shotDown: { key: 'sfx-shot-down', path: 'assets/audio/sfx/shot-down.mp3', volume: 0.6 }
         },
         // Add entries here as lines get scripted/recorded, e.g.:
         // waaf: { toteIntro: { key: 'waaf-tote-intro', path: 'assets/audio/waaf-lines/tote-intro.mp3', volume: 0.6 } }

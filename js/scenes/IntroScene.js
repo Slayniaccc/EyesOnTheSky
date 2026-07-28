@@ -7,6 +7,7 @@ class IntroScene extends Phaser.Scene {
         this.load.image('waaf-mascot-bust', 'assets/images/waaf-mascot-bust.png');
         this.load.image('keith-park', 'assets/images/keithpark.png');
         this.load.image('ludwik', 'assets/images/ludwik.png');
+        this.load.image('raf-plane', 'assets/images/raf-plane.png');
 
         // Preload all game audio here once — the cache is shared across every scene.
         AudioManager.preloadAll(this);
@@ -18,6 +19,7 @@ class IntroScene extends Phaser.Scene {
         AudioManager.playMusic(this, AudioManager.manifest.music.planeFlyby);
 
         this.createBackground(width, height);
+        this.createBackgroundPlanes(width, height);
         this.createFooter(width, height);
 
         this.titlePage = this.createTitlePage(width, height);
@@ -45,6 +47,40 @@ class IntroScene extends Phaser.Scene {
             grid.lineTo(width, y);
         }
         grid.strokePath();
+    }
+
+    // Faint RAF silhouettes drifting across the title/character/Dowding pages —
+    // added behind every other element in create() (drawn first = rendered
+    // furthest back), low-alpha so they read as ambient motion, not a focal point.
+    createBackgroundPlanes(width, height) {
+        if (!this.textures.exists('raf-plane')) return;
+
+        const paths = [
+            { y: height * 0.12, scale: 0.05, alpha: 0.28, duration: 14000, delay: 0 },
+            { y: height * 0.22, scale: 0.04, alpha: 0.22, duration: 18000, delay: 4000 },
+            { y: height * 0.08, scale: 0.045, alpha: 0.25, duration: 16000, delay: 9000 }
+        ];
+
+        paths.forEach((p) => {
+            const plane = this.add.image(-60, p.y, 'raf-plane')
+                .setScale(p.scale)
+                .setAlpha(p.alpha)
+                .setTint(0x3a6ea5);
+
+            const flyAcross = () => {
+                plane.x = -60;
+                plane.y = p.y + Phaser.Math.Between(-15, 15);
+                this.tweens.add({
+                    targets: plane,
+                    x: width + 60,
+                    duration: p.duration,
+                    ease: 'Linear',
+                    onComplete: flyAcross
+                });
+            };
+
+            this.time.delayedCall(p.delay, flyAcross);
+        });
     }
 
     createFooter(width, height) {

@@ -25,6 +25,11 @@ class InterceptScene extends BaseGameScene {
         this.createMapBackground(width, height);
         this.createGrid(width, height);
         this.createDialogueBox(width, height);
+        // Plotting-table-only presence, matching every other scene's corner
+        // badge — the plane-scene speech bubble (buildAirfieldView) is a
+        // separate treatment for later phases, not a replacement for this one.
+        // Naturally cleared by switchToAirfieldView()'s existing sweep of
+        // Graphics/Image children, same as the grid and coastlines.
         this.createPortraitBadge(width - 110, height - 200, {
             radius: 60,
             textureKey: 'ludwik',
@@ -37,7 +42,7 @@ class InterceptScene extends BaseGameScene {
         this.createTopBar('INTERCEPT PHASE');
 
         // ---------- DIALOGUE TEXT ----------
-        this.dialogueText = this.add.text(110, height - 100, '"Park sent us up. But we don\'t fight alone, never alone. Find the others first."', {
+        this.dialogueText = this.add.text(110, height - 100, '', {
             fontSize: '17px',
             fill: '#c8e6c9',
             fontFamily: 'Courier New',
@@ -109,7 +114,10 @@ class InterceptScene extends BaseGameScene {
             wingLeft = this.add.rectangle(airfieldX - 16, airfieldY - 5, 8, 3, 0x66aadd);
             wingRight = this.add.rectangle(airfieldX + 16, airfieldY - 5, 8, 3, 0x66aadd);
         }
-        plane.setDepth(5);
+        // Higher than the squadron markers' depth(5) below, so Ludwik's plane
+        // always renders in front of/on top of his wingmen wherever they
+        // overlap — he's the flight lead, not just another marker in the pack.
+        plane.setDepth(6);
         plane.setInteractive({ useHandCursor: true });
 
         // "L" label on the plane
@@ -120,16 +128,28 @@ class InterceptScene extends BaseGameScene {
             fontStyle: 'bold',
             stroke: '#000000',
             strokeThickness: 2
-        }).setOrigin(0.5).setDepth(6);
+        }).setOrigin(0.5).setDepth(7);
 
         // Store references
         this.ludwikPlane = plane;
         this.ludwikWings = wingLeft ? [wingLeft, wingRight] : [];
         this.airfieldX = airfieldX;
         this.airfieldY = airfieldY;
+
+        // The speech bubble itself isn't created until buildAirfieldView() —
+        // scoped to the zoomed-in "plane scene" (intercept/escort), not the
+        // small-map plotting-table part. setLudwikLine() below is still safe
+        // to call this early: it no-ops on the bubble half until it exists.
+        this.setLudwikLine('"Park sent us up. But we don\'t fight alone, never alone. Find the others first."');
+
                 // ---------- BOUNCY IDLE ANIMATION ----------
+        // Plotting-table-only flourish — stopped in formationComplete() below.
+        // Left running, these repeat:-1 tweens keep fighting over the plane's
+        // y/angle forever, silently undoing every later reposition (the V
+        // formation lock, the airfield-view row, formation dragging) and
+        // making Ludwik's plane drift away from the group on its own.
         const planeGroup = [plane, ...this.ludwikWings];
-        this.tweens.add({
+        this.ludwikIdleBounceTween = this.tweens.add({
             targets: planeGroup,
             y: airfieldY - 15,
             duration: 600,
@@ -139,7 +159,7 @@ class InterceptScene extends BaseGameScene {
         });
 
         // Slight rotation for extra liveliness
-        this.tweens.add({
+        this.ludwikIdleRotateTween = this.tweens.add({
             targets: planeGroup,
             angle: 3,
             duration: 800,
@@ -262,7 +282,7 @@ class InterceptScene extends BaseGameScene {
 
                     // Check if all collected
                     if (this.collectedCount === this.totalSquadrons) {
-                        this.dialogueText.setText('"Now we\'re ready. Poles, British, all of us. One formation, one mission."');
+                        this.setLudwikLine('"Now we\'re ready. Poles, British, all of us. One formation, one mission."');
                         const formationVoice = AudioManager.manifest.voice.ludwik.formationReady;
                         const playFormationLine = () => {
                             AudioManager.playVoice(this, formationVoice);
@@ -289,12 +309,155 @@ class InterceptScene extends BaseGameScene {
     // createMapBackground, createGrid, createDialogueBox, and the Ludwik
     // portrait badge now live in BaseGameScene (this class extends it).
 
+    // ---------- LUDWIK SPEECH BUBBLE ----------
+    // A comic-style callout (small portrait + line of dialogue) that follows
+    // his plane around the plotting table/airfield, instead of a fixed
+    // corner badge — repositioned every frame in update() since the plane
+    // itself moves constantly (idle bounce, formation drag, fly-back).
+    createLudwikSpeechBubble() {
+        const container = this.add.container(0, 0).setDepth(60);
+
+        const bg = this.add.graphics();
+        const portraitBg = this.add.graphics();
+        container.add([bg, portraitBg]);
+
+        let portraitImg = null;
+        if (this.textures.exists('ludwik')) {
+            portraitImg = this.add.image(0, 0, 'ludwik');
+            // Crop to a centered square in source-texture space (not screen
+            // space), so it stays correct no matter where the bubble moves —
+            // unlike a mask, setCrop's coordinates aren't affected by the
+            // container's transform. A "cover" crop like this reads far
+            // sharper at thumbnail size than letterboxing the full
+            // portrait-orientation source (1414x2000) inside a small square.
+            const side = Math.min(portraitImg.width, portraitImg.height);
+            portraitImg.setCrop((portraitImg.width - side) / 2, (portraitImg.height - side) / 2, side, side);
+            this.ludwikPortraitCropSide = side;
+            container.add(portraitImg);
+        }
+
+        const text = this.add.text(0, 0, '', {
+            fontSize: '12px',
+            fill: '#2d1b0e',
+            fontFamily: 'Courier New',
+            wordWrap: { width: 160 }
+        });
+        container.add(text);
+
+        this.ludwikBubble = container;
+        this.ludwikBubbleBg = bg;
+        this.ludwikBubblePortraitBg = portraitBg;
+        this.ludwikBubblePortraitImg = portraitImg;
+        this.ludwikBubbleText = text;
+    }
+
+    // Redraws the bubble background/portrait around whatever the text
+    // currently needs — called whenever the line changes since the box has
+    // to grow/shrink with it (the bg is Graphics, so it can't just resize
+    // like a nine-slice image; easiest to clear and redraw at the new size).
+    _redrawLudwikBubble() {
+        if (!this.ludwikBubble) return;
+
+        const padding = 10;
+        const portraitSize = 40;
+        const gap = 8;
+        const textWrapWidth = 160;
+        const tailH = 14;
+
+        const text = this.ludwikBubbleText;
+        text.setWordWrapWidth(textWrapWidth);
+
+        const contentHeight = Math.max(portraitSize, text.height);
+        const boxWidth = padding * 2 + portraitSize + gap + textWrapWidth;
+        const boxHeight = padding * 2 + contentHeight;
+
+        const boxBottom = -tailH;
+        const boxTop = boxBottom - boxHeight;
+        const boxLeft = -boxWidth / 2;
+
+        this.ludwikBubbleBg.clear();
+        this.ludwikBubbleBg.fillStyle(0xfff8e7, 0.97);
+        this.ludwikBubbleBg.fillRoundedRect(boxLeft, boxTop, boxWidth, boxHeight, 12);
+        this.ludwikBubbleBg.fillTriangle(-9, boxBottom, 9, boxBottom, 0, 0);
+        this.ludwikBubbleBg.lineStyle(2, 0xcc3333, 0.9);
+        this.ludwikBubbleBg.strokeRoundedRect(boxLeft, boxTop, boxWidth, boxHeight, 12);
+
+        const portraitX = boxLeft + padding;
+        const portraitY = boxTop + (boxHeight - portraitSize) / 2;
+        this.ludwikBubblePortraitBg.clear();
+        this.ludwikBubblePortraitBg.fillStyle(0x2d1b0e, 0.9);
+        this.ludwikBubblePortraitBg.fillRoundedRect(portraitX, portraitY, portraitSize, portraitSize, 6);
+
+        if (this.ludwikBubblePortraitImg) {
+            const img = this.ludwikBubblePortraitImg;
+            img.setScale(portraitSize / this.ludwikPortraitCropSide);
+            img.setPosition(portraitX + portraitSize / 2, portraitY + portraitSize / 2);
+        }
+
+        text.setPosition(portraitX + portraitSize + gap, boxTop + padding);
+    }
+
+    // Every place in this scene that used to do this.dialogueText.setText(...)
+    // now routes through here so the bubble always mirrors the bottom
+    // dialogue box instead of drifting out of sync with it.
+    setLudwikLine(text, color) {
+        this.dialogueText.setText(text);
+        if (color) this.dialogueText.setColor(color);
+        if (this.ludwikBubbleText) {
+            this.ludwikBubbleText.setText(text);
+            this._redrawLudwikBubble();
+        }
+    }
+
+    // Fades the bubble out once its job (narrating the intercept chase) is
+    // done. References are cleared immediately, not after the fade — so a
+    // setLudwikLine() call landing mid-fade (e.g. interceptSuccessful()'s own
+    // "Hold the line" line) just quietly skips the bubble instead of updating
+    // text on an object that's on its way out.
+    hideLudwikBubble() {
+        if (!this.ludwikBubble) return;
+        const bubble = this.ludwikBubble;
+        this.ludwikBubble = null;
+        this.ludwikBubbleBg = null;
+        this.ludwikBubblePortraitBg = null;
+        this.ludwikBubblePortraitImg = null;
+        this.ludwikBubbleText = null;
+        this.tweens.add({
+            targets: bubble,
+            alpha: 0,
+            duration: 250,
+            onComplete: () => bubble.destroy()
+        });
+    }
+
+    update() {
+        if (!this.ludwikBubble || !this.ludwikPlane) return;
+        const { width } = this.scale;
+        // The airfield-view plane sprite is scaled up (rafPlaneAirfieldScale)
+        // and sits lower on screen than on the plotting table, so it needs a
+        // bigger gap to clear the plane itself.
+        const offset = this.isAirfieldView ? 85 : 45;
+        const anchorX = Phaser.Math.Clamp(this.ludwikPlane.x, 140, width - 140);
+        // Clamped so the bubble (drawn upward from its anchor) never gets
+        // clipped off the top of the canvas, e.g. during showResult()'s
+        // fly-back animation when the plane ends up near y=50.
+        const anchorY = Math.max(this.ludwikPlane.y - offset, 130);
+        this.ludwikBubble.setPosition(anchorX, anchorY);
+    }
+
 
       
       
        // ---------- FORMATION COMPLETE ----------
     formationComplete() {
        console.log('✅ Formation complete!');
+
+    // Stop the idle bounce/rotation — otherwise they keep overriding
+    // ludwikPlane's y/angle forever, undoing the V-formation lock below and
+    // every reposition after it (airfield view, formation dragging).
+    if (this.ludwikIdleBounceTween) this.ludwikIdleBounceTween.stop();
+    if (this.ludwikIdleRotateTween) this.ludwikIdleRotateTween.stop();
+    this.ludwikPlane.setAngle(0);
 
     // Lock planes into V formation
     const formationGroup = [this.ludwikPlane, ...this.squadronMarkers];
@@ -374,7 +537,7 @@ startInterceptPhase() {
     AudioManager.stopMusic(AudioManager.manifest.sfx.spitfireEngine);
     AudioManager.playMusic(this, AudioManager.manifest.sfx.messerschmittEngine);
      this.interceptDone = false;
-    this.dialogueText.setText('"Don\'t chase them, cut them off. Get between them and the city. That\'s our job."');
+    this.setLudwikLine('"Don\'t chase them, cut them off. Get between them and the city. That\'s our job."');
     AudioManager.playVoice(this, AudioManager.manifest.voice.ludwik.interceptStart);
 
     const { width, height } = this.scale;
@@ -449,7 +612,7 @@ startInterceptPhase() {
         },
         onComplete: () => {
             if (!this.interceptDone) {
-                this.dialogueText.setText('"Too slow! The enemy reached the city."');
+                this.setLudwikLine('"Too slow! The enemy reached the city."');
                 const tooSlowVoice = AudioManager.manifest.voice.ludwik.tooSlow;
                 AudioManager.playVoice(this, tooSlowVoice);
                 this.time.delayedCall(AudioManager.voiceAwareDelay(this, tooSlowVoice, 1500), () => this.showResult());
@@ -564,6 +727,7 @@ startInterceptPhase() {
         // where the planes are actually the visual focus, not the earlier
         // plotting-table phase where they're small markers on a busy map.
         AudioManager.playMusic(this, AudioManager.manifest.sfx.spitfireEngine);
+        this.isAirfieldView = true;
 
         // ---- BACKGROUND ----
         if (this.textures.exists('airfield-bg')) {
@@ -571,6 +735,12 @@ startInterceptPhase() {
         } else {
             this.drawAirfieldBackgroundFallback(width, height);
         }
+
+        // ---- LUDWIK SPEECH BUBBLE ----
+        // Only exists from here on — the "plane scene" part of this scene —
+        // not during the earlier plotting-table view.
+        this.createLudwikSpeechBubble();
+        this.setLudwikLine(this.dialogueText.text);
 
         // ---- AIRFIELD LABEL ----
         this.add.text(width / 2, height - 140, '🛩️ AIRFIELD', {
@@ -585,7 +755,11 @@ startInterceptPhase() {
               this.ludwikPlane.setVisible(true);
         if (!this.usingPlaneSprite) this.ludwikPlane.setFillStyle(0x4488cc);
         this.ludwikPlane.setScale(this.usingPlaneSprite ? this.rafPlaneAirfieldScale : 1.5);
-        this.ludwikPlane.x = width / 2 - 100;
+        // Front of the row (rightmost, away from the hangar/taxiway toward
+        // the open runway) and a touch higher than the trailing squadrons —
+        // he's the flight lead, so he sits ahead of the pack here too, not
+        // just at a higher render depth.
+        this.ludwikPlane.x = width / 2 - 100 + 3 * 50;
         this.ludwikPlane.y = height - 110;
         this.ludwikPlane.setInteractive({ draggable: true, useHandCursor: true }); // <-- ADD THIS
 
@@ -593,8 +767,8 @@ startInterceptPhase() {
             marker.setVisible(true);
             if (!this.usingPlaneSprite) marker.setFillStyle(0x66ccff);
             marker.setScale(this.usingPlaneSprite ? this.rafPlaneAirfieldScale : 1.5);
-            marker.x = width / 2 - 100 + (i + 1) * 50;
-            marker.y = height - 100 + i * 10;
+            marker.x = width / 2 - 100 + i * 50;
+            marker.y = height - 100 + (i + 1) * 10;
             marker.setInteractive({ draggable: true, useHandCursor: true }); // <-- ADD THIS
         });
                 // ---- UPDATE FORMATION GROUP ----
@@ -602,7 +776,7 @@ startInterceptPhase() {
 
               // ---- CONTINUE TO PHASE 2 ----
         this.time.delayedCall(1000, () => {
-            this.dialogueText.setText('"Now we\'re in the air. Let\'s find those enemy planes."');
+            this.setLudwikLine('"Now we\'re in the air. Let\'s find those enemy planes."');
             // startInterceptPhase() plays its own line immediately, which would
             // otherwise be skipped (still busy) while this one's talking — wait
             // for it to finish first (fires instantly if there's no audio yet).
@@ -732,6 +906,11 @@ startInterceptPhase() {
         if (this.interceptDone) return;
         this.interceptDone = true;
 
+        // Formation's in place and the escort phase (enemies getting turned
+        // back one by one) is about to take over as the visual focus — the
+        // bubble's job (narrating the chase) is done.
+        this.hideLudwikBubble();
+
         if (this.enemyApproachTween) {
             this.enemyApproachTween.stop();
         }
@@ -772,7 +951,7 @@ startInterceptPhase() {
         }
         
         // ---- UPDATE DIALOGUE ----
-        this.dialogueText.setText('"Hold the line. They know we\'re here, make them think twice about coming through."');
+        this.setLudwikLine('"Hold the line. They know we\'re here, make them think twice about coming through."');
         const holdLineVoice = AudioManager.manifest.voice.ludwik.holdLine;
         AudioManager.playVoice(this, holdLineVoice);
 
@@ -795,13 +974,13 @@ startInterceptPhase() {
         fontFamily: 'Courier New'
     });
 
-    this.dialogueText.setText('"Hold the line. They know we\'re here, make them think twice about coming through."');
+    this.setLudwikLine('"Hold the line. They know we\'re here, make them think twice about coming through."');
 
     let turnIndex = 0;
     const turnNext = () => {
         if (turnIndex >= this.enemyFormation.length) {
             // All enemies turned back!
-            this.dialogueText.setText('"All enemy planes turned back! Mission complete!"');
+            this.setLudwikLine('"All enemy planes turned back! Mission complete!"');
             const allTurnedBackVoice = AudioManager.manifest.voice.ludwik.allTurnedBack;
             AudioManager.playVoice(this, allTurnedBackVoice);
 
@@ -856,6 +1035,7 @@ startInterceptPhase() {
             duration: 1500,
             ease: 'Sine.easeOut',
             onStart: () => {
+                AudioManager.playSFX(this, AudioManager.manifest.sfx.shotDown);
                 if (this.usingEnemySprite) {
                     enemy.setTint(0x444466);
                 } else {
@@ -937,8 +1117,7 @@ startInterceptPhase() {
         }
 
         // Update dialogue
-       this.dialogueText.setText(resultMessage);
-        this.dialogueText.setColor(resultColor);
+       this.setLudwikLine(resultMessage, resultColor);
 
         // Store outcome for ResultScene
         this.game.registry.set('interceptOutcome', outcome);
