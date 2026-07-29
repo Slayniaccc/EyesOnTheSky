@@ -126,10 +126,21 @@ const AudioManager = {
     _duckedMusic: [],
     _lastEntry: null,
 
-    // Call once, from the first scene's preload() — Phaser's audio cache is
-    // shared game-wide, so every later scene can just play by key.
-    preloadAll(scene) {
-        this._walk(this.manifest, (entry) => scene.load.audio(entry.key, entry.path));
+    // Call from each scene's own preload(), passing only the manifest
+    // entries/groups that scene actually plays (see the play* calls further
+    // down in that scene). Phaser's audio cache is shared game-wide, so once
+    // any scene has loaded a given key, every later scene reusing it is a
+    // no-op here — this is what keeps IntroScene from having to load the
+    // whole game's ~7MB/51-file audio manifest before the title screen can
+    // even appear (that was the entire cause of the multi-second "frozen"
+    // load on first offline launch).
+    preload(scene, entries) {
+        const list = Array.isArray(entries) ? entries : [entries];
+        this._walk(list, (entry) => {
+            if (!scene.cache.audio.exists(entry.key)) {
+                scene.load.audio(entry.key, entry.path);
+            }
+        });
     },
 
     _walk(node, fn) {

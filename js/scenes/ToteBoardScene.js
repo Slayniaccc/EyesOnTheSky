@@ -7,6 +7,12 @@ class ToteBoardScene extends BaseGameScene {
         // Load the tote board background image
         this.load.image('tote-board', 'assets/images/toteboard.png');
         this.load.image('waaf-mascot-bust', 'assets/images/waaf-mascot-bust.png');
+
+        AudioManager.preload(this, [
+            AudioManager.manifest.sfx.buttonClick,
+            AudioManager.manifest.sfx.radioStatic,
+            AudioManager.manifest.voice.waaf
+        ]);
     }
 
     create() {

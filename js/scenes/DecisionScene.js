@@ -6,6 +6,15 @@ class DecisionScene extends BaseGameScene {
         this.load.image('map', 'assets/images/mapbackground.png');
         this.load.image('keith-park', 'assets/images/keithpark.png');
         this.load.image('waaf-mascot-bust', 'assets/images/waaf-mascot-bust.png');
+
+        AudioManager.preload(this, [
+            AudioManager.manifest.sfx.buttonClick,
+            AudioManager.manifest.sfx.formationChime,
+            AudioManager.manifest.sfx.radioStatic,
+            AudioManager.manifest.voice.keithPark,
+            AudioManager.manifest.voice.waaf.decisionInstruction,
+            AudioManager.manifest.voice.waaf.decisionEvaluating
+        ]);
     }
     create() {
         const { width, height } = this.scale;
@@ -153,10 +162,23 @@ class DecisionScene extends BaseGameScene {
             // than the default text-bounding-box hit area (the "W1"/"W2"
             // label alone is well under the 44px min touch target), same fix
             // already applied to DetectionScene's radar blips/ROC posts.
+            //
+            // The circle's own coordinates are relative to the object's
+            // top-left bounding box, NOT its visual center — Phaser adds
+            // displayOriginX/Y to the pointer's local position before testing
+            // it against the hit area (see pointWithinHitArea in phaser.min.js),
+            // which shifts a Circle(0, 0, r) up-and-left of a setOrigin(0.5)
+            // object by half its width/height instead of centering it. For
+            // this ~34x34px label that left barely 2px of margin on the
+            // near side, so plenty of taps square on the visible "W1"/"W2"
+            // text (or slightly below/right of it, which is how a finger
+            // naturally lands since it covers the label from above) missed
+            // the drag start entirely. Centering the circle on the actual
+            // bounding box fixes that.
             marker.setInteractive({
                 draggable: true,
                 useHandCursor: true,
-                hitArea: new Phaser.Geom.Circle(0, 0, 26),
+                hitArea: new Phaser.Geom.Circle(marker.width / 2, marker.height / 2, 26),
                 hitAreaCallback: Phaser.Geom.Circle.Contains
             });
 

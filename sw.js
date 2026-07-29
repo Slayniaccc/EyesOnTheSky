@@ -9,7 +9,7 @@
 // time it's fetched — i.e. after one full playthrough while online, the
 // whole game works offline. Bump the version below after changing SHELL_FILES
 // or shipping an update, so returning players get the fresh copy.
-const VERSION = 'v1';
+const VERSION = 'v2';
 const SHELL_CACHE = `eots-shell-${VERSION}`;
 const RUNTIME_CACHE = `eots-runtime-${VERSION}`;
 

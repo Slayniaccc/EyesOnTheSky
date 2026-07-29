@@ -12,6 +12,14 @@ class ResultScene extends BaseGameScene {
         this.load.image('map', 'assets/images/mapbackground.png');
         this.load.image('ludwik', 'assets/images/ludwik.png');
         this.load.image('raf-plane', 'assets/images/raf-plane.png');
+
+        AudioManager.preload(this, [
+            AudioManager.manifest.sfx.buttonClick,
+            AudioManager.manifest.sfx.victoryCelebration,
+            AudioManager.manifest.voice.ludwik.resultSuccess,
+            AudioManager.manifest.voice.ludwik.resultPartial,
+            AudioManager.manifest.voice.ludwik.resultFail
+        ]);
     }
 
     create() {

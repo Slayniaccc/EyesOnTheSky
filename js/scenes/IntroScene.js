@@ -10,8 +10,53 @@ class IntroScene extends Phaser.Scene {
         this.load.image('raf-plane', 'assets/images/raf-plane.png');
         this.load.image('german-plane', 'assets/images/german_plane.png');
 
-        // Preload all game audio here once — the cache is shared across every scene.
-        AudioManager.preloadAll(this);
+        // Only what this scene itself plays — the drifting-engine music, the
+        // button-click SFX every page uses, and the Dowding step narration.
+        // Everything else loads in the scene that actually needs it (see
+        // AudioManager.preload's comment).
+        AudioManager.preload(this, [
+            AudioManager.manifest.music.planeFlyby,
+            AudioManager.manifest.sfx.buttonClick,
+            AudioManager.manifest.voice.dowdingNarrator
+        ]);
+
+        this._showLoadingProgress();
+    }
+
+    // Even the trimmed IntroScene load can take a moment on a slow/first
+    // offline run — a blank canvas during that reads as a frozen page, so
+    // show a simple progress bar instead of nothing. Drawn directly against
+    // the canvas since no scene assets are guaranteed loaded yet.
+    _showLoadingProgress() {
+        const { width, height } = this.scale;
+        const barWidth = 300;
+        const barHeight = 22;
+        const x = width / 2 - barWidth / 2;
+        const y = height / 2 - barHeight / 2;
+
+        const box = this.add.graphics();
+        box.fillStyle(0x0d1b2a, 0.9);
+        box.fillRoundedRect(x - 4, y - 4, barWidth + 8, barHeight + 8, 8);
+
+        const bar = this.add.graphics();
+
+        const label = this.add.text(width / 2, y - 24, 'Loading…', {
+            fontSize: '16px',
+            fill: '#3a2210',
+            fontFamily: 'Courier New'
+        }).setOrigin(0.5);
+
+        this.load.on('progress', (value) => {
+            bar.clear();
+            bar.fillStyle(0xe8a317, 1);
+            bar.fillRoundedRect(x, y, barWidth * value, barHeight, 6);
+        });
+
+        this.load.on('complete', () => {
+            box.destroy();
+            bar.destroy();
+            label.destroy();
+        });
     }
 
     create() {

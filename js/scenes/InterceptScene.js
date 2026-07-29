@@ -12,6 +12,16 @@ class InterceptScene extends BaseGameScene {
         // falling back to the drawn scene in drawAirfieldBackgroundFallback() until then.
         this.load.image('airfield-bg', 'assets/images/airfield-bg.png');
         console.log('🔵 InterceptScene: preloading assets');
+
+        AudioManager.preload(this, [
+            AudioManager.manifest.music.bunkerAmbience,
+            AudioManager.manifest.sfx.buttonClick,
+            AudioManager.manifest.sfx.formationChime,
+            AudioManager.manifest.sfx.spitfireEngine,
+            AudioManager.manifest.sfx.messerschmittEngine,
+            AudioManager.manifest.sfx.shotDown,
+            AudioManager.manifest.voice.ludwik
+        ]);
     }
 
     create() {

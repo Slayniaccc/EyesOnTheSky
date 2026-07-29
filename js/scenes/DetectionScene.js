@@ -9,6 +9,17 @@ class DetectionScene extends BaseGameScene {
         // Try to load the detailed map image
         this.load.image('map', 'assets/images/mapbackground.png');
         this.load.image('waaf-mascot-bust', 'assets/images/waaf-mascot-bust.png');
+
+        AudioManager.preload(this, [
+            AudioManager.manifest.music.bunkerAmbience,
+            AudioManager.manifest.sfx.radarPing,
+            AudioManager.manifest.sfx.buttonClick,
+            AudioManager.manifest.sfx.radioStatic,
+            AudioManager.manifest.voice.waaf.detectionWelcome,
+            AudioManager.manifest.voice.waaf.radarComplete,
+            AudioManager.manifest.voice.waaf.raidOverLand,
+            AudioManager.manifest.voice.waaf.rocComplete
+        ]);
     }
 
     create() {
@@ -45,9 +56,14 @@ class DetectionScene extends BaseGameScene {
             // Visual blip stays small (radius 8) but the tappable area is a generous
             // fixed 48px-diameter circle, meeting the 44px min touch-target guideline
             // regardless of the pulsing scale tween's current size.
+            // Circle coordinates are relative to the object's top-left bounding
+            // box, not its visual center — see the DecisionScene marker comment
+            // for why (0, 0) would actually decenter this. Small here since the
+            // blip is only 16px across against a 48px hit circle, but centering
+            // it properly costs nothing.
             blip.setInteractive({
                 useHandCursor: true,
-                hitArea: new Phaser.Geom.Circle(0, 0, 24),
+                hitArea: new Phaser.Geom.Circle(blip.width / 2, blip.height / 2, 24),
                 hitAreaCallback: Phaser.Geom.Circle.Contains
             });
             blip.on('pointerdown', () => {
@@ -197,7 +213,12 @@ class DetectionScene extends BaseGameScene {
                 .setDepth(6)
                 .setInteractive({
                     useHandCursor: true,
-                    hitArea: new Phaser.Geom.Circle(0, 0, 50),
+                    // Same top-left-anchored hit area coordinates as the radar
+                    // blips above and the DecisionScene raid markers — centering
+                    // on the actual 44x80 sprite matters more here since the
+                    // uncentered offset (22, 40) was nearly as large as the
+                    // 50px hit radius itself.
+                    hitArea: new Phaser.Geom.Circle(22, 40, 50),
                     hitAreaCallback: Phaser.Geom.Circle.Contains
                 });
 
