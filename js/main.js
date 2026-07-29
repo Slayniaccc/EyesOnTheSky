@@ -6,7 +6,7 @@ const config = {
     height: 700,
     parent: 'game-container',
     backgroundColor: '#1a1a2e',
-    scene: [IntroScene, DetectionScene, ToteBoardScene, DecisionScene, InterceptScene, ResultScene, DebugMenuScene],
+    scene: [IntroScene, DetectionScene, ToteBoardScene, DecisionScene, InterceptScene, ResultScene],
     scale: {
         mode: Phaser.Scale.FIT,
         // #game-container already centers the canvas via CSS flexbox (see
