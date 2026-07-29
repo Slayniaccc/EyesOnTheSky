@@ -171,18 +171,35 @@ class DecisionScene extends BaseGameScene {
             // "Waiting for your drag" breathing pulse — stopped once placed.
             marker.pulseTween = this.addIdlePulse(marker, { scaleAmount: 1.12 });
 
-            // Drag events
+            // Drag events. On touch, a finger sitting right on top of the
+            // marker hides both the marker and the sector it's headed for —
+            // felt "clunky" in tablet playtesting. Lifting the marker above
+            // the fingertip while dragging (and scaling it up a touch) fixes
+            // that; the real drag position is tracked separately in
+            // marker.dragX/dragY since marker.x/y now hold the lifted
+            // on-screen position instead.
+            marker.on('dragstart', () => {
+                if (marker.pulseTween) {
+                    marker.pulseTween.stop();
+                    marker.pulseTween = null;
+                }
+                this.tweens.add({ targets: marker, scale: 1.25, duration: 120, ease: 'Back.easeOut' });
+            });
+
             marker.on('drag', (pointer, dragX, dragY) => {
+                marker.dragX = dragX;
+                marker.dragY = dragY;
                 marker.x = dragX;
-                marker.y = dragY;
+                marker.y = dragY - 45;
             });
 
             marker.on('dragend', (pointer) => {
-                // Check if dropped onto a sector station
+                // Check if dropped onto a sector station (using the real
+                // drag position, not the lifted on-screen one)
                 let droppedOn = null;
                 for (let s of this.sectorObjects) {
-                    const dist = Phaser.Math.Distance.Between(marker.x, marker.y, s.x, s.y);
-                    if (dist < 40 && !s.occupied) {
+                    const dist = Phaser.Math.Distance.Between(marker.dragX, marker.dragY, s.x, s.y);
+                    if (dist < 50 && !s.occupied) {
                         droppedOn = s;
                         break;
                     }
@@ -197,11 +214,7 @@ class DecisionScene extends BaseGameScene {
                     droppedOn.occupied = true;
                     droppedOn.occupiedBy = marker;
                     marker.isPlaced = true;
-                    if (marker.pulseTween) {
-                        marker.pulseTween.stop();
-                        marker.setScale(1);
-                        marker.pulseTween = null;
-                    }
+                    marker.setScale(1);
 
                     // Check if correct
                     const allPlaced = this.raidMarkers.every(m => m.isPlaced);
@@ -222,6 +235,8 @@ class DecisionScene extends BaseGameScene {
                     if (!marker.isPlaced) {
                         marker.x = marker.originalX;
                         marker.y = marker.originalY;
+                        marker.setScale(1);
+                        marker.pulseTween = this.addIdlePulse(marker, { scaleAmount: 1.12 });
                     }
                 }
             });

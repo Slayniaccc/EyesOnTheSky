@@ -4,6 +4,9 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
     <title>Eyes On The Sky</title>
+    <link rel="manifest" href="manifest.json" />
+    <link rel="icon" href="assets/images/icon-192.png" />
+    <link rel="apple-touch-icon" href="assets/images/icon-192.png" />
     <link rel="stylesheet" href="css/game.css" />
 </head>
 <body>
@@ -24,5 +27,16 @@
     <script src="js/scenes/ResultScene.js"></script>
     <script src="js/scenes/DebugMenuScene.js"></script>
     <script src="js/main.js"></script>
+
+    <!-- Registers the offline service worker (sw.js) so the game keeps
+         working with no connection once it's been loaded/played through
+         once — see sw.js for why. -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('sw.js');
+            });
+        }
+    </script>
 </body>
 </html>
