@@ -155,7 +155,8 @@ class InterceptScene extends BaseGameScene {
         // scoped to the zoomed-in "plane scene" (intercept/escort), not the
         // small-map plotting-table part. setLudwikLine() below is still safe
         // to call this early: it no-ops on the bubble half until it exists.
-        this.setLudwikLine('"Park sent us up. But we don\'t fight alone, never alone. Find the others first."');
+        this.setLudwikLine('"Park sent us up. But we don\'t fight alone, never alone. Tap each squadron as it arrives."');
+        this.setActionHint('👉 TAP each squadron as it arrives');
 
                 // ---------- BOUNCY IDLE ANIMATION ----------
         // Plotting-table-only flourish — stopped in formationComplete() below.
@@ -297,6 +298,7 @@ class InterceptScene extends BaseGameScene {
 
                     // Check if all collected
                     if (this.collectedCount === this.totalSquadrons) {
+                        this.clearActionHint();
                         this.setLudwikLine('"Now we\'re ready. Poles, British, all of us. One formation, one mission."');
                         const formationVoice = AudioManager.manifest.voice.ludwik.formationReady;
                         const playFormationLine = () => {
@@ -424,11 +426,11 @@ class InterceptScene extends BaseGameScene {
         }
     }
 
-    // Fades the bubble out once its job (narrating the intercept chase) is
-    // done. References are cleared immediately, not after the fade — so a
-    // setLudwikLine() call landing mid-fade (e.g. interceptSuccessful()'s own
-    // "Hold the line" line) just quietly skips the bubble instead of updating
-    // text on an object that's on its way out.
+    // Fades the bubble out once its job (narrating the intercept chase, then
+    // "hold the line") is done. References are cleared immediately, not
+    // after the fade — so a setLudwikLine() call landing mid-fade just
+    // quietly skips the bubble instead of updating text on an object that's
+    // on its way out.
     hideLudwikBubble() {
         if (!this.ludwikBubble) return;
         const bubble = this.ludwikBubble;
@@ -696,7 +698,24 @@ startInterceptPhase() {
     this.formationDragZone = this.add.zone(avgX, avgY, 260, 160)
         .setInteractive({ draggable: true, useHandCursor: true });
 
+    // This zone was previously the one draggable/tappable thing in the game
+    // with zero affordance — no hint text, no pulse — so a player could sit
+    // on this screen with no idea the formation responds to touch at all.
+    // Same treatment every other interactive element gets: a persistent
+    // hint plus an idle pulse, both cleared the moment a drag actually
+    // starts (the formation planes themselves are pulsed here since the
+    // drag zone itself is invisible).
+    this.setActionHint('👉 DRAG your formation toward the ▲ INTERCEPT marker');
+    this.formationIdlePulse = this.addIdlePulse(this.formationGroup, { scaleAmount: 1.06, duration: 700 });
+
     this.formationDragZone.on('drag', (pointer, dragX, dragY) => {
+        if (this.formationIdlePulse) {
+            this.formationIdlePulse.stop();
+            this.formationIdlePulse = null;
+            this.formationGroup.forEach(p => p.setScale(this.usingPlaneSprite ? this.rafPlaneAirfieldScale : 1.5));
+            this.clearActionHint();
+        }
+
         const dx = dragX - this.formationDragZone.x;
         const dy = dragY - this.formationDragZone.y;
 
@@ -926,11 +945,6 @@ startInterceptPhase() {
         if (this.interceptDone) return;
         this.interceptDone = true;
 
-        // Formation's in place and the escort phase (enemies getting turned
-        // back one by one) is about to take over as the visual focus — the
-        // bubble's job (narrating the chase) is done.
-        this.hideLudwikBubble();
-
         if (this.enemyApproachTween) {
             this.enemyApproachTween.stop();
         }
@@ -978,6 +992,12 @@ startInterceptPhase() {
         // ---- PROCEED TO PHASE 3 ----
         this.phase = 'escort';
         this.time.delayedCall(AudioManager.voiceAwareDelay(this, holdLineVoice, 2500), () => {
+            // Bubble's job (narrating the chase, now "hold the line") is done
+            // once the escort phase actually takes over as the visual focus —
+            // held open until here, instead of hidden immediately, so "Hold
+            // the line" itself gets to show in the bubble like every other
+            // Ludwik line does.
+            this.hideLudwikBubble();
             this.startEscortPhase();
         });
     }

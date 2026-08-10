@@ -244,6 +244,7 @@ class DecisionScene extends BaseGameScene {
                     if (allPlaced) {
                         // Disable further dragging
                         this.raidMarkers.forEach(m => m.disableInteractive());
+                        this.clearActionHint();
                         this.dialogueText.setText('"Both raids assigned. Evaluating now..."');
                         const evaluatingVoice = AudioManager.manifest.voice.waaf.decisionEvaluating;
                         this.playWaafLine(evaluatingVoice);
@@ -293,6 +294,7 @@ class DecisionScene extends BaseGameScene {
 
                 // Remind the player they can drag
                 this.dialogueText.setText('"Drag each red raid marker to the correct sector station."');
+                this.setActionHint('👉 DRAG each marker to a sector station');
                 this.playWaafLine(AudioManager.manifest.voice.waaf.decisionInstruction, () => { this.lineLocked = false; });
             }
         });

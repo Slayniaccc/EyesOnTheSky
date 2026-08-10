@@ -218,6 +218,32 @@ class BaseGameScene extends Phaser.Scene {
         });
     }
 
+    // Persistent "what do I do" hint — separate from character dialogue, so
+    // the instruction doesn't depend on a kid catching a transient floating
+    // label (e.g. the "TAP ME!" text that fades after ~2s) or parsing it out
+    // of in-character flavor text. Stays up until the caller clears it once
+    // the expected action actually happens. Centered top so it never
+    // collides with the top-left top-bar label or the left-corner counter
+    // texts InterceptScene uses.
+    setActionHint(text) {
+        const { width } = this.scale;
+        if (!this.actionHintText) {
+            this.actionHintText = this.add.text(width / 2, 52, '', {
+                fontSize: '15px',
+                fill: '#0d1b2a',
+                backgroundColor: '#ffd700',
+                fontFamily: 'Courier New',
+                fontStyle: 'bold',
+                padding: { x: 12, y: 6 }
+            }).setOrigin(0.5).setDepth(20);
+        }
+        this.actionHintText.setText(text).setVisible(true);
+    }
+
+    clearActionHint() {
+        if (this.actionHintText) this.actionHintText.setVisible(false);
+    }
+
     // Quick radio-crackle burst ahead of every WAAF line — she's heard "over
     // the radio," not just narrating, so each line opens with the same
     // static hit real radio dialogue has. Shared by every scene with a WAAF

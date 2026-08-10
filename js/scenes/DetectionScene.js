@@ -171,7 +171,7 @@ class DetectionScene extends BaseGameScene {
                 marker.setScale(1);
 
                 // Update dialogue to WAAF line 2
-                this.dialogueText.setText('"Now it\'s over land, Observer Corps\' job. Watch the posts light up."');
+                this.dialogueText.setText('"Now it\'s over land, Observer Corps\' job. Tap each post as it lights up."');
                 this.playWaafLine(AudioManager.manifest.voice.waaf.raidOverLand);
 
                 // Move to next stage
@@ -273,6 +273,7 @@ class DetectionScene extends BaseGameScene {
 
                 // Check if all tapped
                 if (this.rocPostsTapped === this.totalRocPosts) {
+                    this.clearActionHint();
                     this.dialogueText.setText('"Radar sees them coming across the Channel, but once they\'re over land, that\'s where we lose them. That\'s why we need the Observer Corps."');
                     const rocCompleteVoice = AudioManager.manifest.voice.waaf.rocComplete;
                     this.playWaafLine(rocCompleteVoice);
@@ -333,6 +334,7 @@ class DetectionScene extends BaseGameScene {
         };
 
         // Start the sequence after a short delay
+        this.setActionHint('👉 TAP each post as it lights up');
         this.time.delayedCall(800, lightNextPost);
     }
 
