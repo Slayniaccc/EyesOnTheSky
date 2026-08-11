@@ -4,6 +4,38 @@ A tablet-first educational game that puts Year 6 kids (ages 10–11) in the seat
 
 Built with vanilla HTML/CSS/JavaScript and [Phaser 3](https://phaser.io/), with no runtime dependency on a CDN.
 
+## Screenshots
+
+**Intro** — title screen, character introductions, and the Dowding System walkthrough:
+
+| ![Title screen](assets/images/screenshots/01-intro-title.png) | ![Meet the Team — WAAF Plotter, Keith Park, Ludwik](assets/images/screenshots/02-intro-meet-the-team.png) | ![The Dowding System explainer, step 1 of 6](assets/images/screenshots/03-intro-dowding-system.png) |
+| :---: | :---: | :---: |
+
+**Detection** — tapping radar blips out at sea, then Observer Corps posts once the raid crosses the coast:
+
+| ![Detection phase — Chain Home radar blips](assets/images/screenshots/04-detection-radar.png) | ![Detection phase — Observer Corps posts inland](assets/images/screenshots/05-detection-observer-corps.png) |
+| :---: | :---: |
+
+**Tote Board** — reading squadron state (Available / At Readiness / Left Ground) under a timer:
+
+| ![Tote Board — calling "Available"](assets/images/screenshots/06-toteboard-available.png) | ![Tote Board — calling "Left Ground"](assets/images/screenshots/07-toteboard-left-ground.png) |
+| :---: | :---: |
+
+**Decision Room** — Keith Park's briefing, then dragging raid markers onto the correct Sector Station:
+
+| ![Decision Room — Keith Park's briefing](assets/images/screenshots/08-decision-briefing.png) | ![Decision Room — dragging raid markers to sector stations](assets/images/screenshots/09-decision-drag.png) |
+| :---: | :---: |
+
+**Intercept** — Ludwik's squadron forming up and joining the escort:
+
+| ![Intercept phase — Ludwik's briefing](assets/images/screenshots/10-intercept-briefing.png) | ![Intercept phase — tapping squadrons as they arrive](assets/images/screenshots/11-intercept-tap.png) |
+| :---: | :---: |
+
+**Result** — the debrief screen, success and fail outcomes:
+
+| ![Result — Mission Success, city saved](assets/images/screenshots/12-result-success.png) | ![Result — Mission Failed, raid got through](assets/images/screenshots/13-result-fail.png) |
+| :---: | :---: |
+
 ## Play it
 
 Open `index.html` in a browser, or serve the folder with any static file server:
@@ -19,7 +51,7 @@ It's also installable: on Chrome/Android, "Add to Home Screen" turns it into a s
 
 ## How it plays
 
-The player moves through six scenes that mirror the real Dowding System, chain of command:
+The player moves through six scenes that mirror the real Dowding System chain of command, from first radar contact to the debrief:
 
 1. **Intro** — title screen, a "Meet the Team" page introducing WAAF Plotter, Air Vice-Marshal Keith Park and Polish fighter pilot Ludwik, and a walkthrough of how the Dowding System's radar → Observer Corps → Filter Room → Sector Stations → squadrons chain fits together.
 2. **Detection** — tap radar blips out at sea as Chain Home picks up an incoming raid, then track it inland as it's handed off to the Royal Observer Corps.
@@ -28,7 +60,7 @@ The player moves through six scenes that mirror the real Dowding System, chain o
 5. **Intercept** — form up the squadron, escort it to the raid, and turn back the enemy formation before it reaches the city.
 6. **Result** — a debrief screen (full success / partial success / fail) with Ludwik's closing line.
 
-Every scene has voiced dialogue (WAAF, Keith Park, Ludwik, and a documentary-style narrator for the Dowding System explainer) plus sound effects, all routed through a central `AudioManager` so missing audio files degrade silently instead of erroring.
+Every scene has voiced dialogue (WAAF, Keith Park, Ludwik, and a documentary-style narrator for the Dowding System explainer) plus sound effects, all routed through a central `AudioManager` so missing audio files degrade silently instead of erroring — the game keeps working while voice lines and art get filled in incrementally.
 
 ## Project structure
 
@@ -53,7 +85,7 @@ EyesOnTheSky/
 │       ├── InterceptScene.js
 │       └── ResultScene.js
 ├── assets/
-│   ├── images/               # Character portraits, plane sprites, map/board backgrounds
+│   ├── images/               # Character portraits, plane sprites, map/board backgrounds, screenshots/
 │   └── audio/                # Voice lines (per character) + music + SFX
 └── dev/
     └── DebugMenuScene.js      # Dev-only scene-jump overlay, not wired into the shipped game
