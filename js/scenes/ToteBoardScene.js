@@ -38,7 +38,6 @@ class ToteBoardScene extends BaseGameScene {
             'Ordered to Readiness': 'Readiness',
             'Left Ground': 'LeftGround'
         };
-        this.currentStateIndex = 0;
         this.targetState = '';
         this.maxRounds = 5;
         this.baseTimerDelay = 2000;
@@ -118,8 +117,7 @@ class ToteBoardScene extends BaseGameScene {
                 label: label,
                 state: state,
                 index: index,
-                graphics: panel,
-                isHighlighted: false
+                graphics: panel
             });
         });
 
@@ -159,7 +157,6 @@ class ToteBoardScene extends BaseGameScene {
 
         this.redrawPanel(panel, { fillColor: 0x2a4a3a, strokeColor: 0xf5e56b, strokeWidth: 4 });
         panel.label.setFill('#f5e56b');
-        panel.isHighlighted = true;
         // "Waiting for your tap" breathing pulse — stopped in clearHighlights()
         // (next round) or handlePanelTap() (this round's own tap).
         panel.pulseTween = this.addIdlePulse(panel.label);

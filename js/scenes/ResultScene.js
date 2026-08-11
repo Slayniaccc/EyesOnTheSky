@@ -271,10 +271,6 @@ class ResultScene extends BaseGameScene {
             AudioManager.playSFX(this, AudioManager.manifest.sfx.buttonClick);
             this.cameras.main.fadeOut(400, 0, 0, 0);
             this.cameras.main.once('camerafadeoutcomplete', () => {
-                this.game.registry.set('score', 0);
-                this.game.registry.set('raids', []);
-                this.game.registry.set('interceptSuccess', false);
-                this.game.registry.set('playerChoices', {});
                 this.game.registry.set('interceptOutcome', null);
                 this.scene.start('IntroScene');
             });

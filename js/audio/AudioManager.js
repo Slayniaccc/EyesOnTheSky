@@ -241,7 +241,11 @@ const AudioManager = {
         const sound = scene.sound.add(entry.key, Object.assign({ volume: entry.volume != null ? entry.volume : 0.85 }, config));
         const finish = () => {
             this._restoreMusic();
-            if (onComplete) onComplete();
+            // The 'complete' event fires on the game-wide SoundManager, not the
+            // scene — if scene has since been stopped (e.g. jumping to another
+            // scene while a line is still playing), onComplete would run against
+            // display objects that no longer exist. Skip it rather than crash.
+            if (onComplete && scene.sys.isActive()) onComplete();
         };
         sound.once('complete', finish);
         this._currentVoice = sound;

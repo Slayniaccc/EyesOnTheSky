@@ -35,8 +35,3 @@ const config = {
 };
 
 const game = new Phaser.Game(config);
-
-game.registry.set('score', 0);
-game.registry.set('raids', []);
-game.registry.set('interceptSuccess', false);
-game.registry.set('playerChoices', {});

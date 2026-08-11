@@ -1,8 +1,6 @@
 class DetectionScene extends BaseGameScene {
     constructor() {
         super('DetectionScene');
-        this.raidMarkers = [];
-        this.radarBlips = [];
     }
 
     preload() {
@@ -95,8 +93,6 @@ class DetectionScene extends BaseGameScene {
                 const inlandDuration = AudioManager.voiceAwareDelay(this, AudioManager.manifest.voice.waaf.radarComplete, 2000);
                 this.spawnRaidMarker(inlandDuration);
             });
-
-            this.radarBlips.push(blip);
         });
 
         this.createTopBar('DETECTION PHASE');
@@ -167,8 +163,6 @@ class DetectionScene extends BaseGameScene {
                 this.spawnROCPosts(endX, endY);
             }
         });
-
-        this.raidMarker = marker;
     }
 
     spawnROCPosts(startX, startY) {
@@ -205,8 +199,6 @@ class DetectionScene extends BaseGameScene {
                     hitAreaCallback: Phaser.Geom.Circle.Contains
                 });
 
-            sprite.isLit = false;
-            sprite.index = index;
             sprite.tapped = false;
             sprite.lit = false;
             sprite.label = this.add.text(pos.x, pos.y + 55, pos.label, {
