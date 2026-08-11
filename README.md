@@ -20,7 +20,9 @@ Built with vanilla HTML, CSS and JavaScript plus [Phaser 3](https://phaser.io/),
 
 ## Play it
 
-Open `index.html` in a browser, or serve the folder with any static file server:
+**[Play online](https://slayniaccc.github.io/EyesOnTheSky/)**, hosted via GitHub Pages.
+
+Or run it locally: open `index.html` in a browser, or serve the folder with any static file server:
 
 ```bash
 python3 -m http.server 8000
