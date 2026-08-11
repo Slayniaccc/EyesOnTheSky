@@ -6,7 +6,6 @@ class DetectionScene extends BaseGameScene {
     }
 
     preload() {
-        // Try to load the detailed map image
         this.load.image('map', 'assets/images/mapbackground.png');
         this.load.image('waaf-mascot-bust', 'assets/images/waaf-mascot-bust.png');
 
@@ -32,18 +31,17 @@ class DetectionScene extends BaseGameScene {
         // every later scene until something calls AudioManager.stopMusic().
         AudioManager.playMusic(this, AudioManager.manifest.music.bunkerAmbience);
 
-        // ---------- MAP BACKGROUND (with fallback) ----------
         this.createMapBackground(width, height);
         this.createGrid(width, height);
 
         // ---------- RADAR BLIPS ----------
         const blipPositions = [
-            [200, 200], [550, 150], [700, 400], [300, 500], [150, 350] // x,y
+            [200, 200], [550, 150], [700, 400], [300, 500], [150, 350]
         ];
         this.totalRadarBlips = blipPositions.length;
         this.radarBlipsTapped = 0;
         blipPositions.forEach(([x, y]) => {
-            const blip = this.add.circle(x, y, 8, 0x00ff00, 0.8); // draws one blip per coordinate pair
+            const blip = this.add.circle(x, y, 8, 0x00ff00, 0.8);
             this.tweens.add({
                 targets: blip,
                 scale: 2.5,
@@ -101,12 +99,8 @@ class DetectionScene extends BaseGameScene {
             this.radarBlips.push(blip);
         });
 
-        // ---------- TOP BAR UI ----------
         this.createTopBar('DETECTION PHASE');
-
-        // ---------- WAAF DIALOGUE BOX ----------
         this.createDialogueBox(width, height);
-        // ---------- WAAF PORTRAIT (bottom-right corner badge, same treatment as Keith Park/Ludwik) ----------
         this.createPortraitBadge(width - 110, height - 210, {
             radius: 60,
             textureKey: 'waaf-mascot-bust',
@@ -140,7 +134,6 @@ class DetectionScene extends BaseGameScene {
         const endX = 540;
         const endY = 300;
 
-        // Create the "W" marker
         const marker = this.add.text(startX, startY, 'W', {
             fontSize: '36px',
             fill: '#ff3333',
@@ -148,7 +141,6 @@ class DetectionScene extends BaseGameScene {
             fontStyle: 'bold'
         }).setOrigin(0.5).setDepth(5);
 
-        // Add a pulsing glow to the marker while it moves
         this.tweens.add({
             targets: marker,
             scaleX: 1.2,
@@ -158,7 +150,6 @@ class DetectionScene extends BaseGameScene {
             repeat: -1
         });
 
-        // Animate it moving inland
         this.tweens.add({
             targets: marker,
             x: endX,
@@ -166,35 +157,27 @@ class DetectionScene extends BaseGameScene {
             duration: inlandDuration,
             ease: 'Sine.easeInOut',
             onComplete: () => {
-                // Stop the pulsing glow
                 this.tweens.killTweensOf(marker);
                 marker.setScale(1);
 
-                // Update dialogue to WAAF line 2
                 this.dialogueText.setText('"Now it\'s over land, Observer Corps\' job. Tap each post as it lights up."');
                 this.playWaafLine(AudioManager.manifest.voice.waaf.raidOverLand);
 
-                // Move to next stage
                 this.detectionStage = 'roc_sequence';
-
-                // Spawn ROC posts
                 this.spawnROCPosts(endX, endY);
             }
         });
 
-        // Store reference
         this.raidMarker = marker;
     }
 
     spawnROCPosts(startX, startY) {
-        // Define 3 ROC post positions along the raid path
         const rocPositions = [
             { x: startX - 60, y: startY + 40, label: 'ROC 1' },
             { x: startX - 140, y: startY + 80, label: 'ROC 2' },
             { x: startX - 220, y: startY + 120, label: 'ROC 3' }
         ];
 
-        // Create unlit ROC posts
         this.rocPostObjects = [];
         rocPositions.forEach((pos, index) => {
             // Draw a tower shape — sized up from the original 24x44 texture
@@ -222,7 +205,6 @@ class DetectionScene extends BaseGameScene {
                     hitAreaCallback: Phaser.Geom.Circle.Contains
                 });
 
-            // Store data
             sprite.isLit = false;
             sprite.index = index;
             sprite.tapped = false;
@@ -238,7 +220,6 @@ class DetectionScene extends BaseGameScene {
 
             this.rocPostObjects.push(sprite);
 
-            // Click handler
             sprite.on('pointerdown', () => {
                 if (!sprite.lit) return;
                 if (sprite.tapped) return;
@@ -271,7 +252,6 @@ class DetectionScene extends BaseGameScene {
                 // "hit" feel added to ToteBoardScene's panel taps.
                 this.tweens.add({ targets: sprite, scale: sprite.scale * 1.15, duration: 100, yoyo: true });
 
-                // Check if all tapped
                 if (this.rocPostsTapped === this.totalRocPosts) {
                     this.clearActionHint();
                     this.dialogueText.setText('"Radar sees them coming across the Channel, but once they\'re over land, that\'s where we lose them. That\'s why we need the Observer Corps."');
@@ -297,7 +277,6 @@ class DetectionScene extends BaseGameScene {
             post.setTint(0x44ff44);
             post.label.setFill('#88ff88');
 
-            // Flash animation
             this.tweens.add({
                 targets: post,
                 alpha: 0.5,
@@ -327,13 +306,11 @@ class DetectionScene extends BaseGameScene {
 
             currentIndex++;
 
-            // Light the next one after 1.5 seconds
             if (currentIndex < this.rocPostObjects.length) {
                 this.time.delayedCall(1500, lightNextPost);
             }
         };
 
-        // Start the sequence after a short delay
         this.setActionHint('👉 TAP each post as it lights up');
         this.time.delayedCall(800, lightNextPost);
     }

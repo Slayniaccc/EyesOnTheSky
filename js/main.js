@@ -1,5 +1,3 @@
-
-// Game Configuration
 const config = {
     type: Phaser.AUTO,
     width: 900,
@@ -36,10 +34,8 @@ const config = {
     }
 };
 
-// Create the game instance
 const game = new Phaser.Game(config);
 
-// Initialize shared game data
 game.registry.set('score', 0);
 game.registry.set('raids', []);
 game.registry.set('interceptSuccess', false);

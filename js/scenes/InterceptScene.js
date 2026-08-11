@@ -78,7 +78,6 @@ class InterceptScene extends BaseGameScene {
         });
 
         console.log('✅ InterceptScene: initialised');
-                    // ---------- AIRFIELD MARKER ----------
         const airfieldX = 200;
         const airfieldY = 400;
 
@@ -89,7 +88,6 @@ class InterceptScene extends BaseGameScene {
         marker.lineStyle(2, 0x88ccff, 0.8);
         marker.strokeRoundedRect(airfieldX - 25, airfieldY - 25, 50, 50, 6);
 
-        // "RAF" label inside the marker
         this.add.text(airfieldX, airfieldY - 4, 'RAF', {
             fontSize: '14px',
             fill: '#88ccff',
@@ -97,18 +95,16 @@ class InterceptScene extends BaseGameScene {
             fontStyle: 'bold'
         }).setOrigin(0.5);
 
-        // Runway symbol (small white lines inside)
         for (let i = -15; i <= 15; i += 10) {
             this.add.rectangle(airfieldX + i, airfieldY + 12, 4, 4, 0x88ccff, 0.5);
         }
 
-        // Label under the marker
         this.add.text(airfieldX, airfieldY + 40, 'AIRFIELD', {
             fontSize: '10px',
             fill: '#88ccff',
             fontFamily: 'Courier New'
         }).setOrigin(0.5);
-                // ---------- LUDWIK'S PLANE MARKER ----------
+
         this.usingPlaneSprite = this.textures.exists('raf-plane');
         // Was 0.05, then 0.07 — still hard for kids to spot as a tappable
         // plane against the busy plotting-table map, not just a stray mark.
@@ -137,7 +133,6 @@ class InterceptScene extends BaseGameScene {
         plane.setDepth(6);
         plane.setInteractive({ useHandCursor: true });
 
-        // "L" label on the plane
         this.add.text(airfieldX, airfieldY - 8, 'L', {
             fontSize: '10px',
             fill: '#ffffff',
@@ -147,7 +142,6 @@ class InterceptScene extends BaseGameScene {
             strokeThickness: 2
         }).setOrigin(0.5).setDepth(7);
 
-        // Store references
         this.ludwikPlane = plane;
         this.ludwikWings = wingLeft ? [wingLeft, wingRight] : [];
         this.airfieldX = airfieldX;
@@ -176,7 +170,6 @@ class InterceptScene extends BaseGameScene {
             ease: 'Sine.easeInOut'
         });
 
-        // Slight rotation for extra liveliness
         this.ludwikIdleRotateTween = this.tweens.add({
             targets: planeGroup,
             angle: 3,
@@ -220,7 +213,6 @@ class InterceptScene extends BaseGameScene {
             marker.index = index;
             this.squadronMarkers.push(marker);
 
-            // ---------- ARRIVAL ANIMATION ----------
             this.time.delayedCall(sq.delay, () => {
                 marker.setVisible(true);
                 marker.arrived = true;
@@ -239,18 +231,15 @@ class InterceptScene extends BaseGameScene {
                     onComplete: () => tapLabel.destroy()
                 });
 
-                // ---------- CLICK HANDLER ----------
                 marker.on('pointerdown', () => {
                     if (marker.collected || !marker.arrived) return;
                     AudioManager.playSFX(this, AudioManager.manifest.sfx.buttonClick);
                     marker.collected = true;
                     this.collectedCount++;
 
-                    // Calculate formation position
                     const offsetX = -80 + (this.collectedCount - 1) * 80;
                     const offsetY = -30 + (this.collectedCount - 1) * 30;
 
-                    // Swoosh trail
                     const swoosh = this.add.graphics();
                     swoosh.lineStyle(3, 0xffd700, 0.6);
                     swoosh.beginPath();
@@ -264,7 +253,6 @@ class InterceptScene extends BaseGameScene {
                         onComplete: () => swoosh.destroy()
                     });
 
-                    // "JOINED!" flash label
                     const joinedLabel = this.add.text(marker.x, marker.y - 40, sq.label + ' JOINED! ✅', {
                         fontSize: '14px',
                         fill: '#44ff44',
@@ -279,7 +267,6 @@ class InterceptScene extends BaseGameScene {
                         onComplete: () => joinedLabel.destroy()
                     });
 
-                    // Move to formation (V shape)
                     this.tweens.add({
                         targets: marker,
                         x: this.airfieldX + offsetX,
@@ -288,7 +275,6 @@ class InterceptScene extends BaseGameScene {
                         ease: 'Back.easeOut'
                     });
 
-                    // Update counter with bounce
                     this.counterText.setText('✈️ ' + this.collectedCount + '/' + this.totalSquadrons + ' joined');
                     this.tweens.add({
                         targets: this.counterText,
@@ -298,7 +284,6 @@ class InterceptScene extends BaseGameScene {
                         yoyo: true
                     });
 
-                    // Check if all collected
                     if (this.collectedCount === this.totalSquadrons) {
                         this.clearActionHint();
                         this.setLudwikLine('"Now we\'re ready. Poles, British, all of us. One formation, one mission."');
@@ -318,17 +303,14 @@ class InterceptScene extends BaseGameScene {
                             this._introFinishedCallback = playFormationLine;
                         }
                     }
-                }); // Closes the click handler
-
-            }); // Closes the delayedCall
-
-        }); // Closes the forEach loop (THIS WAS MISSING!)
+                });
+            });
+        });
     }
-    // ---------- HELPER METHODS ----------
+
     // createMapBackground, createGrid, createDialogueBox, and the Ludwik
     // portrait badge now live in BaseGameScene (this class extends it).
 
-    // ---------- LUDWIK SPEECH BUBBLE ----------
     // A comic-style callout (small portrait + line of dialogue) that follows
     // his plane around the plotting table/airfield, instead of a fixed
     // corner badge — repositioned every frame in update() since the plane
@@ -467,7 +449,6 @@ class InterceptScene extends BaseGameScene {
 
       
       
-       // ---------- FORMATION COMPLETE ----------
     formationComplete() {
        console.log('✅ Formation complete!');
 
@@ -478,7 +459,6 @@ class InterceptScene extends BaseGameScene {
     if (this.ludwikIdleRotateTween) this.ludwikIdleRotateTween.stop();
     this.ludwikPlane.setAngle(0);
 
-    // Lock planes into V formation
     const formationGroup = [this.ludwikPlane, ...this.squadronMarkers];
     const vicPositions = [
         { x: 0, y: 0 },      // Lead (Ludwik)
@@ -519,8 +499,7 @@ class InterceptScene extends BaseGameScene {
             onComplete: () => spark.destroy()
         });
     }
- 
-        // "FORMATION COMPLETE!" overlay
+
     const overlay = this.add.text(
         this.airfieldX,
         this.airfieldY - 100,
@@ -543,7 +522,6 @@ class InterceptScene extends BaseGameScene {
         onComplete: () => overlay.destroy()
     });
 
-    // Trigger Phase 2
     this.time.delayedCall(2800, () => {
         this.switchToAirfieldView();
     });
@@ -683,17 +661,11 @@ startInterceptPhase() {
         fontFamily: 'Courier New'
     }).setOrigin(0.5);
 
-    // ---- STORE FORMATION GROUP ----
-    this.formationGroup = [this.ludwikPlane, ...this.squadronMarkers];
-
-    // ---- MAKE FORMATION DRAGGABLE ----
-  // ---- STORE FORMATION GROUP ----
     this.formationGroup = [this.ludwikPlane, ...this.squadronMarkers];
 
     // Disable individual plane input so only the drag zone responds
     this.formationGroup.forEach(p => p.disableInteractive());
 
-    // ---- MAKE FORMATION DRAGGABLE (single zone for whole formation) ----
     const avgX = this.formationGroup.reduce((sum, p) => sum + p.x, 0) / this.formationGroup.length;
     const avgY = this.formationGroup.reduce((sum, p) => sum + p.y, 0) / this.formationGroup.length;
 
@@ -735,12 +707,9 @@ startInterceptPhase() {
    
 
 
-    // ---------- ZOOM-IN TRANSITION ----------
     switchToAirfieldView() {
-        // ---- FADE OUT PLOTTING TABLE ----
         this.cameras.main.fadeOut(800, 0, 0, 0);
         this.cameras.main.once('camerafadeoutcomplete', () => {
-            // ---- CLEAR PLOTTING TABLE ELEMENTS ----
             // Hide the grid, coastlines, and plotting-table markers
             this.children.list.forEach(child => {
                 if (this.enemyFormation && this.enemyFormation.includes(child)) return;
@@ -750,10 +719,7 @@ startInterceptPhase() {
                 }
             });
 
-            // ---- BUILD AIRFIELD VIEW ----
             this.buildAirfieldView();
-
-            // ---- FADE IN ----
             this.cameras.main.fadeIn(800);
         });
     }
@@ -770,16 +736,13 @@ startInterceptPhase() {
         AudioManager.playMusic(this, AudioManager.manifest.sfx.spitfireEngine);
         this.isAirfieldView = true;
 
-        // ---- BACKGROUND ----
         this.drawAirfieldBackground(width, height);
 
-        // ---- LUDWIK SPEECH BUBBLE ----
         // Only exists from here on — the "plane scene" part of this scene —
         // not during the earlier plotting-table view.
         this.createLudwikSpeechBubble();
         this.setLudwikLine(this.dialogueText.text);
 
-        // ---- AIRFIELD LABEL ----
         this.add.text(width / 2, height - 140, '🛩️ AIRFIELD', {
             fontSize: '20px',
             fill: '#ffffff',
@@ -803,7 +766,7 @@ startInterceptPhase() {
         // just at a higher render depth.
         this.ludwikPlane.x = width / 2 - 100 + 3 * airfieldRowSpacing;
         this.ludwikPlane.y = height - 110;
-        this.ludwikPlane.setInteractive({ draggable: true, useHandCursor: true }); // <-- ADD THIS
+        this.ludwikPlane.setInteractive({ draggable: true, useHandCursor: true });
 
         this.squadronMarkers.forEach((marker, i) => {
             marker.setVisible(true);
@@ -811,12 +774,10 @@ startInterceptPhase() {
             marker.setScale(this.usingPlaneSprite ? this.rafPlaneAirfieldScale : 1.5);
             marker.x = width / 2 - 100 + i * airfieldRowSpacing;
             marker.y = height - 100 + (i + 1) * 16;
-            marker.setInteractive({ draggable: true, useHandCursor: true }); // <-- ADD THIS
+            marker.setInteractive({ draggable: true, useHandCursor: true });
         });
-                // ---- UPDATE FORMATION GROUP ----
         this.formationGroup = [this.ludwikPlane, ...this.squadronMarkers];
 
-              // ---- CONTINUE TO PHASE 2 ----
         this.time.delayedCall(1000, () => {
             this.setLudwikLine('"Now we\'re in the air. Let\'s find those enemy planes."');
             // startInterceptPhase() plays its own line immediately, which would
@@ -932,15 +893,13 @@ startInterceptPhase() {
         const progress = Phaser.Math.Clamp(1 - (distToIntercept / maxDist), 0, 1);
         const progressPercent = Math.round(progress * 100);
         
-        // Update progress bar
         this.progressFill.clear();
         const fillWidth = 4 + progress * 292;
         this.progressFill.fillStyle(progress > 0.7 ? 0x44ff44 : progress > 0.4 ? 0xffaa44 : 0xff4444);
         this.progressFill.fillRoundedRect(width/2 - 147, height - 42, fillWidth, 16, 8);
-        
+
         this.progressLabel.setText('INTERCEPT: ' + progressPercent + '%');
-        
-        // Check if intercept is successful
+
         if (progress > 0.85 && !this.interceptDone) {
             this.interceptSuccessful();
         }
@@ -963,8 +922,7 @@ startInterceptPhase() {
         shield.fillCircle(this.cityX, this.cityY, 50);
         shield.lineStyle(4, 0x44ff44, 0.8);
         shield.strokeCircle(this.cityX, this.cityY, 35);
-        
-        // Shield icon
+
         this.add.text(this.cityX, this.cityY - 5, '🛡️', {
             fontSize: '50px'
         }).setOrigin(0.5);
@@ -987,13 +945,11 @@ startInterceptPhase() {
                 onComplete: () => particle.destroy()
             });
         }
-        
-        // ---- UPDATE DIALOGUE ----
+
         this.setLudwikLine('"Hold the line. They know we\'re here, make them think twice about coming through."');
         const holdLineVoice = AudioManager.manifest.voice.ludwik.holdLine;
         AudioManager.playVoice(this, holdLineVoice);
 
-        // ---- PROCEED TO PHASE 3 ----
         this.phase = 'escort';
         this.time.delayedCall(AudioManager.voiceAwareDelay(this, holdLineVoice, 2500), () => {
             // Bubble's job (narrating the chase, now "hold the line") is done
@@ -1011,7 +967,6 @@ startInterceptPhase() {
     this.turnedBack = 0;
     this.totalEnemies = this.enemyFormation.length;
 
-    // ---- TALLY COUNTER ----
     this.tallyText = this.add.text(20, 50, '🚫 TURNED BACK: 0/' + this.totalEnemies, {
         fontSize: '16px',
         fill: '#ffd700',
@@ -1023,7 +978,6 @@ startInterceptPhase() {
     let turnIndex = 0;
     const turnNext = () => {
         if (turnIndex >= this.enemyFormation.length) {
-            // All enemies turned back!
             AudioManager.playSFX(this, AudioManager.manifest.sfx.formationChime);
             this.setLudwikLine('"All enemy planes turned back! Mission complete!"');
             const allTurnedBackVoice = AudioManager.manifest.voice.ludwik.allTurnedBack;
@@ -1092,7 +1046,6 @@ startInterceptPhase() {
                 this.turnedBack++;
                 this.tallyText.setText('🚫 TURNED BACK: ' + this.turnedBack + '/' + this.totalEnemies);
 
-                // Bounce the tally
                 this.tweens.add({
                     targets: this.tallyText,
                     scaleX: 1.3,
@@ -1116,12 +1069,10 @@ startInterceptPhase() {
         let outcome = '';
 
         if (successRate === 1) {
-            // ---- FULL SUCCESS ----
             outcome = 'success';
             resultMessage = '"Radar saw them. The Corps tracked them. Park sent us. We held the line. That\'s how Britain stayed free."';
             resultColor = '#44ff44';
 
-            // City saved animation (pulsing shield)
             this.tweens.add({
                 targets: this.add.circle(this.cityX, this.cityY, 40, 0x44ff44, 0.3),
                 scale: 2,
@@ -1130,7 +1081,6 @@ startInterceptPhase() {
                 repeat: 2
             });
 
-            // Fly back animation for formation
             this.formationGroup.forEach((plane, i) => {
                 this.tweens.add({
                     targets: plane,
@@ -1143,29 +1093,22 @@ startInterceptPhase() {
             });
 
         } else if (successRate >= 0.5) {
-            // ---- PARTIAL SUCCESS ----
             outcome = 'partial';
             resultMessage = '"We held most of them. The system worked, next time we\'ll be faster."';
             resultColor = '#ffaa44';
 
-            // Small damage marker
             this.add.text(this.cityX, this.cityY - 5, '⚠️', { fontSize: '40px' }).setOrigin(0.5);
 
         } else {
-            // ---- FAIL ----
             outcome = 'fail';
             resultMessage = '"We were too slow today. But the system still tracked them. Tomorrow we\'ll be ready."';
             resultColor = '#ff4444';
 
-            // Shadow marker over city
             this.add.circle(this.cityX, this.cityY, 25, 0x444444, 0.6);
             this.add.text(this.cityX, this.cityY - 5, '?', { fontSize: '30px', fill: '#666' }).setOrigin(0.5);
         }
 
-        // Update dialogue
-       this.setLudwikLine(resultMessage, resultColor);
-
-        // Store outcome for ResultScene
+        this.setLudwikLine(resultMessage, resultColor);
         this.game.registry.set('interceptOutcome', outcome);
 
         // Both engine loops started earlier in this scene (form_up / intercept
@@ -1174,7 +1117,6 @@ startInterceptPhase() {
         AudioManager.stopMusic(AudioManager.manifest.sfx.spitfireEngine);
         AudioManager.stopMusic(AudioManager.manifest.sfx.messerschmittEngine);
 
-        // Transition to ResultScene
         this.time.delayedCall(4000, () => {
             this.scene.start('ResultScene');
         });

@@ -66,7 +66,6 @@ class DecisionScene extends BaseGameScene {
         ];
         this.currentLineIndex = 0;
 
-        // 2. Create the dialogue text (on top of the dialogue box background)
         // Wrap width is measured against the actual dialogue box's right edge
         // (with a 20px margin) rather than a flat width-140 — that flat value
         // let long lines like Keith Park's first one run a few px past the
@@ -86,7 +85,6 @@ class DecisionScene extends BaseGameScene {
         this.lineLocked = true;
         AudioManager.playVoice(this, this.parkVoices[0], {}, () => { this.lineLocked = false; });
 
-        // 3. Create the "Continue" button
         const continueBtn = this.add.text(width / 2, height - 160, '▶  CONTINUE  ◀', {
             fontSize: '24px',
             fill: '#ffffff',
@@ -106,22 +104,18 @@ class DecisionScene extends BaseGameScene {
             8
         );
 
-        // 1. Define raid data
         const raids = [
             { id: 'W1', x: 680, y: 190, correctSector: 0 },
             { id: 'W2', x: 780, y: 300, correctSector: 1 }
         ];
 
-        // 2. Define sector stations (where to drop)
         const sectors = [
             { id: 'Sector A', x: 400, y: 500 },
             { id: 'Sector B', x: 650, y: 450 }
         ];
 
-        // 3. Draw sector stations
         this.sectorObjects = [];
         sectors.forEach((s, index) => {
-            // Draw a blue diamond
             const station = this.add.graphics();
             station.fillStyle(0x3366ff, 0.9);
             station.fillTriangle(s.x - 20, s.y, s.x, s.y - 25, s.x + 20, s.y);
@@ -129,13 +123,11 @@ class DecisionScene extends BaseGameScene {
             station.lineStyle(2, 0x88ccff);
             station.strokeTriangle(s.x - 20, s.y, s.x, s.y - 25, s.x + 20, s.y);
             station.strokeTriangle(s.x - 20, s.y, s.x, s.y + 25, s.x + 20, s.y);
-            // Label
             this.add.text(s.x, s.y + 35, s.id, {
                 fontSize: '12px',
                 fill: '#88ccff',
                 fontFamily: 'Courier New'
             }).setOrigin(0.5);
-            // Store reference
             this.sectorObjects.push({
                 x: s.x,
                 y: s.y,
@@ -147,7 +139,6 @@ class DecisionScene extends BaseGameScene {
             });
         });
 
-        // 4. Create raid markers (draggable)
         // Start hidden – we'll show them after dialogue completes
         this.raidMarkers = [];
         raids.forEach((r, i) => {
@@ -182,13 +173,12 @@ class DecisionScene extends BaseGameScene {
                 hitAreaCallback: Phaser.Geom.Circle.Contains
             });
 
-            // Store data
             marker.raidId = r.id;
             marker.correctSector = r.correctSector;
             marker.isPlaced = false;
             marker.originalX = r.x;
             marker.originalY = r.y;
-            marker.setVisible(false); // Hidden initially
+            marker.setVisible(false);
 
             // "Waiting for your drag" breathing pulse — stopped once placed.
             marker.pulseTween = this.addIdlePulse(marker, { scaleAmount: 1.12 });
@@ -230,7 +220,6 @@ class DecisionScene extends BaseGameScene {
                 if (droppedOn) {
                     AudioManager.playSFX(this, AudioManager.manifest.sfx.buttonClick);
                     this.spawnTapRipple(droppedOn.x, droppedOn.y);
-                    // Snap to sector
                     marker.x = droppedOn.x;
                     marker.y = droppedOn.y;
                     droppedOn.occupied = true;
@@ -238,11 +227,9 @@ class DecisionScene extends BaseGameScene {
                     marker.isPlaced = true;
                     marker.setScale(1);
 
-                    // Check if correct
                     const allPlaced = this.raidMarkers.every(m => m.isPlaced);
 
                     if (allPlaced) {
-                        // Disable further dragging
                         this.raidMarkers.forEach(m => m.disableInteractive());
                         this.clearActionHint();
                         this.dialogueText.setText('"Both raids assigned. Evaluating now..."');
@@ -254,7 +241,6 @@ class DecisionScene extends BaseGameScene {
                         });
                     }
                 } else {
-                    // Return to original position if not dropped on sector
                     if (!marker.isPlaced) {
                         marker.x = marker.originalX;
                         marker.y = marker.originalY;
@@ -267,7 +253,6 @@ class DecisionScene extends BaseGameScene {
             this.raidMarkers.push(marker);
         });
 
-        // 4. Button click handler
         continueBtn.on('pointerdown', () => {
             if (this.lineLocked) return;
             AudioManager.playSFX(this, AudioManager.manifest.sfx.buttonClick);
@@ -283,16 +268,14 @@ class DecisionScene extends BaseGameScene {
                 this.parkBadge.forEach((el) => el.setVisible(false));
                 this.waafBadge.forEach((el) => el.setVisible(true));
                 this.dialogueText.setText('"Two raids inbound. Drag each marker to the correct sector station."');
-                this.dialogueText.setFill('#c8e6c9'); // WAAF green
+                this.dialogueText.setFill('#c8e6c9');
                 continueBtn.setVisible(false);
                 continueBtnBorder.setVisible(false);
 
-                // Show the raid markers
                 this.raidMarkers.forEach(marker => {
                     marker.setVisible(true);
                 });
 
-                // Remind the player they can drag
                 this.dialogueText.setText('"Drag each red raid marker to the correct sector station."');
                 this.setActionHint('👉 DRAG each marker to a sector station');
                 this.playWaafLine(AudioManager.manifest.voice.waaf.decisionInstruction, () => { this.lineLocked = false; });
@@ -349,7 +332,6 @@ class DecisionScene extends BaseGameScene {
     }
 
     evaluateDecision() {
-        // Count correct placements
         let correctCount = 0;
         this.raidMarkers.forEach(marker => {
             const sector = this.sectorObjects.find(s => s.occupiedBy === marker);
@@ -363,7 +345,6 @@ class DecisionScene extends BaseGameScene {
         let outcome = '';
 
         if (correctCount === 2) {
-            // Full success – both raids intercepted
             resultMessage = '✅ Both raids intercepted! Squadrons scrambled!';
             resultColor = '#44ff44';
             outcome = 'success';
@@ -373,18 +354,15 @@ class DecisionScene extends BaseGameScene {
             AudioManager.playSFX(this, AudioManager.manifest.sfx.formationChime);
             this.sectorObjects.forEach(s => this.showScrambled(s.x, s.y));
         } else if (correctCount === 1) {
-            // Partial success – one raid intercepted, one got through
             resultMessage = '⚠️ One raid got through. Partial success.';
             resultColor = '#ffaa44';
             outcome = 'partial';
-            // Show city hit marker for the wrong one
             this.raidMarkers.forEach(marker => {
                 const sector = this.sectorObjects.find(s => s.occupiedBy === marker);
                 if (!sector || marker.correctSector !== sector.index) {
                     this.showCityHit(marker.x || marker.originalX, marker.y || marker.originalY);
                 }
             });
-            // Also show scramble for the correct one
             AudioManager.playSFX(this, AudioManager.manifest.sfx.formationChime);
             this.sectorObjects.forEach(s => {
                 const marker = s.occupiedBy;
@@ -393,24 +371,18 @@ class DecisionScene extends BaseGameScene {
                 }
             });
         } else {
-            // Fail – both raids got through
             resultMessage = '❌ Both raids got through. City hit.';
             resultColor = '#ff4444';
             outcome = 'fail';
-            // Show city hit markers for both
             this.raidMarkers.forEach(marker => {
                 this.showCityHit(marker.x || marker.originalX, marker.y || marker.originalY);
             });
         }
 
-        // Update dialogue with final WAAF line
         this.dialogueText.setText(resultMessage);
         this.dialogueText.setFill(resultColor);
-
-        // Store outcome for ResultScene (optional)
         this.game.registry.set('interceptOutcome', outcome);
 
-        // Transition to InterceptScene after a delay
         this.time.delayedCall(3000, () => {
             this.scene.start('InterceptScene');
         });

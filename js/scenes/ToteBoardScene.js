@@ -4,7 +4,6 @@ class ToteBoardScene extends BaseGameScene {
     }
 
     preload() {
-        // Load the tote board background image
         this.load.image('tote-board', 'assets/images/toteboard.png');
         this.load.image('waaf-mascot-bust', 'assets/images/waaf-mascot-bust.png');
 
@@ -39,10 +38,10 @@ class ToteBoardScene extends BaseGameScene {
             'Ordered to Readiness': 'Readiness',
             'Left Ground': 'LeftGround'
         };
-        this.currentStateIndex = 0;          // Which state is currently highlighted
-        this.targetState = '';               // The state the player must tap
+        this.currentStateIndex = 0;
+        this.targetState = '';
         this.maxRounds = 5;
-        this.baseTimerDelay = 2000;          // Starts at 2 seconds
+        this.baseTimerDelay = 2000;
         this.timerDelay = this.baseTimerDelay;
         this.timerEvent = null;
         this.isWaitingForTap = false;
@@ -91,20 +90,17 @@ class ToteBoardScene extends BaseGameScene {
             const x = startX + index * (panelWidth + spacing);
             const panel = this.add.graphics();
 
-            // Default dark panel
             panel.fillStyle(0x1a2a3a, 0.9);
             panel.fillRoundedRect(x, panelY, panelWidth, panelHeight, 12);
             panel.lineStyle(2, 0x4a6a8a, 0.6);
             panel.strokeRoundedRect(x, panelY, panelWidth, panelHeight, 12);
 
-            // ---- MAKE PANEL TAPPABLE ----
             panel.setInteractive(
                 new Phaser.Geom.Rectangle(x, panelY, panelWidth, panelHeight),
                 Phaser.Geom.Rectangle.Contains
             );
             panel.on('pointerdown', () => this.handlePanelTap(index));
 
-            // State label
             const label = this.add.text(x + panelWidth / 2, panelY + 50, state, {
                 fontSize: '20px',
                 fill: '#b0c4de',
@@ -114,7 +110,6 @@ class ToteBoardScene extends BaseGameScene {
                 wordWrap: { width: panelWidth - 24 }
             }).setOrigin(0.5);
 
-            // Store references
             this.panelObjects.push({
                 x: x,
                 y: panelY,
@@ -156,7 +151,6 @@ class ToteBoardScene extends BaseGameScene {
         panel.graphics.strokeRoundedRect(panel.x, panel.y, panel.width, panel.height, 12);
     }
 
-    // ---------- HIGHLIGHT PANEL ----------
     highlightPanel(index) {
         const panel = this.panelObjects[index];
         if (!panel) return;
@@ -171,7 +165,6 @@ class ToteBoardScene extends BaseGameScene {
         panel.pulseTween = this.addIdlePulse(panel.label);
     }
 
-    // ---------- CLEAR HIGHLIGHTS ----------
     clearHighlights() {
         this.panelObjects.forEach((panel) => {
             this.redrawPanel(panel, { fillColor: 0x1a2a3a, strokeColor: 0x4a6a8a, strokeWidth: 2, strokeAlpha: 0.6 });
@@ -185,16 +178,13 @@ class ToteBoardScene extends BaseGameScene {
         });
     }
 
-    // ---------- START A NEW ROUND ----------
     startRound() {
         if (this.gameOver) return;
 
-        // Choose a random state to highlight
         const randomIndex = Phaser.Math.Between(0, this.states.length - 1);
         this.targetState = this.states[randomIndex];
         this.targetIndex = randomIndex;
 
-        // Highlight the target
         this.clearHighlights();
         this.highlightPanel(randomIndex);
 
@@ -255,7 +245,6 @@ class ToteBoardScene extends BaseGameScene {
         this.startRound();
     }
 
-    // ---------- HANDLE PLAYER TAP ----------
     handlePanelTap(index) {
         if (!this.isWaitingForTap || this.roundComplete || this.gameOver) return;
 
@@ -284,7 +273,6 @@ class ToteBoardScene extends BaseGameScene {
         // change alone.
         this.tweens.add({ targets: panel.label, scale: 1.15, duration: 120, yoyo: true });
         if (index === this.targetIndex) {
-            // ---- CORRECT TAP ----
             this.tweens.add({
                 targets: panel.graphics,
                 alpha: 0.3,
@@ -296,7 +284,6 @@ class ToteBoardScene extends BaseGameScene {
             reactionVoice = AudioManager.manifest.voice.waaf.toteCorrect;
             this.playWaafLine(reactionVoice);
         } else {
-            // ---- WRONG PANEL TAPPED ----
             this.tweens.add({
                 targets: panel.graphics,
                 alpha: 0.3,
@@ -315,14 +302,12 @@ class ToteBoardScene extends BaseGameScene {
         });
     }
 
-    // ---------- HANDLE MISSED TAP ----------
     handleMissedTap() {
         if (this.roundComplete) return;
         if (this.gameOver) return;
 
         this.isWaitingForTap = false;
 
-        // Flash correct panel red
         const panel = this.panelObjects[this.targetIndex];
         if (panel) {
             this.tweens.add({

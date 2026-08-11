@@ -76,7 +76,6 @@ class IntroScene extends Phaser.Scene {
         this.dowdingPage.setVisible(false).setAlpha(0);
     }
 
-    // ---------- BACKGROUND ----------
     createBackground(width, height) {
         const bg = this.add.graphics();
         bg.fillGradientStyle(0x8fd0ea, 0x8fd0ea, 0xfff2cf, 0xfff2cf, 1);
@@ -153,7 +152,6 @@ class IntroScene extends Phaser.Scene {
         }).setOrigin(1, 0);
     }
 
-    // ---------- SHARED BUTTON ----------
     createButton(x, y, label, color, opts = {}) {
         const w = opts.width || 220;
         const h = opts.height || 60;
@@ -253,7 +251,6 @@ class IntroScene extends Phaser.Scene {
         return container;
     }
 
-    // ---------- PAGE TRANSITION ----------
     goToPage(fromPage, toPage, onComplete) {
         AudioManager.playSFX(this, AudioManager.manifest.sfx.buttonClick);
         this.tweens.add({
@@ -274,7 +271,6 @@ class IntroScene extends Phaser.Scene {
         });
     }
 
-    // ---------- PAGE 1: TITLE ----------
     createTitlePage(width, height) {
         const page = this.add.container(0, 0);
 
@@ -316,7 +312,6 @@ class IntroScene extends Phaser.Scene {
         return page;
     }
 
-    // ---------- PAGE 2: MEET THE TEAM ----------
     createCharacterPage(width, height) {
         const page = this.add.container(0, 0);
 
@@ -454,7 +449,6 @@ class IntroScene extends Phaser.Scene {
         return card;
     }
 
-    // ---------- PAGE 3: THE DOWDING SYSTEM ----------
     createDowdingPage(width, height) {
         const page = this.add.container(0, 0);
 
