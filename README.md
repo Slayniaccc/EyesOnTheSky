@@ -84,4 +84,4 @@ EyesOnTheSky/
 
 ## License
 
-MIT, see [LICENSE](LICENSE). Vendored [Phaser 3](https://phaser.io/) (`js/phaser.min.js`) is also MIT-licensed, its own copyright notice is preserved in that file.
+Vendored [Phaser 3](https://phaser.io/) (`js/phaser.min.js`) is MIT-licensed, its own copyright notice is preserved in that file.
