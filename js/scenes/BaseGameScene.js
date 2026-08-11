@@ -193,10 +193,18 @@ class BaseGameScene extends Phaser.Scene {
     // Subtle "waiting for your tap" breathing pulse — a scale tween on any
     // center-origin display object. Returns the Tween so callers can stop it
     // once the element's been interacted with.
+    //
+    // scaleAmount is relative to the target's current scale, not absolute —
+    // every other caller sits at scale 1 so this was invisible, but
+    // InterceptScene's formation planes start at ~0.11 and an absolute
+    // target of 1.06 was blowing them up toward full native sprite size
+    // (nearly 10x) every pulse cycle instead of a gentle breathing effect.
     addIdlePulse(target, { scaleAmount = 1.08, duration = 650 } = {}) {
+        const first = Array.isArray(target) ? target[0] : target;
+        const baseScale = first.scale;
         return this.tweens.add({
             targets: target,
-            scale: scaleAmount,
+            scale: baseScale * scaleAmount,
             duration,
             yoyo: true,
             repeat: -1,

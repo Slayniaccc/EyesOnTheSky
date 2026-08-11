@@ -8,9 +8,6 @@ class InterceptScene extends BaseGameScene {
         this.load.image('ludwik', 'assets/images/ludwik.png');
         this.load.image('raf-plane', 'assets/images/raf-plane.png');
         this.load.image('german-plane', 'assets/images/german_plane.png');
-        // Not on disk yet — drop a real photo/illustration here and it's used automatically,
-        // falling back to the drawn scene in drawAirfieldBackgroundFallback() until then.
-        this.load.image('airfield-bg', 'assets/images/airfield-bg.png');
         console.log('🔵 InterceptScene: preloading assets');
 
         AudioManager.preload(this, [
@@ -113,12 +110,17 @@ class InterceptScene extends BaseGameScene {
         }).setOrigin(0.5);
                 // ---------- LUDWIK'S PLANE MARKER ----------
         this.usingPlaneSprite = this.textures.exists('raf-plane');
-        // Was 0.05 (~40px) — bumped up for better visibility on the plotting
-        // table. This also scales the German planes (see enemyOffsets below),
-        // which intentionally share this constant so both sides stay the same
-        // size on the map.
-        this.rafPlaneMapScale = 0.07;
-        this.rafPlaneAirfieldScale = 0.14;
+        // Was 0.05, then 0.07 — still hard for kids to spot as a tappable
+        // plane against the busy plotting-table map, not just a stray mark.
+        // This also scales the German planes (see enemyOffsets below), which
+        // intentionally share this constant so both sides stay the same size
+        // on the map.
+        this.rafPlaneMapScale = 0.1;
+        // Was 0.14 — at that size and the airfield row's original 50px
+        // spacing, four planes' wingspans overlapped into an unreadable
+        // tangle. Smaller scale + wider spacing (see buildAirfieldView) reads
+        // as a clean row of separate planes instead.
+        this.rafPlaneAirfieldScale = 0.11;
 
         let plane, wingLeft, wingRight;
         if (this.usingPlaneSprite) {
@@ -769,11 +771,7 @@ startInterceptPhase() {
         this.isAirfieldView = true;
 
         // ---- BACKGROUND ----
-        if (this.textures.exists('airfield-bg')) {
-            this.add.image(width / 2, height / 2, 'airfield-bg').setDisplaySize(width, height);
-        } else {
-            this.drawAirfieldBackgroundFallback(width, height);
-        }
+        this.drawAirfieldBackground(width, height);
 
         // ---- LUDWIK SPEECH BUBBLE ----
         // Only exists from here on — the "plane scene" part of this scene —
@@ -794,11 +792,16 @@ startInterceptPhase() {
               this.ludwikPlane.setVisible(true);
         if (!this.usingPlaneSprite) this.ludwikPlane.setFillStyle(0x4488cc);
         this.ludwikPlane.setScale(this.usingPlaneSprite ? this.rafPlaneAirfieldScale : 1.5);
+        // Was 50px — narrower than a single plane's wingspan at
+        // rafPlaneAirfieldScale, so the row overlapped into a solid mass.
+        // 105px leaves a clear gap between wingtips instead of just
+        // touching.
+        const airfieldRowSpacing = 105;
         // Front of the row (rightmost, away from the hangar/taxiway toward
         // the open runway) and a touch higher than the trailing squadrons —
         // he's the flight lead, so he sits ahead of the pack here too, not
         // just at a higher render depth.
-        this.ludwikPlane.x = width / 2 - 100 + 3 * 50;
+        this.ludwikPlane.x = width / 2 - 100 + 3 * airfieldRowSpacing;
         this.ludwikPlane.y = height - 110;
         this.ludwikPlane.setInteractive({ draggable: true, useHandCursor: true }); // <-- ADD THIS
 
@@ -806,8 +809,8 @@ startInterceptPhase() {
             marker.setVisible(true);
             if (!this.usingPlaneSprite) marker.setFillStyle(0x66ccff);
             marker.setScale(this.usingPlaneSprite ? this.rafPlaneAirfieldScale : 1.5);
-            marker.x = width / 2 - 100 + i * 50;
-            marker.y = height - 100 + (i + 1) * 10;
+            marker.x = width / 2 - 100 + i * airfieldRowSpacing;
+            marker.y = height - 100 + (i + 1) * 16;
             marker.setInteractive({ draggable: true, useHandCursor: true }); // <-- ADD THIS
         });
                 // ---- UPDATE FORMATION GROUP ----
@@ -825,8 +828,9 @@ startInterceptPhase() {
         });
     }
 
-    // Drawn airfield scene used until a real assets/images/airfield-bg.png is added.
-    drawAirfieldBackgroundFallback(width, height) {
+    // Coded airfield scene — hangar, control tower, windsock, runway — drawn
+    // with Graphics/shapes rather than a photo/illustration asset.
+    drawAirfieldBackground(width, height) {
         const fieldTop = height - 150;
 
         // ---- SKY (gradient) ----
