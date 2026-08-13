@@ -46,6 +46,45 @@ class BaseGameScene extends Phaser.Scene {
         }
     }
 
+    // Simple progress bar shown while this scene's own preload() runs — on
+    // slower hardware (the target Galaxy A6) a scene's per-scene assets
+    // (particularly voice-line audio not yet cached from an earlier visit)
+    // can take a visible moment to load, and a blank canvas during that gap
+    // reads as a frozen page rather than a loading one. Mirrors IntroScene's
+    // own copy of this (that scene doesn't extend BaseGameScene, so it can't
+    // share this method — see the class comment above).
+    showLoadingProgress() {
+        const { width, height } = this.scale;
+        const barWidth = 300;
+        const barHeight = 22;
+        const x = width / 2 - barWidth / 2;
+        const y = height / 2 - barHeight / 2;
+
+        const box = this.add.graphics();
+        box.fillStyle(0x0d1b2a, 0.9);
+        box.fillRoundedRect(x - 4, y - 4, barWidth + 8, barHeight + 8, 8);
+
+        const bar = this.add.graphics();
+
+        const label = this.add.text(width / 2, y - 24, 'Loading…', {
+            fontSize: '16px',
+            fill: '#3a2210',
+            fontFamily: 'Courier New'
+        }).setOrigin(0.5);
+
+        this.load.on('progress', (value) => {
+            bar.clear();
+            bar.fillStyle(0xe8a317, 1);
+            bar.fillRoundedRect(x, y, barWidth * value, barHeight, 6);
+        });
+
+        this.load.on('complete', () => {
+            box.destroy();
+            bar.destroy();
+            label.destroy();
+        });
+    }
+
     createGrid(width, height) {
         const grid = this.add.graphics();
         grid.lineStyle(0.5, 0x3a2a1a, 0.3);
