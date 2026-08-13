@@ -19,6 +19,8 @@ class InterceptScene extends BaseGameScene {
             AudioManager.manifest.sfx.shotDown,
             AudioManager.manifest.voice.ludwik
         ]);
+
+        this.showLoadingProgress();
     }
 
     create() {

@@ -12,6 +12,8 @@ class ToteBoardScene extends BaseGameScene {
             AudioManager.manifest.sfx.radioStatic,
             AudioManager.manifest.voice.waaf
         ]);
+
+        this.showLoadingProgress();
     }
 
     create() {

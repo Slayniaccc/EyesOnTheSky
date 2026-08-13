@@ -17,6 +17,8 @@ class DetectionScene extends BaseGameScene {
             AudioManager.manifest.voice.waaf.raidOverLand,
             AudioManager.manifest.voice.waaf.rocComplete
         ]);
+
+        this.showLoadingProgress();
     }
 
     create() {

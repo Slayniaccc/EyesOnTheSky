@@ -20,6 +20,8 @@ class ResultScene extends BaseGameScene {
             AudioManager.manifest.voice.ludwik.resultPartial,
             AudioManager.manifest.voice.ludwik.resultFail
         ]);
+
+        this.showLoadingProgress();
     }
 
     create() {

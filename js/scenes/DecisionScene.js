@@ -15,6 +15,8 @@ class DecisionScene extends BaseGameScene {
             AudioManager.manifest.voice.waaf.decisionInstruction,
             AudioManager.manifest.voice.waaf.decisionEvaluating
         ]);
+
+        this.showLoadingProgress();
     }
     create() {
         const { width, height } = this.scale;
