@@ -396,20 +396,14 @@ class IntroScene extends Phaser.Scene {
 
         if (this.textures.exists(char.key)) {
             const img = this.add.image(0, portraitY, char.key);
-            if (char.coverFit) {
-                const fitSize = 156; // matches the badge circle's diameter (radius 78)
-                img.setScale(Math.max(fitSize / img.width, fitSize / img.height));
-            } else {
-                this.fitToBox(img, 145, 145);
-            }
-            // Keep the mask in the same container as the image. A scene-level
-            // mask uses world coordinates and can hide container children on
-            // older Phaser/WebView combinations when the intro page appears.
-            const maskShape = this.add.graphics();
-            maskShape.fillCircle(0, portraitY, 78);
-            card.add(maskShape);
-            img.setMask(maskShape.createGeometryMask());
-            maskShape.setVisible(false);
+            const cropSide = Math.min(img.width, img.height);
+            img.setCrop(
+                (img.width - cropSide) / 2,
+                (img.height - cropSide) / 2,
+                cropSide,
+                cropSide
+            );
+            img.setScale(156 / cropSide);
             card.add(img);
         } else {
             const circle = this.add.graphics();

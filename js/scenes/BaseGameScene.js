@@ -155,34 +155,23 @@ class BaseGameScene extends Phaser.Scene {
         if (textureKey && this.textures.exists(textureKey)) {
             const portrait = this.add.image(x, y, textureKey).setDepth(10);
             if (sizing.fitToCircle) {
-                // "Cover" the circle's bounding box (like CSS object-fit:cover)
-                // rather than fitting inside it — otherwise a source image
-                // whose content doesn't fill its own frame symmetrically (most
-                // of these portraits) leaves visible gaps on one axis. The
-                // geometry mask below then crops the excess to a clean circle
-                // instead of showing the image's square corners past the ring.
+                // Crop the source to a square before sizing it. This avoids
+                // geometry masks, which can clip container/world coordinates
+                // differently across Phaser renderers and WebViews.
                 const fitSize = radius * 2;
-                portrait.setScale(Math.max(fitSize / portrait.width, fitSize / portrait.height));
+                const cropSide = Math.min(portrait.width, portrait.height);
+                portrait.setCrop(
+                    (portrait.width - cropSide) / 2,
+                    (portrait.height - cropSide) / 2,
+                    cropSide,
+                    cropSide
+                );
+                portrait.setScale(fitSize / cropSide);
             } else if (sizing.matchWidth) {
                 portrait.setScale(sizing.matchWidth / portrait.width);
             } else {
                 portrait.setScale(sizing.scale != null ? sizing.scale : 0.15);
             }
-            // Clip to the badge circle exactly — without this, any portrait
-            // bigger than the circle (which "cover" sizing guarantees, and
-            // fixed/matchWidth scales often are too) just overlaps the ring
-            // as a visible rectangle instead of sitting inside it.
-            //
-            // Masking against circleBg itself (rather than a dedicated shape)
-            // used to let the portrait peek ~1.5px past the true radius —
-            // circleBg's stroke is centred ON the radius, so its outer edge
-            // (and therefore the masked-in region) actually sits at
-            // radius + half the line width, not at radius. A separate,
-            // fill-only, exactly-radius shape closes that gap.
-            const maskShape = this.add.graphics();
-            maskShape.fillCircle(x, y, radius);
-            portrait.setMask(maskShape.createGeometryMask());
-            maskShape.setVisible(false);
             elements.push(portrait);
         } else {
             elements.push(this.add.text(x, y - 5, fallbackText, {
