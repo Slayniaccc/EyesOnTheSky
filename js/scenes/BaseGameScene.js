@@ -179,9 +179,10 @@ class BaseGameScene extends Phaser.Scene {
             // (and therefore the masked-in region) actually sits at
             // radius + half the line width, not at radius. A separate,
             // fill-only, exactly-radius shape closes that gap.
-            const maskShape = this.add.graphics().setVisible(false);
+            const maskShape = this.add.graphics();
             maskShape.fillCircle(x, y, radius);
             portrait.setMask(maskShape.createGeometryMask());
+            maskShape.setVisible(false);
             elements.push(portrait);
         } else {
             elements.push(this.add.text(x, y - 5, fallbackText, {
